@@ -1,16 +1,14 @@
+import { relations } from "drizzle-orm";
 import {
   integer,
-  varchar,
-  timestamp,
-  boolean,
   numeric,
   primaryKey,
-  foreignKey,
+  timestamp,
+  varchar,
 } from "drizzle-orm/pg-core";
-import { createTable } from "../schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { type z } from "zod";
-import { relations } from "drizzle-orm";
+import { createTable } from "../schema";
 
 const currencyNumeric = { precision: 10, scale: 2 };
 
@@ -34,10 +32,55 @@ export const contacts = createTable("contact", {
   phone: varchar("phone", { length: 20 }),
 });
 
+export const contactRelations = relations(contacts, ({ many }) => ({
+  shoppingCartItems: many(shoppingCartItems),
+}));
+
 export const Contact = createSelectSchema(contacts);
 export type Contact = z.infer<typeof Contact>;
 export const InsertContact = createInsertSchema(contacts);
 export type InsertContact = z.infer<typeof InsertContact>;
+
+export const shoppingCartItems = createTable("shopping_cart_item", {
+  shoppingCartItemId: integer("shopping_cart_item_id").notNull().primaryKey(),
+  shoppingCartId: integer("shopping_cart_id").notNull(),
+  productId: integer("product_id").notNull(),
+  description: varchar("description", { length: 1000 }).default(""),
+  time_submitted: timestamp("time_submitted", {
+    mode: "date",
+  }),
+  quantity: integer("quantity").notNull(),
+  salePrice: numeric("sale_price", currencyNumeric).default("0.0"),
+  addonCount: integer("addon_count"),
+  smallImageUrl: varchar("small_image_url", { length: 500 }),
+  imageUrl: varchar("image_url", { length: 500 }),
+  discount: varchar("discount", { length: 10 }),
+  savings: numeric("savings", currencyNumeric),
+  inventoryQuantity: integer("inventory_quantity"),
+  shoppingCartContactId: integer("shopping_cart_contact_id").references(
+    () => contacts.id,
+    {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    },
+  ),
+});
+
+export const shoppingCartItemRelations = relations(
+  shoppingCartItems,
+  ({ many, one }) => ({
+    productAddons: many(productAddons),
+    shoppingCartContact: one(contacts, {
+      fields: [shoppingCartItems.shoppingCartContactId],
+      references: [contacts.id],
+    }),
+  }),
+);
+
+export const ShoppingCartItem = createSelectSchema(shoppingCartItems);
+export type ShoppingCartItem = z.infer<typeof ShoppingCartItem>;
+export const InsertShoppingCartItem = createInsertSchema(shoppingCartItems);
+export type InsertShoppingCartItem = z.infer<typeof InsertShoppingCartItem>;
 
 export const productAddons = createTable(
   "product_addon",
@@ -66,30 +109,14 @@ export const productAddons = createTable(
   }),
 );
 
-export const addonRelations = relations(productAddons, ({ one }) => ({
+export const productAddonRelations = relations(productAddons, ({ one }) => ({
   shoppingCartItem: one(shoppingCartItems, {
     fields: [productAddons.shoppingCartItemId],
     references: [shoppingCartItems.shoppingCartItemId],
   }),
 }));
 
-export const shoppingCartItems = createTable("shopping_cart_item", {
-  shoppingCartItemId: integer("shopping_cart_item_id").primaryKey(),
-  shoppingCartId: integer("shopping_cart_id"),
-  productId: integer("product_id"),
-  description: varchar("description", { length: 1000 }),
-  time_submitted: timestamp("time_submitted", {
-    mode: "date",
-  }),
-  quantity: integer("quantity"),
-  salePrice: numeric("sale_price", { precision: 10, scale: 2 }),
-  productAddons: integer("product_addons"), // TODO: addon type
-  addonCount: integer("addon_count"),
-  smallImageUrl: varchar("small_image_url", { length: 500 }),
-  imageUrl: varchar("image_url", { length: 500 }),
-  shoppingCartContactId: integer("shopping_cart_contact_id"),
-});
-
-export const cartItemRelations = relations(shoppingCartItems, ({ many }) => ({
-  productAddons: many(productAddons),
-}));
+export const ProductAddon = createSelectSchema(productAddons);
+export type ProductAddon = z.infer<typeof ProductAddon>;
+export const InsertProductAddon = createInsertSchema(productAddons);
+export type InsertProductAddon = z.infer<typeof InsertProductAddon>;
