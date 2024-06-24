@@ -10,8 +10,8 @@ export const shoppingCartRouter = createTRPCRouter({
         }),
       )
       .query(async ({ ctx, input: { contactId } }) => {
-        const items = await ctx.db.query.shoppingCartItems.findMany({
-          where: (items, { eq }) => eq(items.shoppingCartContactId, contactId),
+        const items = await ctx.db.query.cartItems.findMany({
+          where: (items, { eq }) => eq(items.contactId, contactId),
           with: {
             productAddons: true,
           },
