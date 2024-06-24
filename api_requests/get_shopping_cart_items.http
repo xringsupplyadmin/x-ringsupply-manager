@@ -1,2 +1,0 @@
-GET https://x-ringsupply.coreware.com/retail-store-controller?ajax=true&url_action=get_shopping_cart_items&contact_id={{contact_id}}
-	Connection-Key: {{CF_API_KEY}}
