@@ -13,43 +13,50 @@ import { createTable } from "../schema";
 
 const currencyNumeric = { precision: 10, scale: 2 };
 
-export const contacts = createTable(
-  "contact",
+/** PRODUCT ADDONS */
+
+export const productAddons = createTable(
+  "product_addon",
   {
-    id: integer("id"),
-    firstName: varchar("first_name", { length: 255 }),
-    lastName: varchar("last_name", { length: 255 }),
-    businessName: varchar("business_name", { length: 255 }),
-    company: varchar("company", { length: 255 }),
-    salutation: varchar("salutation", { length: 10 }),
-    address1: varchar("address1", { length: 255 }),
-    address2: varchar("address2", { length: 255 }),
-    city: varchar("city", { length: 50 }),
-    state: varchar("state", { length: 50 }),
-    postalCode: varchar("postal_code", { length: 20 }),
-    country: varchar("country", { length: 50 }),
-    primaryEmailAddress: varchar("primary_email_address", { length: 100 }),
-    notes: varchar("notes", { length: 500 }),
-    alternateEmail: varchar("alternate_email", { length: 255 }),
-    phoneNumbers: varchar("phone_numbers", { length: 100 }),
-    phone: varchar("phone", { length: 20 }),
+    productAddonId: integer("product_addon_id").notNull(),
+    productId: integer("product_id").notNull(),
+    description: varchar("description", { length: 100 }).notNull(),
+    groupDescription: varchar("group_description", { length: 100 }),
+    manufacturerSku: varchar("manufacturer_sku", { length: 50 }),
+    inventoryProductId: integer("inventory_product_id"),
+    salePrice: numeric("sale_price", currencyNumeric),
+    cartItemAddonId: integer("cart_item_addon_id"),
+    cartItemId: integer("scart_item_id"),
+    quantity: integer("quantity"),
   },
-  (contact) => ({
+  (addon) => ({
     pk: primaryKey({
-      name: "abandoned_cart_contact_pk",
-      columns: [contact.id],
+      name: "abandoned_cart_product_addon_pk",
+      columns: [addon.cartItemId, addon.productAddonId],
     }),
+    shoppingCartItemFk: foreignKey({
+      name: "abandoned_cart_product_addon_cart_item_fk",
+      columns: [addon.cartItemId],
+      foreignColumns: [cartItems.cartItemId],
+    })
+      .onUpdate("cascade")
+      .onDelete("cascade"),
   }),
 );
 
-export const contactRelations = relations(contacts, ({ many }) => ({
-  cartItems: many(cartItems),
+export const productAddonRelations = relations(productAddons, ({ one }) => ({
+  shoppingCartItem: one(cartItems, {
+    fields: [productAddons.cartItemId],
+    references: [cartItems.cartItemId],
+  }),
 }));
 
-export const Contact = createSelectSchema(contacts);
-export type Contact = z.infer<typeof Contact>;
-export const InsertContact = createInsertSchema(contacts);
-export type InsertContact = z.infer<typeof InsertContact>;
+export const ProductAddon = createSelectSchema(productAddons);
+export type ProductAddon = z.infer<typeof ProductAddon>;
+export const InsertProductAddon = createInsertSchema(productAddons);
+export type InsertProductAddon = z.infer<typeof InsertProductAddon>;
+
+/** CART ITEMS */
 
 export const cartItems = createTable(
   "cart_item",
@@ -102,43 +109,42 @@ export type ShoppingCartItem = z.infer<typeof ShoppingCartItem>;
 export const InsertShoppingCartItem = createInsertSchema(cartItems);
 export type InsertShoppingCartItem = z.infer<typeof InsertShoppingCartItem>;
 
-export const productAddons = createTable(
-  "product_addon",
+/** CONTACTS */
+
+export const contacts = createTable(
+  "contact",
   {
-    productAddonId: integer("product_addon_id").notNull(),
-    productId: integer("product_id").notNull(),
-    description: varchar("description", { length: 100 }).notNull(),
-    groupDescription: varchar("group_description", { length: 100 }),
-    manufacturerSku: varchar("manufacturer_sku", { length: 50 }),
-    inventoryProductId: integer("inventory_product_id"),
-    salePrice: numeric("sale_price", currencyNumeric),
-    cartItemAddonId: integer("cart_item_addon_id"),
-    cartItemId: integer("scart_item_id"),
-    quantity: integer("quantity"),
+    id: integer("id"),
+    firstName: varchar("first_name", { length: 255 }),
+    lastName: varchar("last_name", { length: 255 }),
+    businessName: varchar("business_name", { length: 255 }),
+    company: varchar("company", { length: 255 }),
+    salutation: varchar("salutation", { length: 50 }),
+    address1: varchar("address1", { length: 255 }),
+    address2: varchar("address2", { length: 255 }),
+    city: varchar("city", { length: 100 }),
+    state: varchar("state", { length: 50 }),
+    postalCode: varchar("postal_code", { length: 50 }),
+    country: varchar("country", { length: 50 }),
+    primaryEmailAddress: varchar("primary_email_address", { length: 255 }),
+    notes: varchar("notes", { length: 500 }),
+    alternateEmail: varchar("alternate_email", { length: 255 }),
+    phoneNumbers: varchar("phone_numbers", { length: 255 }),
+    phone: varchar("phone", { length: 50 }),
   },
-  (addon) => ({
+  (contact) => ({
     pk: primaryKey({
-      name: "abandoned_cart_product_addon_pk",
-      columns: [addon.cartItemId, addon.productAddonId],
+      name: "abandoned_cart_contact_pk",
+      columns: [contact.id],
     }),
-    shoppingCartItemFk: foreignKey({
-      name: "abandoned_cart_product_addon_cart_item_fk",
-      columns: [addon.cartItemId],
-      foreignColumns: [cartItems.cartItemId],
-    })
-      .onUpdate("cascade")
-      .onDelete("cascade"),
   }),
 );
 
-export const productAddonRelations = relations(productAddons, ({ one }) => ({
-  shoppingCartItem: one(cartItems, {
-    fields: [productAddons.cartItemId],
-    references: [cartItems.cartItemId],
-  }),
+export const contactRelations = relations(contacts, ({ many }) => ({
+  cartItems: many(cartItems),
 }));
 
-export const ProductAddon = createSelectSchema(productAddons);
-export type ProductAddon = z.infer<typeof ProductAddon>;
-export const InsertProductAddon = createInsertSchema(productAddons);
-export type InsertProductAddon = z.infer<typeof InsertProductAddon>;
+export const Contact = createSelectSchema(contacts);
+export type Contact = z.infer<typeof Contact>;
+export const InsertContact = createInsertSchema(contacts);
+export type InsertContact = z.infer<typeof InsertContact>;

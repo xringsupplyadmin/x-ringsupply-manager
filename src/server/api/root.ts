@@ -1,5 +1,6 @@
 import { contactRouter } from "~/server/api/routers/contact";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
+import { cfClientRouter } from "./routers/cf_client";
 
 /**
  * This is the primary router for your server.
@@ -8,6 +9,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   contact: contactRouter,
+  cf_client: cfClientRouter,
 });
 
 // export type definition of API

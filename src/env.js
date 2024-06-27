@@ -25,6 +25,8 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
     CF_API_KEY: z.string(),
+    CF_USERNAME: z.string(),
+    CF_PASSWORD: z.string(),
     COREILLA_WEBHOOK_URL: z.string(),
   },
 
@@ -50,6 +52,8 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     CF_API_KEY: process.env.CF_API_KEY,
     NEXT_PUBLIC_CF_HOST: process.env.NEXT_PUBLIC_CF_HOST,
+    CF_USERNAME: process.env.CF_USERNAME,
+    CF_PASSWORD: process.env.CF_PASSWORD,
     COREILLA_WEBHOOK_URL: process.env.COREILLA_WEBHOOK_URL,
   },
   /**
