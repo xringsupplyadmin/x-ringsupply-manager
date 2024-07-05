@@ -1,24 +1,19 @@
 import { parse } from "csv-parse/sync";
 import { urlJoinP } from "url-join-ts";
 import { env } from "~/env";
-import { type Contact } from "~/server/db/schema/coreforce";
 import { authorize } from "./cf_authorization";
-import {
-  type ApiResponse,
-  getConnectionKeyHeader,
-  fetchSession,
-} from "../common";
+import { type ApiResponse, fetchSession } from "../common";
+import { type Contact } from "~/server/db/types";
 
-export async function getContacts(): Promise<
-  ApiResponse<{ contacts: Contact[] }>
-> {
-  const authorization = await authorize();
+export async function getContacts(
+  checkAuth = true,
+): Promise<ApiResponse<{ contacts: Contact[] }>> {
+  if (checkAuth) {
+    const authorization = await authorize();
 
-  if (!authorization.success) {
-    return {
-      success: false,
-      error: authorization.error,
-    };
+    if (!authorization.success) {
+      return authorization;
+    }
   }
 
   const response = await fetchSession(
@@ -29,8 +24,6 @@ export async function getContacts(): Promise<
     {
       method: "GET",
       cache: "no-cache",
-      headers: getConnectionKeyHeader(),
-      credentials: "include",
     },
   );
 
@@ -50,8 +43,8 @@ export async function getContacts(): Promise<
       skip_empty_lines: true,
 
       on_record: (record: Record<string, string>) => {
-        return {
-          id: parseInt(record.ID!),
+        const contact: Contact = {
+          contactId: parseInt(record.ID!),
           firstName: record.First,
           lastName: record.Last,
           businessName: record.BusinessName,
@@ -68,7 +61,8 @@ export async function getContacts(): Promise<
           alternateEmail: record.AlternateEmail,
           phoneNumbers: record.PhoneNumbers,
           phone: record.Phone,
-        } as Contact;
+        };
+        return contact;
       },
     }) as Contact[];
 
@@ -82,18 +76,4 @@ export async function getContacts(): Promise<
       error: "Invalid response from Coreforce (Invalid Format)",
     };
   }
-}
-
-export async function getCartItems(contactId: number) {
-  const response = await fetchSession(
-    urlJoinP(env.NEXT_PUBLIC_CF_HOST, ["retail-store-controller"], {
-      method: "get_cart_items",
-      contact_id: contactId,
-    }),
-    {
-      method: "GET",
-      cache: "no-cache",
-      headers: getConnectionKeyHeader(),
-    },
-  );
 }

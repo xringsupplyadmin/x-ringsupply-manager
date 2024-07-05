@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { Contact } from "~/server/db/schema/coreforce";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { authorize, submitToken } from "../functions/cf_authorization";
-import { getCartItems, getContacts } from "../functions/cf_fetch";
+import { getContacts } from "../functions/fetch_contacts";
 import { ApiResponse, StatusOnlyApiResponse } from "../common";
+import { Contact } from "~/server/db/types";
 
 export const cfClientRouter = createTRPCRouter({
   authorization: {
@@ -43,7 +43,7 @@ export const cfClientRouter = createTRPCRouter({
         }),
       )
       .query(async ({ input: { contactId } }) => {
-        return await getCartItems(contactId);
+        return; //await getCartItems(contactId);
       }),
   },
 });

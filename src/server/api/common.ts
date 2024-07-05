@@ -1,5 +1,3 @@
-import { type SQL, sql } from "drizzle-orm";
-import { type PgColumn, type PgTableWithColumns } from "drizzle-orm/pg-core";
 import makeFetchCookie from "fetch-cookie";
 import { z, type ZodRawShape } from "zod";
 import { env } from "~/env";
@@ -39,29 +37,6 @@ export type ApiResponse<Data extends Record<string, unknown>> =
 
 export type StatusOnlyApiResponse = ApiResponse<Record<never, never>>;
 
-export function getConflictInsertSet<DataType extends Record<string, unknown>>(
-  table: PgTableWithColumns<{
-    name: string;
-    schema: string | undefined;
-    columns: Record<keyof DataType, PgColumn>;
-    dialect: "pg";
-  }>,
-  record: DataType,
-  keys?: Partial<Record<keyof DataType | "*", boolean>>,
-): Record<string, SQL> {
-  let objKeys = Object.keys(record);
-
-  if (keys) {
-    objKeys = objKeys.filter((key) =>
-      key in keys ? keys[key] : "*" in keys && keys["*"],
-    );
-  }
-
-  return Object.fromEntries(
-    objKeys.map((key) => [key, sql.raw(`excluded.${table[key]?.name ?? key}`)]),
-  );
-}
-
 export type TimingsRef = {
   origin: number;
   current: number;
@@ -76,6 +51,10 @@ export function newTiming(precision = 2): TimingsRef {
     current: current,
     precision: precision,
   };
+}
+
+export function timingSetMark(ref: TimingsRef): undefined {
+  ref.current = Date.now();
 }
 
 export function timing(
@@ -97,4 +76,15 @@ export function timing(
   } else {
     return elapsed.toFixed(ref.precision);
   }
+}
+
+export function timingN(ref: TimingsRef, timeSinceOrigin = false): number {
+  const current = Date.now();
+
+  const elapsed =
+    (current - (timeSinceOrigin ? ref.origin : ref.current)) / 1000;
+
+  ref.current = Date.now();
+
+  return elapsed;
 }
