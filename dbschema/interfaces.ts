@@ -78,18 +78,18 @@ export namespace coreforce {
     "model"?: string | null;
     "cartId": number;
     "cartItemId": number;
-    "description"?: string | null;
-    "imageUrl"?: string | null;
     "manufacturerSku"?: string | null;
+    "description": string;
+    "imageUrl": string;
     "quantity": number;
-    "smallImageUrl"?: string | null;
     "upcCode"?: string | null;
     "timeSubmitted": Date;
-    "listPrice"?: number | null;
     "salePrice": number;
     "unitPrice": number;
-    "addons": ProductAddon[];
+    "listPrice": number;
+    "smallImageUrl": string;
     "contact": Contact;
+    "addons": ProductAddon[];
   }
   export interface Contact extends std.$Object {
     "address1"?: string | null;
@@ -121,6 +121,7 @@ export namespace coreforce {
     "quantity": number;
     "sortOrder": number;
     "salePrice": number;
+    "cartItem": CartItem;
   }
 }
 export namespace $default {

@@ -24,10 +24,12 @@ module coreforce {
     index on (.contactId);
   }
   type CartItem {
-    required cartItemId: int64;
+    required cartItemId: int64 {
+      constraint exclusive;
+    }
     required cartId: int64;
     required productId: int64;
-    description: str {
+    required description: str {
       default := "";
     }
     required timeSubmitted: datetime;
@@ -41,13 +43,14 @@ module coreforce {
     upcCode: str;
     manufacturerSku: str;
     model: str;
-    listPrice: float64 {
+    required listPrice: float64 {
       default := 0.0;
     }
-    smallImageUrl: str;
-    imageUrl: str;
-    multi addons: ProductAddon;
+    required smallImageUrl: str;
+    required imageUrl: str;
     required contact: Contact;
+
+    multi addons := .<cartItem[is ProductAddon];
   }
   type ProductAddon {
     required productAddonId: int64;
@@ -60,6 +63,9 @@ module coreforce {
     required cartItemId: int64;
     required quantity: int64;
 
+    required cartItem: CartItem {
+      on target delete delete source;
+    }
     constraint exclusive on ((.cartItemId, .productAddonId))
   }
 }

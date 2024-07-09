@@ -27,6 +27,8 @@ export const env = createEnv({
     CF_USERNAME: z.string(),
     CF_PASSWORD: z.string(),
     COREILLA_WEBHOOK_URL: z.string(),
+    FREQUENCY: z.string().transform((n) => parseInt(n)),
+    EMAIL_SEQUENCE_LENGTH: z.string().transform((n) => parseInt(n)),
   },
 
   /**
@@ -53,6 +55,8 @@ export const env = createEnv({
     CF_USERNAME: process.env.CF_USERNAME,
     CF_PASSWORD: process.env.CF_PASSWORD,
     COREILLA_WEBHOOK_URL: process.env.COREILLA_WEBHOOK_URL,
+    FREQUENCY: process.env.FREQUENCY,
+    EMAIL_SEQUENCE_LENGTH: process.env.EMAIL_SEQUENCE_LENGTH,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -24,7 +24,7 @@ const safeUrl = (fallback: string) =>
     } else {
       return fallback;
     }
-  }, z.string().url().optional());
+  }, z.string().url());
 
 /**
  * The response from the CF API for the cart items

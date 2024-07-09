@@ -7,22 +7,22 @@ export type InsertProductAddon = Omit<coreforce.ProductAddon, "id">;
 
 export const Contact = z.object({
   contactId: z.number(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  businessName: z.string().optional(),
-  company: z.string().optional(),
-  salutation: z.string().optional(),
-  address1: z.string().optional(),
-  address2: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  postalCode: z.string().optional(),
-  country: z.string().optional(),
-  primaryEmailAddress: z.string().optional(),
-  notes: z.string().optional(),
-  alternateEmail: z.string().optional(),
-  phoneNumbers: z.string().optional(),
-  phone: z.string().optional(),
+  firstName: z.string().nullish(),
+  lastName: z.string().nullish(),
+  businessName: z.string().nullish(),
+  company: z.string().nullish(),
+  salutation: z.string().nullish(),
+  address1: z.string().nullish(),
+  address2: z.string().nullish(),
+  city: z.string().nullish(),
+  state: z.string().nullish(),
+  postalCode: z.string().nullish(),
+  country: z.string().nullish(),
+  primaryEmailAddress: z.string().nullish(),
+  notes: z.string().nullish(),
+  alternateEmail: z.string().nullish(),
+  phoneNumbers: z.string().nullish(),
+  phone: z.string().nullish(),
 });
 export type Contact = z.infer<typeof Contact>;
 
@@ -30,17 +30,17 @@ export const CartItem = z.object({
   cartItemId: z.number(),
   cartId: z.number(),
   productId: z.number(),
-  description: z.string().optional(),
-  time_submitted: z.date(),
+  description: z.string(),
+  timeSubmitted: z.date(),
   quantity: z.number(),
   salePrice: z.number().default(0),
   unitPrice: z.number().default(0),
-  upcCode: z.string().optional(),
-  manufacturerSku: z.string().optional(),
-  model: z.string().optional(),
+  upcCode: z.string().nullish(),
+  manufacturerSku: z.string().nullish(),
+  model: z.string().nullish(),
   listPrice: z.number().default(0),
-  smallImageUrl: z.string().optional(),
-  imageUrl: z.string().optional(),
+  smallImageUrl: z.string(),
+  imageUrl: z.string(),
 });
 export type CartItem = z.infer<typeof CartItem>;
 
@@ -48,7 +48,7 @@ export const ProductAddon = z.object({
   productAddonId: z.number(),
   productId: z.number(),
   description: z.string(),
-  groupDescription: z.string().optional(),
+  groupDescription: z.string().nullish(),
   salePrice: z.number(),
   sortOrder: z.number(),
   cartItemAddonId: z.number(),
@@ -56,3 +56,13 @@ export const ProductAddon = z.object({
   quantity: z.number(),
 });
 export type ProductAddon = z.infer<typeof ProductAddon>;
+
+export const CartItemWithAddons = CartItem.extend({
+  addons: ProductAddon.array(),
+});
+export type CartItemWithAddons = z.infer<typeof CartItemWithAddons>;
+
+export const Cart = Contact.extend({
+  items: CartItemWithAddons.array(),
+});
+export type Cart = z.infer<typeof Cart>;

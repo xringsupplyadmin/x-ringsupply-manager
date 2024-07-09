@@ -1,7 +1,33 @@
-import { getContactsWithCarts } from "~/server/db/query/coreforce";
+import { env } from "~/env";
+import { getAbandonedCarts } from "~/server/db/query/coreforce";
 
 export default async function CartItemsPage() {
-  const contacts = await getContactsWithCarts(3);
+  const data = await getAbandonedCarts();
 
-  return <p>Found {contacts.length} users with items in their cart</p>;
+  return (
+    <>
+      {Object.entries(data).map(([sequence, contacts]) => (
+        <div key={`sequence-${sequence}`} className="pb-4">
+          <p>
+            {(parseInt(sequence) - 1) * env.FREQUENCY}-
+            {parseInt(sequence) * env.FREQUENCY} days: {contacts.length}
+          </p>
+          <ul>
+            {contacts.map(async (contact) => (
+              <li key={contact.contactId}>
+                {contact.firstName} {contact.lastName}
+                <ul>
+                  {contact.items.map((item) => (
+                    <li key={item.cartItemId}>
+                      {item.timeSubmitted.toLocaleString()}
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </>
+  );
 }

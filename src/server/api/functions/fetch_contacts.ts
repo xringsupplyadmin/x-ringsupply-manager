@@ -5,6 +5,19 @@ import { authorize } from "./cf_authorization";
 import { type ApiResponse, fetchSession } from "../common";
 import { type Contact } from "~/server/db/types";
 
+/**
+ * Replace the empty string '' with undefined
+ * @param str The string
+ * @returns The string if it is not empty, otherwise undefined
+ */
+function undefineEmpty(str: string | undefined) {
+  if (!str || str.trim() === "") {
+    return undefined;
+  } else {
+    return str;
+  }
+}
+
 export async function getContacts(
   checkAuth = true,
 ): Promise<ApiResponse<{ contacts: Contact[] }>> {
@@ -45,22 +58,22 @@ export async function getContacts(
       on_record: (record: Record<string, string>) => {
         const contact: Contact = {
           contactId: parseInt(record.ID!),
-          firstName: record.First,
-          lastName: record.Last,
-          businessName: record.BusinessName,
-          company: record.Company,
-          salutation: record.Salutation,
-          address1: record.Address1,
-          address2: record.Address2,
-          city: record.City,
-          state: record.State,
-          postalCode: record.PostalCode,
-          country: record.Country,
-          primaryEmailAddress: record.PrimaryEmailAddress,
-          notes: record.Notes,
-          alternateEmail: record.AlternateEmail,
-          phoneNumbers: record.PhoneNumbers,
-          phone: record.Phone,
+          firstName: undefineEmpty(record.First),
+          lastName: undefineEmpty(record.Last),
+          businessName: undefineEmpty(record.BusinessName),
+          company: undefineEmpty(record.Company),
+          salutation: undefineEmpty(record.Salutation),
+          address1: undefineEmpty(record.Address1),
+          address2: undefineEmpty(record.Address2),
+          city: undefineEmpty(record.City),
+          state: undefineEmpty(record.State),
+          postalCode: undefineEmpty(record.PostalCode),
+          country: undefineEmpty(record.Country),
+          primaryEmailAddress: undefineEmpty(record.PrimaryEmailAddress),
+          notes: undefineEmpty(record.Notes),
+          alternateEmail: undefineEmpty(record.AlternateEmail),
+          phoneNumbers: undefineEmpty(record.PhoneNumbers),
+          phone: undefineEmpty(record.Phone),
         };
         return contact;
       },
