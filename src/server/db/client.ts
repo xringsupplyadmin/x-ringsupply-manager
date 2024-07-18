@@ -1,5 +1,5 @@
 import { edgedb } from "@/dbschema/edgeql-js/imports";
-import { Transaction } from "edgedb/dist/transaction";
+import { type Transaction } from "edgedb/dist/transaction";
 
 const client = edgedb.createClient();
 

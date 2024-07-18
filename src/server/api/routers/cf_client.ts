@@ -42,7 +42,7 @@ export const cfClientRouter = createTRPCRouter({
           contactId: z.number(),
         }),
       )
-      .query(async ({ input: { contactId } }) => {
+      .query(async ({ input: { contactId: _contactId } }) => {
         return; //await getCartItems(contactId);
       }),
   },
