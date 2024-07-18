@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "next build && npx @edgedb/generate edgeql-js && npx @edgedb/generate interfaces",
-    "db:generate": "npx @edgedb/generate edgeql-js && npx @edgedb/generate interfaces",
+    "build": "next build",
+    "prebuild": "npx @edgedb/generate edgeql-js && npx @edgedb/generate interfaces",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
