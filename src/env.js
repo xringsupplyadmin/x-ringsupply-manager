@@ -27,8 +27,17 @@ export const env = createEnv({
     CF_USERNAME: z.string(),
     CF_PASSWORD: z.string(),
     COREILLA_WEBHOOK_URL: z.string(),
-    FREQUENCY: z.string().transform((n) => parseInt(n)),
-    EMAIL_SEQUENCE_LENGTH: z.string().transform((n) => parseInt(n)),
+    EMAIL_SEQUENCE: z.string().transform((n) =>
+      n
+        .split(" ")
+        .map((s) => parseFloat(s))
+        .filter((s) => s > 0)
+        .sort(),
+    ),
+    MAX_AGE_THRESHOLD: z.string().transform((n) => parseInt(n)),
+    MIN_AGE_THRESHOLD: z.string().transform((n) => parseInt(n)),
+    FOLLOWUP_START_HOUR: z.string().transform((n) => parseInt(n)),
+    FOLLOWUP_END_HOUR: z.string().transform((n) => parseInt(n)),
   },
 
   /**
@@ -55,8 +64,11 @@ export const env = createEnv({
     CF_USERNAME: process.env.CF_USERNAME,
     CF_PASSWORD: process.env.CF_PASSWORD,
     COREILLA_WEBHOOK_URL: process.env.COREILLA_WEBHOOK_URL,
-    FREQUENCY: process.env.FREQUENCY,
-    EMAIL_SEQUENCE_LENGTH: process.env.EMAIL_SEQUENCE_LENGTH,
+    EMAIL_SEQUENCE: process.env.EMAIL_SEQUENCE,
+    MAX_AGE_THRESHOLD: process.env.MAX_AGE_THRESHOLD,
+    MIN_AGE_THRESHOLD: process.env.MIN_AGE_THRESHOLD,
+    FOLLOWUP_START_HOUR: process.env.FOLLOWUP_START_HOUR,
+    FOLLOWUP_END_HOUR: process.env.FOLLOWUP_END_HOUR,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

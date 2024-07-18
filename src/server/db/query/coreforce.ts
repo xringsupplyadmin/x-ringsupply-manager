@@ -1,72 +1,87 @@
 import e from "@/dbschema/edgeql-js";
 import { env } from "~/env";
 import client from "../client";
-import { type Cart } from "../types";
 
 export async function getAbandonedCarts(requireEmail = true) {
-  const data: Record<number, Cart[]> = {};
-  for (let i = 1; i <= env.EMAIL_SEQUENCE_LENGTH; i++) {
-    const minDays = (i - 1) * env.FREQUENCY;
-    const maxDays = i * env.FREQUENCY;
+  const query = e.select(e.coreforce.Contact, (contact) => {
+    const now = e.datetime(new Date());
 
-    const query = e.select(e.coreforce.Contact, (contact) => {
-      // We don't want to include items added on the current day so set
-      // the time to midnight to only include items added yesterday and older
-      const realNow = new Date();
-      realNow.setHours(0, 0, 0, 0);
-      const now = e.datetime(realNow);
+    // Calculate the date range for the contact
+    const newest = e.op(
+      now,
+      "-",
+      e.to_duration({ hours: env.MIN_AGE_THRESHOLD }),
+    );
+    const oldest = e.op(
+      now,
+      "-",
+      e.to_duration({ hours: 24 * env.MAX_AGE_THRESHOLD }),
+    );
 
-      // Calculate the date range for the contact
-      const newest = e.op(now, "-", e.to_duration({ hours: 24 * minDays }));
-      const oldest = e.op(now, "-", e.to_duration({ hours: 24 * maxDays }));
+    let filter = e.op(
+      e.op(contact.items.timeSubmitted, "<=", newest), // Must have items older than the cutoff
+      "and",
+      e.op(
+        e.op(contact.items.timeSubmitted, ">", oldest), // Items must be newer than the cutoff
+        "or",
+        e.op(
+          "exists",
+          e.select(e.coreforce.EmailTask, (t) => ({
+            filter_single: e.op(t.contact.id, "=", contact.id),
+          })),
+        ), // Or the contact must have an existing email task
+      ),
+    );
 
-      let filter = e.op(
-        e.op(contact.items.timeSubmitted, "<=", newest),
-        "and",
-        e.op(contact.items.timeSubmitted, ">", oldest),
-      );
+    if (requireEmail) {
+      filter = e.op(e.op("exists", contact.primaryEmailAddress), "and", filter);
+    }
 
-      if (requireEmail) {
-        filter = e.op(
-          e.op("exists", contact.primaryEmailAddress),
-          "and",
-          filter,
-        );
-      }
-
-      return {
-        ...e.coreforce.Contact["*"],
-        items: (item) => ({
-          ...e.coreforce.CartItem["*"],
+    return {
+      ...e.coreforce.Contact["*"],
+      items: (item) => ({
+        ...e.coreforce.CartItem["*"],
+        order_by: {
+          expression: item.timeSubmitted,
+          direction: e.DESC,
+        },
+        addons: (addon) => ({
+          ...e.coreforce.ProductAddon["*"],
           order_by: {
-            expression: item.timeSubmitted,
-            direction: e.DESC
+            expression: addon.sortOrder,
+            direction: e.ASC,
+            empty: e.EMPTY_LAST,
           },
-          addons: (addon) => ({
-            ...e.coreforce.ProductAddon["*"],
-            order_by: {
-              expression: addon.sortOrder,
-              direction: e.ASC,
-              empty: e.EMPTY_LAST,
-            },
-          }),
         }),
-        filter: filter,
-      };
-    });
-    data[i] = await query.run(client);
-  }
-  return data;
+      }),
+      filter: filter,
+    };
+  });
+  return await query.run(client);
 }
 
-export async function getCartItems(contactId: string | number) {
-  return await e
-    .select(e.coreforce.CartItem, (item) => ({
-      ...e.coreforce.CartItem["*"],
-      addons: {
-        ...e.coreforce.ProductAddon["*"],
-      },
-      filter: e.op(item.contact.contactId, "=", contactId),
-    }))
-    .run(client);
+export async function getEmailTasks() {
+  const query = e.select(e.coreforce.EmailTask, () => ({
+    ...e.coreforce.EmailTask["*"],
+    contact: {
+      ...e.coreforce.Contact["*"],
+      items: (item) => ({
+        ...e.coreforce.CartItem["*"],
+        order_by: {
+          expression: item.timeSubmitted,
+          direction: e.DESC,
+        },
+        addons: (addon) => ({
+          ...e.coreforce.ProductAddon["*"],
+          order_by: {
+            expression: addon.sortOrder,
+            direction: e.ASC,
+            empty: e.EMPTY_LAST,
+          },
+        }),
+      }),
+    },
+  }));
+
+  return await query.run(client);
 }

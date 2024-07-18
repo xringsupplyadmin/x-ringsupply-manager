@@ -68,4 +68,16 @@ module coreforce {
     }
     constraint exclusive on ((.cartItemId, .productAddonId))
   }
+
+  type EmailTask {
+    required contact: Contact {
+      constraint exclusive;
+    }
+    sequence: int64 {
+      default := <int64>{};
+    };
+    required origination: datetime {
+      default := datetime_current();
+    }
+  }
 }

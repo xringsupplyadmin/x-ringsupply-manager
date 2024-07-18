@@ -15,7 +15,7 @@ function getDisplayPrice(item: CartItemWithAddons) {
   // Only flex the discount if its good (10% or more)
   return (
     <Text style={{ fontSize: "16px" }}>
-      {listPrice >= item.unitPrice * 1.1 ? (
+      {listPrice != 0 && listPrice >= item.unitPrice * 1.1 ? (
         <>
           <span style={{ textDecoration: "line-through" }}>
             $&nbsp;{listPrice}
@@ -31,12 +31,42 @@ function getDisplayPrice(item: CartItemWithAddons) {
   );
 }
 
-export function CartTemplate({ items }: { items: CartItemWithAddons[] }) {
+type DebugInfo = {
+  sequence: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  origination: Date;
+};
+
+export function DebugInfo({ debug }: { debug: DebugInfo }) {
+  return (
+    <>
+      <Text style={{ fontStyle: "italic" }}>**** Debug Info ****</Text>
+      <Text style={{ marginTop: 0 }}>
+        {debug.sequence} - Origin:
+        {debug.origination.toLocaleString()}
+      </Text>
+      <Text style={{ marginTop: 0 }}>
+        {debug.firstName} {debug.lastName} - {debug.email}
+      </Text>
+    </>
+  );
+}
+
+export function CartTemplate({
+  items,
+  debug,
+}: {
+  items: CartItemWithAddons[];
+  debug?: DebugInfo;
+}) {
   return (
     <Section>
       {items.map((item) => (
         <CartItemTemplate key={item.cartItemId} item={item} />
       ))}
+      {debug && <DebugInfo debug={debug} />}
     </Section>
   );
 }

@@ -111,6 +111,11 @@ export namespace coreforce {
     "state"?: string | null;
     "items": CartItem[];
   }
+  export interface EmailTask extends std.$Object {
+    "origination": Date;
+    "sequence"?: number | null;
+    "contact": Contact;
+  }
   export interface ProductAddon extends std.$Object {
     "cartItemId": number;
     "productAddonId": number;
@@ -436,6 +441,7 @@ export interface types {
   "coreforce": {
     "CartItem": coreforce.CartItem;
     "Contact": coreforce.Contact;
+    "EmailTask": coreforce.EmailTask;
     "ProductAddon": coreforce.ProductAddon;
   };
   "default": {
