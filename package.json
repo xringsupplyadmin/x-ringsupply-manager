@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "next build",
-    "prebuild": "edgedb migration apply -y && npx @edgedb/generate edgeql-js && npx @edgedb/generate interfaces",
+    "prebuild": "npx @edgedb/generate edgeql-js && npx @edgedb/generate interfaces",
+    "prod:migrate": "edgedb migrate -I mcmerdith/xring",
     "dev": "next dev",
     "lint": "SKIP_ENV_VALIDATION=1 next lint",
     "start": "next start",
