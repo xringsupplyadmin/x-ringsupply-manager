@@ -89,15 +89,17 @@ export async function processEmailTasks(): Promise<
     origination,
     contact: { id: contactId, primaryEmailAddress, firstName, lastName, items },
   } of data) {
-    // Given the list of dates for the sequence, find the sequence number this task is on
-    const nextSequence = sequenceDates.findIndex((date) => date <= origination);
+    const nextSequence = (sequence ?? -1) + 1;
     const taskResult = {
       id,
       sequence: nextSequence,
       origination,
       contact: { contactId, primaryEmailAddress, firstName, lastName },
     };
-    if (nextSequence === -1) {
+
+    // Check required conditions
+
+    if (nextSequence >= sequenceDates.length) {
       taskResults.push({
         ...taskResult,
         status: "skipped",
@@ -106,28 +108,28 @@ export async function processEmailTasks(): Promise<
       continue;
     }
 
-    if (sequence != null) {
-      if (nextSequence <= sequence) {
-        taskResults.push({
-          ...taskResult,
-          status: "skipped",
-          message: "Current sequence email already sent",
-        });
-      }
-
-      if (
-        currentHour < env.FOLLOWUP_START_HOUR ||
-        currentHour > env.FOLLOWUP_END_HOUR
-      ) {
-        taskResults.push({
-          ...taskResult,
-          status: "skipped",
-          message: "Outside of alloted window for followup emails",
-        });
-      }
-
+    if (sequenceDates[nextSequence]! <= origination) {
+      taskResults.push({
+        ...taskResult,
+        status: "skipped",
+        message: "Current sequence email already sent",
+      });
       continue;
     }
+
+    if (
+      currentHour < env.FOLLOWUP_START_HOUR ||
+      currentHour > env.FOLLOWUP_END_HOUR
+    ) {
+      taskResults.push({
+        ...taskResult,
+        status: "skipped",
+        message: "Outside of alloted window for followup emails",
+      });
+      continue;
+    }
+
+    // Send the email
 
     const formData = new FormData();
     formData.set(
@@ -187,6 +189,8 @@ export async function processEmailTasks(): Promise<
       });
     }
   }
+
+  // Log the results
 
   for (const tr of taskResults.filter(
     (tr) => tr.status === "sent" || tr.status === "failed",
