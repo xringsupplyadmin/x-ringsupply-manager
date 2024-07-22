@@ -27,7 +27,6 @@ export const env = createEnv({
     CF_USERNAME: z.string(),
     CF_PASSWORD: z.string(),
     COREILLA_WEBHOOK_URL: z.string(),
-    CAMPAIGN_START_DATE: z.coerce.date(),
     WATCHDOG_CRON: z.string(),
     EMAIL_SEQUENCE: z.string().transform((n) =>
       n
@@ -66,7 +65,6 @@ export const env = createEnv({
     CF_USERNAME: process.env.CF_USERNAME,
     CF_PASSWORD: process.env.CF_PASSWORD,
     COREILLA_WEBHOOK_URL: process.env.COREILLA_WEBHOOK_URL,
-    CAMPAIGN_START_DATE: process.env.CAMPAIGN_START_DATE,
     WATCHDOG_CRON: process.env.WATCHDOG_CRON,
     EMAIL_SEQUENCE: process.env.EMAIL_SEQUENCE,
     MAX_AGE_THRESHOLD: process.env.MAX_AGE_THRESHOLD,
