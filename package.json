@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "next build",
-    "prebuild": "npx @edgedb/generate edgeql-js && npx @edgedb/generate interfaces",
+    "prebuild": "edgedb migration apply && npx @edgedb/generate edgeql-js && npx @edgedb/generate interfaces",
     "dev": "next dev",
     "lint": "SKIP_ENV_VALIDATION=1 next lint",
     "start": "next start",
