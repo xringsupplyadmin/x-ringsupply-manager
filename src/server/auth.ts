@@ -9,6 +9,7 @@ import { EdgeDBAdapter } from "@auth/edgedb-adapter";
 
 import { env } from "~/env";
 import client from "./db/client";
+import { getUserPermissions } from "./db/query/default";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -20,15 +21,11 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      // ...other properties
-      // role: UserRole;
+      permissions: {
+        verified: boolean;
+      };
     } & DefaultSession["user"];
   }
-
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
 }
 
 /**
@@ -38,11 +35,12 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
+    session: async ({ session, user }) => ({
       ...session,
       user: {
         ...session.user,
         id: user.id,
+        permissions: await getUserPermissions(user.id),
       },
     }),
   },

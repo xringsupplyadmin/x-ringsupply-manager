@@ -15,6 +15,7 @@ function getDisplayPrice(item: CartItemWithAddons) {
   // Only flex the discount if its good (10% or more)
   return (
     <Text style={{ fontSize: "16px" }}>
+      {item.quantity}&nbsp;x{" "}
       {listPrice != 0 && listPrice >= item.unitPrice * 1.1 ? (
         <>
           <span style={{ textDecoration: "line-through" }}>

@@ -20,6 +20,8 @@ module coreforce {
     phoneNumbers: str;
     phone: str;
     multi items := .<contact[is CartItem];
+    activeTask := .<contact[is EmailTask];
+    multi steps := .<contact[is EmailTaskStep];
 
     index on (.contactId);
   }
@@ -77,6 +79,16 @@ module coreforce {
       default := <int64>{};
     };
     required origination: datetime {
+      default := datetime_current();
+    }
+  }
+
+  type EmailTaskStep {
+    required contact: Contact;
+    sequence: int64;
+    required success: bool;
+    required message: str;
+    required time: datetime {
       default := datetime_current();
     }
   }

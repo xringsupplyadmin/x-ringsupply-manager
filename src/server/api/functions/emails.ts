@@ -7,14 +7,20 @@ import { env } from "~/env";
 import { getAbandonedCarts, getEmailTasks } from "~/server/db/query/coreforce";
 import e from "@/dbschema/edgeql-js";
 import client from "~/server/db/client";
+import { type ApiResponse } from "../common";
 
-export async function updateEmailTasks() {
+export async function updateEmailTasks(): Promise<
+  ApiResponse<{ currentTasks: string[] }>
+> {
   const carts = await getAbandonedCarts();
 
   if (carts.length === 0) {
     // Delete all tasks
     await e.delete(e.coreforce.EmailTask, () => ({})).run(client);
-    return;
+    return {
+      success: true,
+      currentTasks: [],
+    };
   } else {
     const ids = carts.map((c) => e.uuid(c.id));
     // Delete all tasks for users which no longer have abandoned carts
@@ -37,7 +43,26 @@ export async function updateEmailTasks() {
       .unlessConflict(); // If the task already exists, do nothing
     await task.run(client);
   }
+
+  return {
+    success: true,
+    currentTasks: carts.map((c) => c.id),
+  };
 }
+
+type TaskResult = {
+  id: string;
+  sequence: number | null;
+  origination: Date;
+  contact: {
+    contactId: string;
+    primaryEmailAddress: string | null;
+    firstName: string | null;
+    lastName: string | null;
+  };
+  status: "sent" | "skipped" | "failed";
+  message: string;
+};
 
 const CoreillaResponse = z.object({
   status: z.string(),
@@ -48,34 +73,38 @@ type CoreillaResponse = z.infer<typeof CoreillaResponse>;
 function getSequenceDate(days: number) {
   const sequenceDate = new Date();
   sequenceDate.setHours(sequenceDate.getHours() - days * 24);
-  if (days >= 1) {
-    // After 1 day the time doesn't matter
-    sequenceDate.setHours(0, 0, 0, 0);
-  }
   return sequenceDate;
 }
 
-export async function processEmailTasks() {
+export async function processEmailTasks(): Promise<
+  ApiResponse<{ tasks: TaskResult[] }>
+> {
   const data = await getEmailTasks();
-
-  const responses: CoreillaResponse[] = [];
+  const taskResults: TaskResult[] = [];
 
   const sequenceDates = env.EMAIL_SEQUENCE.map(getSequenceDate);
-
-  console.log(sequenceDates);
-
   const currentHour = new Date().getHours();
 
   for (const {
     id,
     sequence,
     origination,
-    contact: { primaryEmailAddress, firstName, lastName, items },
+    contact: { id: contactId, primaryEmailAddress, firstName, lastName, items },
   } of data) {
     // Given the list of dates for the sequence, find the sequence number this task is on
     const nextSequence = sequenceDates.findIndex((date) => date <= origination);
+    const taskResult = {
+      id,
+      sequence: nextSequence,
+      origination,
+      contact: { contactId, primaryEmailAddress, firstName, lastName },
+    };
     if (nextSequence === -1) {
-      console.warn("Couldn't find sequence number for", primaryEmailAddress);
+      taskResults.push({
+        ...taskResult,
+        status: "failed",
+        message: "Couldn't find sequence number for contact",
+      });
       continue;
     }
 
@@ -86,6 +115,12 @@ export async function processEmailTasks() {
         currentHour > env.FOLLOWUP_END_HOUR)
     ) {
       // Email has already been sent for this contact or its not the right time
+      taskResults.push({
+        ...taskResult,
+        status: "skipped",
+        message:
+          "Email has already been sent for this contact or its not the right time",
+      });
       continue;
     }
 
@@ -118,23 +153,51 @@ export async function processEmailTasks() {
 
     const response = CoreillaResponse.safeParse(await rawResponse.json());
     if (response.success) {
-      console.log(response.data);
-      responses.push(response.data);
-      await e
-        .update(e.coreforce.EmailTask, (task) => ({
-          set: {
-            sequence: nextSequence,
-          },
-          filter: e.op(task.id, "=", e.uuid(id)),
-        }))
-        .run(client);
+      if (response.data.id) {
+        taskResults.push({
+          ...taskResult,
+          status: "sent",
+          message: "Email sent successfully",
+        });
+        await e
+          .update(e.coreforce.EmailTask, (task) => ({
+            set: {
+              sequence: nextSequence,
+            },
+            filter: e.op(task.id, "=", e.uuid(id)),
+          }))
+          .run(client);
+      } else {
+        taskResults.push({
+          ...taskResult,
+          status: "failed",
+          message: response.data.status,
+        });
+      }
     } else {
-      console.error(
-        "Error sending email to",
-        primaryEmailAddress,
-        response.error,
-      );
+      taskResults.push({
+        ...taskResult,
+        status: "failed",
+        message: "Error sending email to contact (Invalid API Response)",
+      });
     }
   }
-  return responses;
+
+  for (const tr of taskResults.filter(
+    (tr) => tr.status === "sent" || tr.status === "failed",
+  )) {
+    e.insert(e.coreforce.EmailTaskStep, {
+      contact: e.select(e.coreforce.Contact, (c) => ({
+        filter_single: e.op(c.id, "=", e.uuid(tr.contact.contactId)),
+      })),
+      sequence: tr.sequence,
+      success: tr.status === "sent",
+      message: tr.message,
+    });
+  }
+
+  return {
+    success: true,
+    tasks: taskResults,
+  };
 }

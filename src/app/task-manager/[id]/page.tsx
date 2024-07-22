@@ -8,57 +8,70 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { getContacts } from "~/server/db/query/coreforce";
+import { getContact, getContactsWithTasks } from "~/server/db/query/coreforce";
 
-export default async function TaskManagerPage() {
-  const contacts = await getContacts({
-    limit: 50,
-  });
+export default async function TaskManagerPage({
+  params: { id },
+}: {
+  params: { id: string };
+}) {
+  let contacts;
+  let header;
+
+  if (id === "all") {
+    contacts = await getContactsWithTasks();
+    header = "All Active Email Tasks";
+  } else {
+    try {
+      const contact = await getContact(id);
+      if (!contact) throw new Error("Contact not found");
+
+      contacts = [contact];
+      header = `Email Task for ${contact.firstName} ${contact.lastName}`;
+    } catch {
+      contacts = undefined;
+      header = "Email Task";
+    }
+  }
 
   return (
     <ServerAuthWrapper
       page={() => (
         <div>
-          <h1 className="pb-2 text-center text-2xl font-bold">All Contacts</h1>
+          <h1 className="pb-2 text-center text-2xl font-bold">{header}</h1>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>First Name</TableHead>
                 <TableHead>Last Name</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Email Task</TableHead>
-                <TableHead>Cart Items</TableHead>
+                <TableHead>Origination Date</TableHead>
+                <TableHead>Current Sequence</TableHead>
                 <TableHead>{/* Blank */}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {contacts.length === 0 ? (
+              {!contacts || contacts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">
-                    No active tasks found
+                  <TableCell colSpan={7} className="text-center">
+                    {!contacts ? "Task not found" : "No active tasks found"}
                   </TableCell>
                 </TableRow>
               ) : (
                 contacts.map((contact) => (
                   <TableRow key={contact.id}>
-                    <TableCell className="max-w-48">
-                      {/* Cap the width because some names are glitches */}
-                      {contact.firstName ?? "N/A"}
-                    </TableCell>
                     <TableCell>{contact.lastName ?? "N/A"}</TableCell>
+                    <TableCell>{contact.firstName ?? "N/A"}</TableCell>
                     <TableCell>
                       {contact.primaryEmailAddress ?? "N/A"}
                     </TableCell>
                     <TableCell>
-                      {contact.activeTask ? (
-                        <Link href={`/task-manager/${contact.id}`}>
-                          View Task
-                        </Link>
-                      ) : (
-                        "No Active Task"
-                      )}
+                      {contact.activeTask?.origination.toLocaleString() ??
+                        "No Active Task"}
                     </TableCell>
-                    <TableCell>{contact.items.length}</TableCell>
+                    <TableCell>
+                      {contact.activeTask?.sequence ?? "No Active Task"}
+                    </TableCell>
                     <TableCell className="flex flex-row gap-2 align-middle">
                       <Link href={`/touchpoint-manager/${contact.id}`}>
                         View Touchpoints

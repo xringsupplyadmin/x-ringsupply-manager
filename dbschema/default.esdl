@@ -12,6 +12,15 @@ module default {
             default := datetime_current();
         };
     }
+
+    type UserPermission {
+        required user: User {
+            constraint exclusive;
+        };
+        required verified: bool {
+            default := false;
+        };
+    }
  
     type Account {
        required property userId := .user.id;

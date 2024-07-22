@@ -110,10 +110,19 @@ export namespace coreforce {
     "salutation"?: string | null;
     "state"?: string | null;
     "items": CartItem[];
+    "steps": EmailTaskStep[];
+    "activeTask"?: EmailTask | null;
   }
   export interface EmailTask extends std.$Object {
     "origination": Date;
     "sequence"?: number | null;
+    "contact": Contact;
+  }
+  export interface EmailTaskStep extends std.$Object {
+    "message": string;
+    "sequence"?: number | null;
+    "success": boolean;
+    "time": Date;
     "contact": Contact;
   }
   export interface ProductAddon extends std.$Object {
@@ -161,6 +170,10 @@ export namespace $default {
     "accounts": Account[];
     "sessions": Session[];
   }
+  export interface UserPermission extends std.$Object {
+    "verified": boolean;
+    "user": User;
+  }
   export interface VerificationToken extends std.$Object {
     "identifier": string;
     "token": string;
@@ -171,11 +184,13 @@ export namespace $default {
 import Account = $default.Account;
 import Session = $default.Session;
 import User = $default.User;
+import UserPermission = $default.UserPermission;
 import VerificationToken = $default.VerificationToken;
 export type {
   Account,
   Session,
   User,
+  UserPermission,
   VerificationToken
 };
 export namespace fts {
@@ -442,12 +457,14 @@ export interface types {
     "CartItem": coreforce.CartItem;
     "Contact": coreforce.Contact;
     "EmailTask": coreforce.EmailTask;
+    "EmailTaskStep": coreforce.EmailTaskStep;
     "ProductAddon": coreforce.ProductAddon;
   };
   "default": {
     "Account": $default.Account;
     "Session": $default.Session;
     "User": $default.User;
+    "UserPermission": $default.UserPermission;
     "VerificationToken": $default.VerificationToken;
   };
   "fts": {

@@ -22,8 +22,18 @@ export default async function RootLayout({
     <html lang="en" className={`${GeistSans.variable}`}>
       <body className="flex min-h-screen flex-col justify-normal">
         <TRPCReactProvider>
-          <nav className="bg-primary text-primary-foreground flex items-center justify-between">
-            <div className="justify-right ml-auto flex flex-row items-center gap-4 p-4">
+          <nav className="flex items-center justify-between gap-4 bg-primary p-4 text-primary-foreground">
+            <h1 className="text-2xl font-bold">X-Ring Supply</h1>
+            <Link href="/task-manager/all" className="">
+              Task Manager
+            </Link>
+            <Link href="/touchpoint-manager/all" className="">
+              Touchpoint Manager
+            </Link>
+            <Link href="/contacts" className="">
+              View Contacts
+            </Link>
+            <div className="justify-right ml-auto flex flex-row items-center gap-4">
               <p className="text-center text-lg text-white">
                 {session && (
                   <span>Logged in as {session.user?.name ?? "Unknown"}</span>
@@ -31,13 +41,13 @@ export default async function RootLayout({
               </p>
               <Link
                 href={session ? "/api/auth/signout" : "/api/auth/signin"}
-                className="bg-secondary text-secondary-foreground rounded-full px-5 py-1 font-semibold no-underline transition hover:opacity-50"
+                className="rounded-full bg-secondary px-5 py-1 font-semibold text-secondary-foreground no-underline transition hover:opacity-50"
               >
                 {session ? "Sign out" : "Sign in"}
               </Link>
             </div>
           </nav>
-          <main className="bg-background text-foreground container flex flex-grow flex-col items-center justify-start py-6">
+          <main className="container flex flex-grow flex-col items-center justify-start bg-background py-6 text-foreground">
             {children}
           </main>
         </TRPCReactProvider>
