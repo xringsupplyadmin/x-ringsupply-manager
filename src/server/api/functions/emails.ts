@@ -100,25 +100,32 @@ export async function processEmailTasks(): Promise<
     if (nextSequence === -1) {
       taskResults.push({
         ...taskResult,
-        status: "failed",
-        message: "Couldn't find sequence number for contact",
+        status: "skipped",
+        message: "No more emails left in sequence",
       });
       continue;
     }
 
-    if (
-      sequence != null &&
-      (nextSequence <= sequence ||
+    if (sequence != null) {
+      if (nextSequence <= sequence) {
+        taskResults.push({
+          ...taskResult,
+          status: "skipped",
+          message: "Current sequence email already sent",
+        });
+      }
+
+      if (
         currentHour < env.FOLLOWUP_START_HOUR ||
-        currentHour > env.FOLLOWUP_END_HOUR)
-    ) {
-      // Email has already been sent for this contact or its not the right time
-      taskResults.push({
-        ...taskResult,
-        status: "skipped",
-        message:
-          "Email has already been sent for this contact or its not the right time",
-      });
+        currentHour > env.FOLLOWUP_END_HOUR
+      ) {
+        taskResults.push({
+          ...taskResult,
+          status: "skipped",
+          message: "Outside of alloted window for followup emails",
+        });
+      }
+
       continue;
     }
 

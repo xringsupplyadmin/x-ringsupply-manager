@@ -1,3 +1,4 @@
+import { env } from "~/env";
 import { inngest } from "../client";
 import { updateEmailTasks, processEmailTasks } from "./emails";
 import { updateCartItems } from "./update_cart_items";
@@ -11,7 +12,7 @@ export const watchdog = inngest.createFunction(
   {
     id: "watchdog",
   },
-  { cron: "TZ=America/New_York 0 0-23/4 * * *" },
+  { cron: env.WATCHDOG_CRON },
   async ({ step }) => {
     await step.invoke("update-contacts", {
       function: updateContacts,
