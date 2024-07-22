@@ -31,8 +31,6 @@ export async function updateEmailTasks(): Promise<
       .run(client);
   }
 
-  console.log(carts);
-
   for (const cart of carts) {
     const task = e
       .insert(e.coreforce.EmailTask, {
@@ -186,14 +184,16 @@ export async function processEmailTasks(): Promise<
   for (const tr of taskResults.filter(
     (tr) => tr.status === "sent" || tr.status === "failed",
   )) {
-    e.insert(e.coreforce.EmailTaskStep, {
-      contact: e.select(e.coreforce.Contact, (c) => ({
-        filter_single: e.op(c.id, "=", e.uuid(tr.contact.contactId)),
-      })),
-      sequence: tr.sequence,
-      success: tr.status === "sent",
-      message: tr.message,
-    });
+    await e
+      .insert(e.coreforce.EmailTaskStep, {
+        contact: e.select(e.coreforce.Contact, (c) => ({
+          filter_single: e.op(c.id, "=", e.uuid(tr.contact.contactId)),
+        })),
+        sequence: tr.sequence,
+        success: tr.status === "sent",
+        message: tr.message,
+      })
+      .run(client);
   }
 
   return {

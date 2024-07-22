@@ -8,6 +8,8 @@ export async function syncContactsToDb(
 ): Promise<ApiResponse<{ count: number }>> {
   const tRef = newTiming();
 
+  console.debug("[syncContactsToDb] init");
+
   const data = await getContacts(checkAuth);
 
   console.debug("[syncContactsToDb] Fetch contact data:", timing(tRef, true));
@@ -75,7 +77,7 @@ export async function syncContactsToDb(
       .run(tx, { json: contacts }),
   );
 
-  console.debug("[syncContactsToDb] Database insert:", timing(tRef, true));
+  console.debug("[syncContactsToDb] Done in", timing(tRef, true));
 
   return {
     success: true,

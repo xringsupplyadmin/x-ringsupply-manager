@@ -115,7 +115,7 @@ export async function syncCartToDb(checkAuth = true): Promise<
     successCount++;
   }
 
-  console.debug("[syncContactsToDb] Done in ", timing(tRef, true, true));
+  console.debug("[syncCartToDb] Done in ", timing(tRef, true, true));
 
   return {
     success: true,
