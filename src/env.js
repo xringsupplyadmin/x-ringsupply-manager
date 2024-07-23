@@ -32,7 +32,7 @@ export const env = createEnv({
       n
         .split(" ")
         .map((s) => parseFloat(s))
-        .filter((s) => s > 0)
+        .filter((s) => s >= 0)
         .sort(),
     ),
     MAX_AGE_THRESHOLD: z.string().transform((n) => parseInt(n)),
