@@ -72,7 +72,7 @@ type CoreillaResponse = z.infer<typeof CoreillaResponse>;
 
 function getSequenceDate(days: number) {
   const sequenceDate = new Date();
-  sequenceDate.setHours(sequenceDate.getHours() - days * 24);
+  sequenceDate.setUTCHours(sequenceDate.getUTCHours() - days * 24);
   return sequenceDate;
 }
 
@@ -83,7 +83,7 @@ export async function processEmailTasks(): Promise<
   const taskResults: TaskResult[] = [];
 
   const sequenceDates = env.EMAIL_SEQUENCE.map(getSequenceDate);
-  const currentHour = new Date().getHours();
+  const currentHour = new Date().getUTCHours();
 
   for (const {
     id,

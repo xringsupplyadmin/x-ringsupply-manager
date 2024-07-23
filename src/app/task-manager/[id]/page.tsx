@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { formatDate } from "~/lib/utils";
 import { getContact, getContactsWithTasks } from "~/server/db/query/coreforce";
 
 export default async function TaskManagerPage({
@@ -66,7 +67,7 @@ export default async function TaskManagerPage({
                       {contact.primaryEmailAddress ?? "N/A"}
                     </TableCell>
                     <TableCell>
-                      {contact.activeTask?.origination.toLocaleString() ??
+                      {formatDate(contact.activeTask?.origination) ??
                         "No Active Task"}
                     </TableCell>
                     <TableCell>

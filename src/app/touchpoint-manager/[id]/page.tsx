@@ -9,6 +9,7 @@ import {
 import { getContact, getContactsWithSteps } from "~/server/db/query/coreforce";
 import { Check, X } from "lucide-react";
 import ServerAuthWrapper from "~/components/server_auth";
+import { formatDate } from "~/lib/utils";
 
 export default async function TouchpointManagerPage({
   params: { id },
@@ -84,7 +85,7 @@ export default async function TouchpointManagerPage({
                         )}
                       </TableCell>
                       <TableCell>{step.message}</TableCell>
-                      <TableCell>{step.time.toLocaleString()}</TableCell>
+                      <TableCell>{formatDate(step.time)}</TableCell>
                     </TableRow>
                   )),
                 )

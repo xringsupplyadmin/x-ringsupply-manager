@@ -1,5 +1,6 @@
 import { Column, Img, Row, Section, Text } from "@react-email/components";
 import { renderAsync } from "@react-email/render";
+import { formatDate } from "~/lib/utils";
 import { type ProductAddon, type CartItemWithAddons } from "~/server/db/types";
 
 function getItemListPrice(item: CartItemWithAddons) {
@@ -46,7 +47,7 @@ export function DebugInfo({ debug }: { debug: DebugInfo }) {
       <Text style={{ fontStyle: "italic" }}>**** Debug Info ****</Text>
       <Text style={{ marginTop: 0 }}>
         {debug.sequence} - Origin:
-        {debug.origination.toLocaleString()}
+        {formatDate(debug.origination)}
       </Text>
       <Text style={{ marginTop: 0 }}>
         {debug.firstName} {debug.lastName} - {debug.email}
