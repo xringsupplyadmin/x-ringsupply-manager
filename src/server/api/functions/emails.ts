@@ -113,7 +113,7 @@ export async function processEmailTasks(): Promise<
 
     const nextSequenceDate = sequenceDates[nextSequence]!;
 
-    if (nextSequenceDate >= origination) {
+    if (nextSequenceDate <= origination) {
       taskResults.push({
         ...taskResult,
         sequenceDate: nextSequenceDate,
