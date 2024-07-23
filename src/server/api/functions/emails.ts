@@ -104,16 +104,20 @@ export async function processEmailTasks(): Promise<
     if (nextSequence >= sequenceDates.length) {
       taskResults.push({
         ...taskResult,
+        currentHour: currentHour,
         status: "skipped",
         message: "No more emails left in sequence",
       });
       continue;
     }
 
-    if (sequenceDates[nextSequence]! >= origination) {
+    const nextSequenceDate = sequenceDates[nextSequence]!;
+
+    if (nextSequenceDate >= origination) {
       taskResults.push({
         ...taskResult,
-        sequenceDate: sequenceDates[nextSequence],
+        sequenceDate: nextSequenceDate,
+        currentHour: currentHour,
         status: "skipped",
         message: "Next email sequence date has not passed yet",
       });
@@ -126,6 +130,7 @@ export async function processEmailTasks(): Promise<
     ) {
       taskResults.push({
         ...taskResult,
+        sequenceDate: nextSequenceDate,
         currentHour: currentHour,
         status: "skipped",
         message: "Outside of alloted window for followup emails",
@@ -181,6 +186,8 @@ export async function processEmailTasks(): Promise<
       } else {
         taskResults.push({
           ...taskResult,
+          sequenceDate: nextSequenceDate,
+          currentHour: currentHour,
           status: "failed",
           message: response.data.status,
         });
@@ -188,6 +195,8 @@ export async function processEmailTasks(): Promise<
     } else {
       taskResults.push({
         ...taskResult,
+        sequenceDate: nextSequenceDate,
+        currentHour: currentHour,
         status: "failed",
         message: "Error sending email to contact (Invalid API Response)",
       });
