@@ -110,7 +110,7 @@ export async function processEmailTasks(): Promise<
       continue;
     }
 
-    if (sequenceDates[nextSequence]! <= origination) {
+    if (sequenceDates[nextSequence]! >= origination) {
       taskResults.push({
         ...taskResult,
         sequenceDate: sequenceDates[nextSequence],
