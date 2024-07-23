@@ -172,6 +172,8 @@ export async function processEmailTasks(): Promise<
       if (response.data.id) {
         taskResults.push({
           ...taskResult,
+          sequenceDate: nextSequenceDate,
+          currentHour: currentHour,
           status: "sent",
           message: "Email sent successfully",
         });
