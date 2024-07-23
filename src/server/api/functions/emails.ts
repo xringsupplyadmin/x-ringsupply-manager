@@ -52,6 +52,8 @@ type TaskResult = {
   id: string;
   sequence: number | null;
   origination: Date;
+  sequenceDate?: Date;
+  currentHour?: number;
   contact: {
     contactId: string;
     primaryEmailAddress: string | null;
@@ -111,8 +113,9 @@ export async function processEmailTasks(): Promise<
     if (sequenceDates[nextSequence]! <= origination) {
       taskResults.push({
         ...taskResult,
+        sequenceDate: sequenceDates[nextSequence],
         status: "skipped",
-        message: "Current sequence email already sent",
+        message: "Next email sequence date has not passed yet",
       });
       continue;
     }
@@ -123,6 +126,7 @@ export async function processEmailTasks(): Promise<
     ) {
       taskResults.push({
         ...taskResult,
+        currentHour: currentHour,
         status: "skipped",
         message: "Outside of alloted window for followup emails",
       });
