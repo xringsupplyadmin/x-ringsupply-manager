@@ -102,6 +102,12 @@ export async function processEmailTasks(): Promise<
     // Check required conditions
 
     if (nextSequence >= sequenceDates.length) {
+      // Delete the task if there are no more emails left in the sequence
+      await e
+        .delete(e.coreforce.EmailTask, (t) => ({
+          filter: e.op(t.id, "=", e.uuid(id)),
+        }))
+        .run(client);
       taskResults.push({
         ...taskResult,
         currentHour: currentHour,
