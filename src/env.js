@@ -40,6 +40,7 @@ export const env = createEnv({
     FOLLOWUP_START_HOUR: z.string().transform((n) => parseInt(n)),
     FOLLOWUP_END_HOUR: z.string().transform((n) => parseInt(n)),
     DEBUG: z.string().transform((s) => s.toLowerCase() === "true"),
+    DEBUG_CONTACT_ID: z.string().transform((s) => parseInt(s)),
   },
 
   /**
@@ -73,6 +74,7 @@ export const env = createEnv({
     FOLLOWUP_START_HOUR: process.env.FOLLOWUP_START_HOUR,
     FOLLOWUP_END_HOUR: process.env.FOLLOWUP_END_HOUR,
     DEBUG: process.env.DEBUG === "true",
+    DEBUG_CONTACT_ID: process.env.DEBUG_CONTACT_ID,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

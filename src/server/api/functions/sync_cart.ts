@@ -24,10 +24,9 @@ export async function syncCartToDb(checkAuth = true): Promise<
   console.debug("[syncCartToDb] init");
 
   const allData = await e
-    .select(e.coreforce.Contact, (c) => ({
+    .select(e.coreforce.Contact, () => ({
       id: true,
       contactId: true,
-      filter: e.op(c.contactId, "=", 3531565), // TODO: Remove
     }))
     .run(client);
 
