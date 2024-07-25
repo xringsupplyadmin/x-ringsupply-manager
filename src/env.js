@@ -39,6 +39,7 @@ export const env = createEnv({
     MIN_AGE_THRESHOLD: z.string().transform((n) => parseInt(n)),
     FOLLOWUP_START_HOUR: z.string().transform((n) => parseInt(n)),
     FOLLOWUP_END_HOUR: z.string().transform((n) => parseInt(n)),
+    DEBUG: z.string().transform((s) => s.toLowerCase() === "true"),
   },
 
   /**
@@ -71,6 +72,7 @@ export const env = createEnv({
     MIN_AGE_THRESHOLD: process.env.MIN_AGE_THRESHOLD,
     FOLLOWUP_START_HOUR: process.env.FOLLOWUP_START_HOUR,
     FOLLOWUP_END_HOUR: process.env.FOLLOWUP_END_HOUR,
+    DEBUG: process.env.DEBUG === "true",
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

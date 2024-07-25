@@ -1,5 +1,6 @@
 import { Column, Img, Row, Section, Text } from "@react-email/components";
 import { renderAsync } from "@react-email/render";
+import { env } from "~/env";
 import { formatDate } from "~/lib/utils";
 import { type ProductAddon, type CartItemWithAddons } from "~/server/db/types";
 
@@ -68,7 +69,7 @@ export function CartTemplate({
       {items.map((item) => (
         <CartItemTemplate key={item.cartItemId} item={item} />
       ))}
-      {debug && <DebugInfo debug={debug} />}
+      {env.DEBUG && debug && <DebugInfo debug={debug} />}
     </Section>
   );
 }
