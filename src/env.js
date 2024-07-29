@@ -39,7 +39,10 @@ export const env = createEnv({
     MIN_AGE_THRESHOLD: z.string().transform((n) => parseInt(n)),
     FOLLOWUP_START_HOUR: z.string().transform((n) => parseInt(n)),
     FOLLOWUP_END_HOUR: z.string().transform((n) => parseInt(n)),
-    DEBUG: z.string().transform((s) => s.toLowerCase() === "true"),
+    DEBUG: z
+      .string()
+      .transform((s) => s.toLowerCase() === "true")
+      .or(z.boolean()),
     DEBUG_CONTACT_ID: z.string().transform((s) => parseInt(s)),
   },
 
