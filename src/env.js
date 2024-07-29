@@ -73,7 +73,7 @@ export const env = createEnv({
     MIN_AGE_THRESHOLD: process.env.MIN_AGE_THRESHOLD,
     FOLLOWUP_START_HOUR: process.env.FOLLOWUP_START_HOUR,
     FOLLOWUP_END_HOUR: process.env.FOLLOWUP_END_HOUR,
-    DEBUG: process.env.DEBUG === "true",
+    DEBUG: process.env.DEBUG,
     DEBUG_CONTACT_ID: process.env.DEBUG_CONTACT_ID,
   },
   /**
