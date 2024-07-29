@@ -5,6 +5,7 @@ import { updateEmailTasks as implUpdateEmailTasks } from "~/server/api/functions
 export const updateEmailTasks = inngest.createFunction(
   {
     id: "updateEmailTasks",
+    name: "Update Email Tasks",
   },
   { event: "system/update.email.tasks" },
   async () => {
@@ -15,6 +16,7 @@ export const updateEmailTasks = inngest.createFunction(
 export const processEmailTasks = inngest.createFunction(
   {
     id: "processEmailTasks",
+    name: "Process Email Tasks",
   },
   { event: "system/process.email.tasks" },
   async () => {

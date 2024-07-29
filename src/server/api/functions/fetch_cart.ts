@@ -15,7 +15,7 @@ const formattedNumber = z.preprocess(
 const safeUrl = (fallback: string) =>
   z.preprocess((str) => {
     if (str === "") {
-      return undefined;
+      return fallback;
     }
 
     const res = z.string().url().safeParse(str);
@@ -81,16 +81,15 @@ const RetailStoreCart = z.object({
 });
 export type RetailStoreCart = z.infer<typeof RetailStoreCart>;
 
-const RetailStoreCartResponse = z.union([
+const RetailStoreCartResponse = RetailStoreCart.extend({
+  requires_user: z.undefined(),
+}).or(
   z.object({
     requires_user: z.string(),
   }),
-  RetailStoreCart.extend({
-    requires_user: z.undefined(),
-  }),
-]);
+);
 
-export async function getShoppingCart(
+export async function fetchApiShoppingCart(
   contactId: number,
   checkAuth = true,
 ): Promise<ApiResponse<{ cart: RetailStoreCart }>> {

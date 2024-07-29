@@ -1,7 +1,7 @@
 import { env } from "~/env";
 import { inngest } from "../client";
 import { updateEmailTasks, processEmailTasks } from "./emails";
-import { updateCartItems } from "./update_cart_items";
+import { updateAllCartItems } from "./update_all_carts";
 import { updateContacts } from "./update_contacts";
 
 /**
@@ -11,20 +11,25 @@ import { updateContacts } from "./update_contacts";
 export const watchdog = inngest.createFunction(
   {
     id: "watchdog",
+    name: "Scheduled Task Runner",
   },
   { cron: env.WATCHDOG_CRON },
   async ({ step }) => {
     await step.invoke("update-contacts", {
       function: updateContacts,
+      data: {},
     });
     await step.invoke("update-cart-items", {
-      function: updateCartItems,
+      function: updateAllCartItems,
+      data: {},
     });
     await step.invoke("queue-email-tasks", {
       function: updateEmailTasks,
+      data: {},
     });
     await step.invoke("process-email-tasks", {
       function: processEmailTasks,
+      data: {},
     });
   },
 );
