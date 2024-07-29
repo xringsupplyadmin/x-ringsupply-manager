@@ -7,7 +7,7 @@
     "build": "next build",
     "prebuild": "npx @edgedb/generate edgeql-js && npx @edgedb/generate interfaces",
     "migrate:dev": "edgedb migrate --dev-mode",
-    "migrate:create": "edgedb migratation create && edgedb migrate --dev-mode",
+    "migrate:create": "edgedb migration create && edgedb migrate --dev-mode",
     "migrate:prod": "edgedb migrate -I mcmerdith/xring",
     "dev": "next dev",
     "lint": "SKIP_ENV_VALIDATION=1 next lint",
