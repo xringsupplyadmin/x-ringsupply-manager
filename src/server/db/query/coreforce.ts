@@ -21,17 +21,21 @@ export async function getAbandonedCarts(requireEmail = true) {
     );
 
     let filter = e.op(
-      e.op(contact.items.timeSubmitted, "<=", newest), // Must have items older than the cutoff
+      e.op(contact.unsubscribed, "=", false),
       "and",
       e.op(
-        e.op(contact.items.timeSubmitted, ">", oldest), // Items must be newer than the cutoff
-        "or",
+        e.op(contact.items.timeSubmitted, "<=", newest), // Must have items older than the cutoff
+        "and",
         e.op(
-          "exists",
-          e.select(e.coreforce.EmailTask, (t) => ({
-            filter_single: e.op(t.contact.id, "=", contact.id),
-          })),
-        ), // Or the contact must have an existing email task
+          e.op(contact.items.timeSubmitted, ">", oldest), // Items must be newer than the cutoff
+          "or",
+          e.op(
+            "exists",
+            e.select(e.coreforce.EmailTask, (t) => ({
+              filter_single: e.op(t.contact.id, "=", contact.id),
+            })),
+          ), // Or the contact must have an existing email task
+        ),
       ),
     );
 
@@ -203,6 +207,17 @@ export async function getContact(contactId: string) {
     steps: () => ({
       ...e.coreforce.EmailTaskStep["*"],
     }),
+  }));
+
+  return await query.run(client);
+}
+
+export async function unsubscribeContact(email: string) {
+  const query = e.update(e.coreforce.Contact, (c) => ({
+    filter_single: e.op(c.primaryEmailAddress, "=", email),
+    set: {
+      unsubscribed: true,
+    },
   }));
 
   return await query.run(client);

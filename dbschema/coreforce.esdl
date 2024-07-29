@@ -22,6 +22,9 @@ module coreforce {
     multi items := .<contact[is CartItem];
     activeTask := .<contact[is EmailTask];
     multi steps := .<contact[is EmailTaskStep];
+    unsubscribed: bool {
+      default := false;
+    }
 
     index on (.contactId);
   }

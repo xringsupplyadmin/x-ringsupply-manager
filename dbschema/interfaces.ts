@@ -109,6 +109,7 @@ export namespace coreforce {
     "primaryEmailAddress"?: string | null;
     "salutation"?: string | null;
     "state"?: string | null;
+    "unsubscribed"?: boolean | null;
     "items": CartItem[];
     "steps": EmailTaskStep[];
     "activeTask"?: EmailTask | null;
