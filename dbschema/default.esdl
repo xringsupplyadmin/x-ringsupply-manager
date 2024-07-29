@@ -72,6 +72,19 @@ module default {
  
         constraint exclusive on ((.identifier, .token))
     }
+
+    type InngestError {
+      required functionId: str;
+      required errorName: str;
+      required message: str;
+      required runId: str;
+      timestamp: datetime {
+        default := datetime_current();
+      }
+      acknowledged: bool {
+        default := false;
+      }
+    }
 }
  
 # Disable the application of access policies within access policies

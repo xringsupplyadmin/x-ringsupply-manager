@@ -1,36 +1,19 @@
 import e from "@/dbschema/edgeql-js";
 import { batchTransaction } from "~/server/db/client";
-import { newTiming, timing, timingSetMark, type ApiResponse } from "../common";
-import { getContacts } from "./fetch_contacts";
+import { type ApiResponse } from "../common";
+import { type Contact } from "~/server/db/types";
 
 export async function syncContactsToDb(
-  checkAuth = true,
+  contacts: Contact[],
 ): Promise<ApiResponse<{ count: number }>> {
-  const tRef = newTiming();
-
-  console.debug("[syncContactsToDb] init");
-
-  const data = await getContacts(checkAuth);
-
-  console.debug("[syncContactsToDb] Fetch contact data:", timing(tRef, true));
-
-  if (!data.success) {
-    return {
-      success: false,
-      error: data.error,
-    };
-  }
-
-  if (data.contacts.length === 0) {
+  if (contacts.length === 0) {
     return {
       success: true,
       count: 0,
     };
   }
 
-  timingSetMark(tRef);
-
-  await batchTransaction(data.contacts, async (tx, contacts) =>
+  await batchTransaction(contacts, async (tx, contacts) =>
     e
       .params(
         {
@@ -77,10 +60,8 @@ export async function syncContactsToDb(
       .run(tx, { json: contacts }),
   );
 
-  console.debug("[syncContactsToDb] Done in", timing(tRef, true));
-
   return {
     success: true,
-    count: data.contacts.length,
+    count: contacts.length,
   };
 }

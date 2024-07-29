@@ -212,6 +212,18 @@ export async function getContact(contactId: string) {
   return await query.run(client);
 }
 
+export async function getContactIds() {
+  const query = e.select(e.coreforce.Contact, (c) => ({
+    id: true,
+    contactId: true,
+    order_by: {
+      expression: c.contactId,
+    },
+  }));
+
+  return await query.run(client);
+}
+
 export async function unsubscribeContact(email: string) {
   const query = e.update(e.coreforce.Contact, (c) => ({
     filter_single: e.op(c.primaryEmailAddress, "=", email),

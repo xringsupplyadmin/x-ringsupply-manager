@@ -18,7 +18,7 @@ function undefineEmpty(str: string | undefined) {
   }
 }
 
-export async function getContacts(
+export async function fetchApiContacts(
   checkAuth = true,
 ): Promise<ApiResponse<{ contacts: Contact[] }>> {
   if (checkAuth) {

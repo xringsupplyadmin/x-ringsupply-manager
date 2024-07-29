@@ -155,6 +155,14 @@ export namespace $default {
     "userId": string;
     "user": User;
   }
+  export interface InngestError extends std.$Object {
+    "errorName": string;
+    "functionId": string;
+    "message": string;
+    "runId": string;
+    "timestamp"?: Date | null;
+    "acknowledged"?: boolean | null;
+  }
   export interface Session extends std.$Object {
     "userId": string;
     "createdAt"?: Date | null;
@@ -183,12 +191,14 @@ export namespace $default {
   }
 }
 import Account = $default.Account;
+import InngestError = $default.InngestError;
 import Session = $default.Session;
 import User = $default.User;
 import UserPermission = $default.UserPermission;
 import VerificationToken = $default.VerificationToken;
 export type {
   Account,
+  InngestError,
   Session,
   User,
   UserPermission,
@@ -463,6 +473,7 @@ export interface types {
   };
   "default": {
     "Account": $default.Account;
+    "InngestError": $default.InngestError;
     "Session": $default.Session;
     "User": $default.User;
     "UserPermission": $default.UserPermission;

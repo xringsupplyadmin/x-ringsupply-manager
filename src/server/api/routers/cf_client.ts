@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { authorize, submitToken } from "../functions/cf_authorization";
-import { getContacts } from "../functions/fetch_contacts";
+import { fetchApiContacts } from "../functions/fetch_contacts";
 import { ApiResponse, StatusOnlyApiResponse } from "../common";
 import { Contact } from "~/server/db/types";
 
@@ -32,7 +32,7 @@ export const cfClientRouter = createTRPCRouter({
         }),
       )
       .query(async () => {
-        return await getContacts();
+        return await fetchApiContacts();
       }),
   },
   retailStore: {

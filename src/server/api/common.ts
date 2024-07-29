@@ -37,6 +37,46 @@ export type ApiResponse<Data extends Record<string, unknown>> =
 
 export type StatusOnlyApiResponse = ApiResponse<Record<never, never>>;
 
+export function batchAction<DataType, ReturnType>(
+  data: DataType[],
+  executor: (data: DataType[], index: number) => ReturnType,
+  batchSize = 1000,
+): ReturnType[] {
+  // Short circuit if the data is small enough
+  if (data.length < batchSize) {
+    return [executor(data, 0)];
+  }
+
+  // Split the data into batches and process each batch, accumulating the results
+  const result: ReturnType[] = [];
+  for (let i = 0, index = 0; i < data.length; i += batchSize, index++) {
+    const batch = data.slice(i, i + batchSize);
+    const eResult = executor(batch, index);
+    result.push(eResult);
+  }
+  return result;
+}
+
+export async function batchActionAsync<DataType, ReturnType>(
+  data: DataType[],
+  executor: (data: DataType[], index: number) => Promise<ReturnType>,
+  batchSize = 1000,
+): Promise<ReturnType[]> {
+  // Short circuit if the data is small enough
+  if (data.length < batchSize) {
+    return [await executor(data, 0)];
+  }
+
+  // Split the data into batches and process each batch, accumulating the results
+  const result: ReturnType[] = [];
+  for (let i = 0, index = 0; i < data.length; i += batchSize, index++) {
+    const batch = data.slice(i, i + batchSize);
+    const eResult = await executor(batch, index);
+    result.push(eResult);
+  }
+  return result;
+}
+
 export type TimingsRef = {
   origin: number;
   current: number;

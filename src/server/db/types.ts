@@ -1,9 +1,10 @@
-import { type coreforce } from "@/dbschema/interfaces";
+import { type coreforce, type $default } from "@/dbschema/interfaces";
 import { z } from "zod";
 
 export type InsertContact = Omit<coreforce.Contact, "id">;
 export type InsertCartItem = Omit<coreforce.CartItem, "id">;
 export type InsertProductAddon = Omit<coreforce.ProductAddon, "id">;
+export type InsertInngestError = Omit<$default.InngestError, "id">;
 
 export const Contact = z.object({
   contactId: z.number(),
@@ -66,3 +67,12 @@ export const Cart = Contact.extend({
   items: CartItemWithAddons.array(),
 });
 export type Cart = z.infer<typeof Cart>;
+
+export const InngestError = z.object({
+  functionId: z.string(),
+  errorName: z.string(),
+  message: z.string(),
+  runId: z.string(),
+  timestamp: z.date(),
+});
+export type InngestError = z.infer<typeof InngestError>;

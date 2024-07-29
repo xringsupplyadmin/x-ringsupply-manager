@@ -1,5 +1,6 @@
 import e from "@/dbschema/edgeql-js";
 import client from "../client";
+import { type InsertInngestError } from "../types";
 
 export async function getUserPermissions(userId: string) {
   const getPermissions = e.select(e.default.UserPermission, (p) => ({
@@ -30,4 +31,10 @@ export async function getUserPermissions(userId: string) {
   }
 
   return permissions;
+}
+
+export async function dbLogInngestError(error: InsertInngestError) {
+  const insertError = e.insert(e.default.InngestError, error);
+
+  return await insertError.run(client);
 }
