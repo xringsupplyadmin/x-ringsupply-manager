@@ -178,8 +178,12 @@ export async function getContacts(params: {
       activeTask: () => ({
         ...e.coreforce.EmailTask["*"],
       }),
-      steps: () => ({
+      steps: (s) => ({
         ...e.coreforce.EmailTaskStep["*"],
+        order_by: {
+          expression: s.time,
+          direction: e.DESC,
+        },
       }),
     };
   });
@@ -208,8 +212,12 @@ export async function getContact(contactId: string) {
     activeTask: () => ({
       ...e.coreforce.EmailTask["*"],
     }),
-    steps: () => ({
+    steps: (s) => ({
       ...e.coreforce.EmailTaskStep["*"],
+      order_by: {
+        expression: s.time,
+        direction: e.DESC,
+      },
     }),
   }));
 
