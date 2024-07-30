@@ -3,6 +3,9 @@ import "~/styles/globals.css";
 import { GeistSans } from "geist/font/sans";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { env } from "~/env";
+import { Alert, AlertDescription } from "~/components/ui/alert";
+import { CircleAlert } from "lucide-react";
 
 export const metadata = {
   title: "X-Ring Supply Email Dashboard",
@@ -20,6 +23,14 @@ export default async function RootLayout({
       <body className="flex min-h-screen flex-col justify-normal">
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
+      {env.NODE_ENV !== "production" && (
+        <Alert className="absolute bottom-5 right-5 w-auto p-2">
+          <AlertDescription className="flex flex-row items-center gap-2">
+            <CircleAlert />
+            Preview Build
+          </AlertDescription>
+        </Alert>
+      )}
     </html>
   );
 }
