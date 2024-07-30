@@ -16,20 +16,26 @@ export const updateAllCartItems = inngest.createFunction(
       return await getContactIds();
     });
 
-    let countSynced = 0;
+    const functions: Promise<{ countSynced: number }>[] = [];
     await batchActionAsync(
       contacts,
       async (contactBatch, index) => {
-        countSynced += (
-          await step.invoke("update-user-cart-items" + index, {
+        functions.push(
+          step.invoke("update-user-cart-items" + index, {
             function: updateUserCartItems,
             data: {
               contacts: contactBatch,
             },
-          })
-        ).countSynced;
+          }),
+        );
       },
       750,
+    );
+
+    const functionResults = await Promise.all(functions);
+    const countSynced = functionResults.reduce(
+      (sum, result) => sum + result.countSynced,
+      0,
     );
 
     return { countSynced };
