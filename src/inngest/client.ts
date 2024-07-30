@@ -1,6 +1,11 @@
 import { EventSchemas, Inngest, type LiteralZodEventSchema } from "inngest";
 import { z } from "zod";
 
+const authorizeApi = z.object({
+  name: z.literal("api/authorize"),
+  data: z.object({}),
+}) satisfies LiteralZodEventSchema;
+
 const updateUserCartItems = z.object({
   name: z.literal("db/update.user.cart_items"),
   data: z.object({
@@ -37,6 +42,7 @@ const processEmailTasks = z.object({
 export const inngest = new Inngest({
   id: "x-ring-supply",
   schemas: new EventSchemas().fromZod([
+    authorizeApi,
     updateUserCartItems,
     updateCartItems,
     updateContacts,
