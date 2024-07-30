@@ -14,35 +14,42 @@ export async function updateEmailTasks(): Promise<
 > {
   const carts = await getAbandonedCarts();
 
-  if (carts.length === 0) {
-    // Delete all tasks
-    await e.delete(e.coreforce.EmailTask, () => ({})).run(client);
-    return {
-      success: true,
-      currentTasks: [],
-    };
-  } else {
-    const ids = carts.map((c) => e.uuid(c.id));
-    // Delete all tasks for users which no longer have abandoned carts
-    const removed = await e
-      .delete(e.coreforce.EmailTask, (task) => ({
-        filter: e.op(task.contact.id, "not in", e.set(...ids)),
-      }))
-      .run(client);
+  const ids = carts.map((c) => e.uuid(c.id));
+  const endedTasks = await e
+    .select(e.coreforce.EmailTask, (task) => ({
+      contact: { id: true },
+      filter:
+        ids.length === 0
+          ? undefined // Delete all tasks if there are no contacts
+          : e.op(task.contact.id, "not in", e.set(...ids)),
+    }))
+    .run(client);
 
-    for (const { id: removedId } of removed) {
-      await e
-        .insert(e.coreforce.EmailTaskStep, {
-          contact: e.select(e.coreforce.Contact, (c) => ({
-            filter_single: e.op(c.id, "=", e.uuid(removedId)),
-          })),
-          message: "Removed from workflow",
-          success: true,
-          sequence: e.set(),
-        })
-        .run(client);
-    }
+  // Log the removal
+  for (const {
+    contact: { id: contactId },
+  } of endedTasks) {
+    await e
+      .insert(e.coreforce.EmailTaskStep, {
+        contact: e.select(e.coreforce.Contact, (c) => ({
+          filter_single: e.op(c.id, "=", e.uuid(contactId)),
+        })),
+        message: "Removed from workflow",
+        success: true,
+        sequence: e.set(),
+      })
+      .run(client);
   }
+
+  // Delete the tasks
+  await e
+    .delete(e.coreforce.EmailTask, (t) => ({
+      filter:
+        ids.length === 0
+          ? undefined // Delete all tasks if there are no contacts
+          : e.op(t.contact.id, "not in", e.set(...ids)),
+    }))
+    .run(client);
 
   for (const cart of carts) {
     const task = e
