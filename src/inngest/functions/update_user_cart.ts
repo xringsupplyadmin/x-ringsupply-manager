@@ -34,6 +34,10 @@ export const updateUserCartItems = inngest.createFunction(
             false,
           );
           if (!apiResponse.success) {
+            // Sometimes the authentication times out, so try again
+            if (apiResponse.error.startsWith("AUTH")) {
+              await authorize();
+            }
             throw new Error("API Error: " + apiResponse.error);
           }
           await syncCartToDb(contact, apiResponse.cart);
