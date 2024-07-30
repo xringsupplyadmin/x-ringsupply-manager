@@ -7,9 +7,9 @@ export const authorizeApi = inngest.createFunction(
     id: "authorizeApi",
     name: "Authorize API",
     onFailure: logInngestError,
-    rateLimit: {
-      limit: 1,
-      period: "60s",
+    debounce: {
+      period: "3s",
+      timeout: "5s",
     },
   },
   { event: "api/authorize" },
