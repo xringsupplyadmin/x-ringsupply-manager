@@ -10,6 +10,7 @@ const updateUserCartItems = z.object({
         contactId: z.number(),
       }),
     ),
+    checkAuth: z.boolean().optional(),
   }),
 }) satisfies LiteralZodEventSchema;
 

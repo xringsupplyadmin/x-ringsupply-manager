@@ -3,6 +3,7 @@ import { getContactIds } from "~/server/db/query/coreforce";
 import { inngest } from "../client";
 import logInngestError from "./error_handling";
 import { updateUserCartItems } from "./update_user_cart";
+import { authorize } from "~/server/api/functions/cf_authorization";
 
 export const updateAllCartItems = inngest.createFunction(
   {
@@ -16,6 +17,14 @@ export const updateAllCartItems = inngest.createFunction(
       return await getContactIds();
     });
 
+    await step.run("authorize-api", async () => {
+      const authResponse = await authorize();
+
+      if (!authResponse.success) {
+        throw new Error("Authorization failed: " + authResponse.error);
+      }
+    });
+
     const functions: Promise<{ countSynced: number }>[] = [];
     await batchActionAsync(
       contacts,
@@ -25,6 +34,7 @@ export const updateAllCartItems = inngest.createFunction(
             function: updateUserCartItems,
             data: {
               contacts: contactBatch,
+              checkAuth: false,
             },
           }),
         );

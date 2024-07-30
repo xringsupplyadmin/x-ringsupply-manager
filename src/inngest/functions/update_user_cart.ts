@@ -17,13 +17,15 @@ export const updateUserCartItems = inngest.createFunction(
   },
   { event: "db/update.user.cart_items" },
   async ({ event, step }) => {
-    await step.run("authorize-api", async () => {
-      const authResponse = await authorize();
+    if (event.data.checkAuth) {
+      await step.run("authorize-api", async () => {
+        const authResponse = await authorize();
 
-      if (!authResponse.success) {
-        throw new Error("Authorization failed: " + authResponse.error);
-      }
-    });
+        if (!authResponse.success) {
+          throw new Error("Authorization failed: " + authResponse.error);
+        }
+      });
+    }
 
     for (const contact of event.data.contacts) {
       await step.run(
