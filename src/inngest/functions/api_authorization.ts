@@ -10,7 +10,6 @@ export const authorizeApi = inngest.createFunction(
     rateLimit: {
       limit: 1,
       period: "60s",
-      key: "CF-API-AUTH",
     },
   },
   { event: "api/authorize" },
