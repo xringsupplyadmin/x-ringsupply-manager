@@ -125,7 +125,7 @@ export async function fetchApiShoppingCart(
   if (data.data.requires_user !== undefined) {
     return {
       success: false,
-      error: "RetailStoreController Authentication Failure",
+      error: "AUTH: RetailStoreController Authentication Failure",
     };
   }
 

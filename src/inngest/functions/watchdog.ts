@@ -12,6 +12,11 @@ export const watchdog = inngest.createFunction(
   {
     id: "watchdog",
     name: "Scheduled Task Runner",
+    concurrency: {
+      limit: 1,
+      scope: "env",
+      key: "Watchdog",
+    },
   },
   { cron: env.WATCHDOG_CRON },
   async ({ step }) => {
