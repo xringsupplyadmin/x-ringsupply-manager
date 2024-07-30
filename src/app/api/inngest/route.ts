@@ -8,10 +8,12 @@ import {
   updateEmailTasks,
 } from "~/inngest/functions/emails";
 import { updateUserCartItems } from "~/inngest/functions/update_user_cart";
+import { authorizeApi } from "~/inngest/functions/api_authorization";
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
   functions: [
+    authorizeApi,
     updateContacts,
     updateAllCartItems,
     updateUserCartItems,

@@ -1,7 +1,7 @@
-import { authorize } from "~/server/api/functions/cf_authorization";
 import { fetchApiShoppingCart } from "~/server/api/functions/fetch_cart";
 import { syncCartToDb } from "~/server/api/functions/sync_cart";
 import { inngest } from "../client";
+import { authorizeApi } from "./api_authorization";
 import logInngestError from "./error_handling";
 
 export const updateUserCartItems = inngest.createFunction(
@@ -9,23 +9,13 @@ export const updateUserCartItems = inngest.createFunction(
     id: "updateUserCarts",
     name: "Update Specific User Carts",
     onFailure: logInngestError,
-    // concurrency: {
-    //   limit: 5,
-    //   scope: "env",
-    //   key: "RetailStore",
-    // },
   },
   { event: "db/update.user.cart_items" },
   async ({ event, step }) => {
-    if (event.data.checkAuth) {
-      await step.run("authorize-api", async () => {
-        const authResponse = await authorize();
-
-        if (!authResponse.success) {
-          throw new Error("Authorization failed: " + authResponse.error);
-        }
-      });
-    }
+    await step.invoke("authorize-api", {
+      function: authorizeApi,
+      data: {},
+    });
 
     for (const contact of event.data.contacts) {
       await step.run(
@@ -37,9 +27,10 @@ export const updateUserCartItems = inngest.createFunction(
           );
           if (!apiResponse.success) {
             // Sometimes the authentication times out, so try again
-            if (apiResponse.error.startsWith("AUTH")) {
-              await authorize();
-            }
+            await step.invoke("authorize-api", {
+              function: authorizeApi,
+              data: {},
+            });
             throw new Error("API Error: " + apiResponse.error);
           }
           await syncCartToDb(contact, apiResponse.cart);
