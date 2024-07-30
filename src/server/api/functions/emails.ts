@@ -31,14 +31,16 @@ export async function updateEmailTasks(): Promise<
       .run(client);
 
     for (const { id: removedId } of removed) {
-      e.insert(e.coreforce.EmailTaskStep, {
-        contact: e.select(e.coreforce.Contact, (c) => ({
-          filter_single: e.op(c.id, "=", e.uuid(removedId)),
-        })),
-        message: "Removed from workflow",
-        success: true,
-        sequence: e.set(),
-      });
+      await e
+        .insert(e.coreforce.EmailTaskStep, {
+          contact: e.select(e.coreforce.Contact, (c) => ({
+            filter_single: e.op(c.id, "=", e.uuid(removedId)),
+          })),
+          message: "Removed from workflow",
+          success: true,
+          sequence: e.set(),
+        })
+        .run(client);
     }
   }
 
