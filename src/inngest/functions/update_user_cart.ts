@@ -9,11 +9,11 @@ export const updateUserCartItems = inngest.createFunction(
     id: "updateUserCarts",
     name: "Update Specific User Carts",
     onFailure: logInngestError,
-    concurrency: {
-      limit: 5,
-      scope: "env",
-      key: "RetailStore",
-    },
+    // concurrency: {
+    //   limit: 5,
+    //   scope: "env",
+    //   key: "RetailStore",
+    // },
   },
   { event: "db/update.user.cart_items" },
   async ({ event, step }) => {
