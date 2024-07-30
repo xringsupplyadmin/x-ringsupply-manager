@@ -24,11 +24,22 @@ export async function updateEmailTasks(): Promise<
   } else {
     const ids = carts.map((c) => e.uuid(c.id));
     // Delete all tasks for users which no longer have abandoned carts
-    await e
+    const removed = await e
       .delete(e.coreforce.EmailTask, (task) => ({
         filter: e.op(task.contact.id, "not in", e.set(...ids)),
       }))
       .run(client);
+
+    for (const { id: removedId } of removed) {
+      e.insert(e.coreforce.EmailTaskStep, {
+        contact: e.select(e.coreforce.Contact, (c) => ({
+          filter_single: e.op(c.id, "=", e.uuid(removedId)),
+        })),
+        message: "Removed from workflow",
+        success: true,
+        sequence: e.set(),
+      });
+    }
   }
 
   for (const cart of carts) {

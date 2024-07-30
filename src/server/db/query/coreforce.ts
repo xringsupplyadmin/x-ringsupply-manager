@@ -126,8 +126,12 @@ export async function getContactsWithSteps(success?: boolean) {
     }
     return {
       ...e.coreforce.Contact["*"],
-      steps: () => ({
+      steps: (s) => ({
         ...e.coreforce.EmailTaskStep["*"],
+        order_by: {
+          expression: s.time,
+          direction: e.DESC,
+        },
       }),
       filter,
     };

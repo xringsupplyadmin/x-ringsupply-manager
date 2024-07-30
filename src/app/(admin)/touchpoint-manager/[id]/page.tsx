@@ -71,7 +71,7 @@ export default async function TouchpointManagerPage({
                   <TableCell>{contact.lastName ?? "N/A"}</TableCell>
                   <TableCell>{contact.firstName ?? "N/A"}</TableCell>
                   <TableCell>{contact.primaryEmailAddress ?? "N/A"}</TableCell>
-                  <TableCell>{step.sequence ?? "Internal Error"}</TableCell>
+                  <TableCell>{step.sequence ?? "N/A"}</TableCell>
                   <TableCell>
                     {step.success ? (
                       <Check className="mx-auto bg-green-600 stroke-white" />
