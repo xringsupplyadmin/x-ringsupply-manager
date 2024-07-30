@@ -12,10 +12,12 @@ export const updateUserCartItems = inngest.createFunction(
   },
   { event: "db/update.user.cart_items" },
   async ({ event, step }) => {
-    await step.invoke("authorize-api", {
-      function: authorizeApi,
-      data: {},
-    });
+    if (event.data.checkAuth) {
+      await step.invoke("authorize-api", {
+        function: authorizeApi,
+        data: {},
+      });
+    }
 
     for (const contact of event.data.contacts) {
       await step.run(
@@ -27,7 +29,7 @@ export const updateUserCartItems = inngest.createFunction(
           );
           if (!apiResponse.success) {
             // Sometimes the authentication times out, so try again
-            await step.invoke("authorize-api", {
+            await step.invoke("reauthorize-api", {
               function: authorizeApi,
               data: {},
             });

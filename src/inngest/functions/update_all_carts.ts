@@ -25,6 +25,7 @@ export const updateAllCartItems = inngest.createFunction(
             function: updateUserCartItems,
             data: {
               contacts: contactBatch,
+              checkAuth: false,
             },
           }),
         );
