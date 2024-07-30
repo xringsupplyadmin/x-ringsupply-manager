@@ -39,8 +39,7 @@ export async function getAbandonedCarts(requireEmail = true) {
       ),
     );
 
-    // TODO: Remove short circuit, final testing stage
-    if (env.DEBUG || true) {
+    if (env.DEBUG) {
       // Only send emails to the debug contact
       filter = e.op(
         e.op(contact.contactId, "=", env.DEBUG_CONTACT_ID),
