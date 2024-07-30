@@ -29,7 +29,7 @@ export const updateAllCartItems = inngest.createFunction(
           }),
         );
       },
-      750,
+      900,
     );
 
     const functionResults = await Promise.all(functions);
