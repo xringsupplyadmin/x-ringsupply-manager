@@ -22,15 +22,15 @@ export default async function RootLayout({
     <html lang="en" className={`${GeistSans.variable}`}>
       <body className="flex min-h-screen flex-col justify-normal">
         <TRPCReactProvider>{children}</TRPCReactProvider>
+        {env.NODE_ENV !== "production" && (
+          <Alert className="absolute bottom-5 right-5 w-auto p-2">
+            <AlertDescription className="flex flex-row items-center gap-2">
+              <CircleAlert />
+              Preview Build
+            </AlertDescription>
+          </Alert>
+        )}
       </body>
-      {env.NODE_ENV !== "production" && (
-        <Alert className="absolute bottom-5 right-5 w-auto p-2">
-          <AlertDescription className="flex flex-row items-center gap-2">
-            <CircleAlert />
-            Preview Build
-          </AlertDescription>
-        </Alert>
-      )}
     </html>
   );
 }
