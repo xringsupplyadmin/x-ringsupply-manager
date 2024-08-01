@@ -44,17 +44,16 @@ export async function authorize(): Promise<
       method: "GET",
       cache: "no-cache",
       headers: getConnectionKeyHeader(),
-      credentials: "include",
     },
   );
 
   try {
     // If JSON was returned, the user is not authorized
     await check.json(); // -> { "error_message": "..."}
-    console.debug("Authorizing API user");
+    console.debug("[RetailStore] Authorizing API user");
   } catch {
     // The response is the HTML of the admin menu, so the user is authorized
-    console.debug("User is authorized");
+    console.debug("[RetailStore] API user is authorized");
     return {
       success: true,
       token_required: false,
@@ -74,12 +73,15 @@ export async function authorize(): Promise<
       cache: "no-cache",
       body: credentials,
       headers: getConnectionKeyHeader(),
-      credentials: "include",
     },
   );
 
   const status = LoginResponse.safeParse(await response.json());
   if (!status.success) {
+    console.error(
+      "[RetailStore] Failed to authorize API user",
+      status.error.message,
+    );
     return {
       success: false,
       error: status.error.message,
@@ -87,11 +89,16 @@ export async function authorize(): Promise<
   }
 
   if (status.data.result === "OK") {
+    console.log("[RetailStore] API user is authorized");
     return {
       success: true,
       token_required: false,
     };
   } else {
+    console.error(
+      "[RetailStore] Failed to authorize API user",
+      status.data.error_message,
+    );
     return {
       success: false,
       error: status.data.error_message,
@@ -116,7 +123,6 @@ export async function submitToken(
       cache: "no-cache",
       body: authorization,
       headers: getConnectionKeyHeader(),
-      credentials: "include",
     },
   );
 

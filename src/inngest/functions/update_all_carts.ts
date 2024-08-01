@@ -1,6 +1,7 @@
-import { batchActionAsync } from "~/server/api/common";
+import { batchAction } from "~/server/api/common";
 import { getContactIds } from "~/server/db/query/coreforce";
 import { inngest } from "../client";
+import { authorizeApi } from "./api_authorization";
 import logInngestError from "./error_handling";
 import { updateUserCartItems } from "./update_user_cart";
 
@@ -16,28 +17,35 @@ export const updateAllCartItems = inngest.createFunction(
       return await getContactIds();
     });
 
-    const functions: Promise<{ countSynced: number }>[] = [];
-    await batchActionAsync(
-      contacts,
-      async (contactBatch, index) => {
-        functions.push(
-          step.invoke("update-user-cart-items" + index, {
-            function: updateUserCartItems,
-            data: {
-              contacts: contactBatch,
-              checkAuth: false,
-            },
-          }),
-        );
-      },
-      900,
-    );
+    await step.invoke("authorize-api", {
+      function: authorizeApi,
+      data: {},
+    });
 
-    const functionResults = await Promise.all(functions);
-    const countSynced = functionResults.reduce(
-      (sum, result) => sum + result.countSynced,
-      0,
-    );
+    const batches = await step.run("create-batches", async () => {
+      return batchAction(contacts, (batch, index) => ({ batch, index }), 100);
+    });
+
+    // const functions = batches.map((batch, index) =>
+    let countSynced = 0;
+    for (const { batch, index } of batches) {
+      countSynced += (
+        await step.invoke("update-user-cart-items" + index, {
+          function: updateUserCartItems,
+          data: {
+            contacts: batch,
+            checkAuth: false,
+          },
+        })
+      ).countSynced;
+    }
+    // );
+
+    // const functionResults = await Promise.all(functions);
+    // const countSynced = functionResults.reduce(
+    //   (sum, result) => sum + result.countSynced,
+    //   0,
+    // );
 
     return { countSynced };
   },
