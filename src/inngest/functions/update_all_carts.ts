@@ -23,14 +23,13 @@ export const updateAllCartItems = inngest.createFunction(
     });
 
     const batches = await step.run("create-batches", async () => {
-      return batchAction(contacts, (batch, index) => ({ batch, index }), 100);
+      return batchAction(contacts, (batch, index) => ({ batch, index }), 50);
     });
 
-    // const functions = batches.map((batch, index) =>
     let countSynced = 0;
     for (const { batch, index } of batches) {
       countSynced += (
-        await step.invoke("update-user-cart-items" + index, {
+        await step.invoke("update-user-cart-items-" + index, {
           function: updateUserCartItems,
           data: {
             contacts: batch,
@@ -38,14 +37,9 @@ export const updateAllCartItems = inngest.createFunction(
           },
         })
       ).countSynced;
-    }
-    // );
 
-    // const functionResults = await Promise.all(functions);
-    // const countSynced = functionResults.reduce(
-    //   (sum, result) => sum + result.countSynced,
-    //   0,
-    // );
+      await step.sleep("api-delay-" + index, "1s");
+    }
 
     return { countSynced };
   },

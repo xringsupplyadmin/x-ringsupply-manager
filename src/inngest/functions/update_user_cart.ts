@@ -12,7 +12,7 @@ export const updateUserCartItems = inngest.createFunction(
     name: "Update Specific User Carts",
     onFailure: logInngestError,
     concurrency: {
-      limit: 20,
+      limit: 5,
       scope: "fn",
     },
   },
