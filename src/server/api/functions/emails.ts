@@ -131,13 +131,24 @@ export async function processEmailTasks(): Promise<
       taskResults.push({
         ...taskResult,
         currentHour: currentHour,
-        status: "skipped",
-        message: "No more emails left in sequence",
+        status: "sent",
+        message: "Completed sequence",
       });
       continue;
     }
 
     const nextSequenceDate = sequenceDates[nextSequence]!;
+
+    if (!primaryEmailAddress) {
+      taskResults.push({
+        ...taskResult,
+        sequenceDate: nextSequenceDate,
+        currentHour: currentHour,
+        status: "failed",
+        message: "No primary email address",
+      });
+      continue;
+    }
 
     if (nextSequenceDate <= origination) {
       taskResults.push({
@@ -175,7 +186,7 @@ export async function processEmailTasks(): Promise<
           debug: {
             origination: origination,
             sequence: nextSequence.toString(),
-            email: primaryEmailAddress ?? "NoEmail",
+            email: primaryEmailAddress,
             firstName: firstName ?? "NoFirstName",
             lastName: lastName ?? "NoLastName",
           },
@@ -183,7 +194,7 @@ export async function processEmailTasks(): Promise<
       ),
     );
     formData.set("sequence", nextSequence.toString());
-    formData.set("email", "mmeredith@x-ringsupply.com");
+    formData.set("email", primaryEmailAddress);
     // Create the name from the first and last name
     const name = [firstName, lastName].filter((s) => !!s).join(" ");
     formData.set("name", name === "" ? "Customer" : name);
