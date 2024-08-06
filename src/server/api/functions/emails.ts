@@ -162,8 +162,9 @@ export async function processEmailTasks(): Promise<
     }
 
     if (
-      currentHour < env.FOLLOWUP_START_HOUR ||
-      currentHour > env.FOLLOWUP_END_HOUR
+      nextSequence > 0 &&
+      (currentHour < env.FOLLOWUP_START_HOUR ||
+        currentHour > env.FOLLOWUP_END_HOUR)
     ) {
       taskResults.push({
         ...taskResult,
