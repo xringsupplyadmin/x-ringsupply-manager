@@ -23,7 +23,7 @@ export const updateAllCartItems = inngest.createFunction(
     });
 
     const batches = await step.run("create-batches", async () => {
-      return batchAction(contacts, (batch, index) => ({ batch, index }), 50);
+      return batchAction(contacts, (batch, index) => ({ batch, index }), 100);
     });
 
     let countSynced = 0;
@@ -37,8 +37,6 @@ export const updateAllCartItems = inngest.createFunction(
           },
         })
       ).countSynced;
-
-      await step.sleep("api-delay-" + index, "1s");
     }
 
     return { countSynced };
