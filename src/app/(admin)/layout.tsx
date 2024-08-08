@@ -22,6 +22,9 @@ async function NavLinks() {
         <Link href="/contacts" className="">
           View Contacts
         </Link>
+        <Link href="/all-cart-items" className="">
+          All Cart Items
+        </Link>
       </>
     );
   } else {

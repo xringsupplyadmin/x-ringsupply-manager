@@ -23,10 +23,10 @@ export default async function RootLayout({
       <body className="flex min-h-screen flex-col justify-normal">
         <TRPCReactProvider>{children}</TRPCReactProvider>
         {env.NODE_ENV !== "production" && (
-          <Alert className="absolute bottom-5 right-5 w-auto p-2">
+          <Alert className="fixed bottom-5 right-5 w-max p-2">
             <AlertDescription className="flex flex-row items-center gap-2">
               <CircleAlert />
-              Preview Build
+              Development Build
             </AlertDescription>
           </Alert>
         )}
