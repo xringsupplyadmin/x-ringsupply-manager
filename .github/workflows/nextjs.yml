@@ -1,4 +1,4 @@
-name: Deploy Next.js site to Production
+name: Deploy site to production
 
 on:
   # Runs on pushes targeting the default branch
@@ -62,6 +62,12 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+      - name: Save all .envs file
+        run: |
+          python -c "import os; file = open('.env', 'w'); file.write(os.environ['ALL']); file.close()"
+        shell: bash
+        env:
+          ALL: ${{ toJSON(secrets) }}
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
 
