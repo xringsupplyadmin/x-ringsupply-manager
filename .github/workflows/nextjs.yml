@@ -50,6 +50,7 @@ jobs:
       - name: Build
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          EDGEDB_SECRET_KEY: ${{ secrets.EDGEDB_SECRET_KEY }}
         run: |
           vercel pull --environment production --yes --token $VERCEL_TOKEN
           vercel build --prod
