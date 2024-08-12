@@ -64,10 +64,12 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Save all .envs file
         run: |
-          python3 -c "import os; file = open('.env', 'w'); file.write(os.environ['ALL']); file.close()"
+          python3 ./scripts/actions-env.py
         shell: bash
         env:
           ALL: ${{ toJSON(secrets) }}
+          ENV: ${{ toJSON(secrets.ENV) }}
+          VAR: ${{ toJSON(variables) }}
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
 
