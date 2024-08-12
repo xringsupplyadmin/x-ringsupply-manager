@@ -51,8 +51,8 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          vercel pull --env production --yes --token $VERCEL_TOKEN
-          vercel build
+          vercel pull --environment production --yes --token $VERCEL_TOKEN
+          vercel build --prod
 
   # Deployment job
   deploy:
