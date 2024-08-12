@@ -68,7 +68,7 @@ jobs:
           file: .env.secrets
       - uses: thaind0/envfile@v1
         with:
-          secrets: ${{ toJSON(env) }}
+          secrets: ${{ toJSON(vars) }}
           file: .env
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
