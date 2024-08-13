@@ -74,31 +74,31 @@ export namespace cfg {
 }
 export namespace coreforce {
   export interface CartItem extends std.$Object {
-    "productId": number;
-    "model"?: string | null;
     "cartId": number;
     "cartItemId": number;
-    "manufacturerSku"?: string | null;
     "description": string;
     "imageUrl": string;
-    "quantity": number;
-    "upcCode"?: string | null;
-    "timeSubmitted": Date;
-    "salePrice": number;
-    "unitPrice": number;
     "listPrice": number;
+    "manufacturerSku"?: string | null;
+    "model"?: string | null;
+    "productId": number;
+    "quantity": number;
+    "salePrice": number;
     "smallImageUrl": string;
-    "contact": Contact;
+    "timeSubmitted": Date;
+    "unitPrice": number;
+    "upcCode"?: string | null;
     "addons": ProductAddon[];
+    "contact": Contact;
   }
   export interface Contact extends std.$Object {
+    "contactId": number;
     "address1"?: string | null;
     "address2"?: string | null;
     "alternateEmail"?: string | null;
     "businessName"?: string | null;
     "city"?: string | null;
     "company"?: string | null;
-    "contactId": number;
     "country"?: string | null;
     "firstName"?: string | null;
     "lastName"?: string | null;
@@ -111,8 +111,8 @@ export namespace coreforce {
     "state"?: string | null;
     "unsubscribed"?: boolean | null;
     "items": CartItem[];
-    "steps": EmailTaskStep[];
     "activeTask"?: EmailTask | null;
+    "steps": EmailTaskStep[];
   }
   export interface EmailTask extends std.$Object {
     "origination": Date;
@@ -127,15 +127,15 @@ export namespace coreforce {
     "contact": Contact;
   }
   export interface ProductAddon extends std.$Object {
-    "cartItemId": number;
     "productAddonId": number;
+    "cartItemId": number;
     "cartItemAddonId": number;
     "description": string;
     "groupDescription"?: string | null;
     "productId": number;
     "quantity": number;
-    "sortOrder": number;
     "salePrice": number;
+    "sortOrder": number;
     "cartItem": CartItem;
   }
 }
@@ -156,12 +156,12 @@ export namespace $default {
     "user": User;
   }
   export interface InngestError extends std.$Object {
+    "acknowledged"?: boolean | null;
     "errorName": string;
     "functionId": string;
     "message": string;
     "runId": string;
     "timestamp"?: Date | null;
-    "acknowledged"?: boolean | null;
   }
   export interface Session extends std.$Object {
     "userId": string;
