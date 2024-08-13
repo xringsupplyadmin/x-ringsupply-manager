@@ -35,7 +35,7 @@ jobs:
           cache: npm
       - name: CLI Dependencies
         run: |
-          npm i -g dotenv-cli pm2
+          npm i -g dotenv-cli     pm2
       - name: Restore cache
         uses: actions/cache@v4
         with:
@@ -66,7 +66,7 @@ jobs:
       - name: Copy deployment
         run: |
           mkdir -p /home/gh-actions/deployments/production
-          cp -r . /home/gh-actions/deployments/production/x-ringsupply-manager
+          cp -rf . /home/gh-actions/deployments/production/x-ringsupply-manager
           cd /home/gh-actions/deployments/production/x-ringsupply-manager
       - name: Initialize server
         run: |
