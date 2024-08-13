@@ -67,6 +67,7 @@ jobs:
         id: deployment
         run: |
           mkdir -p /home/gh-actions/deployments/production
-          cp .   /home/gh-actions/deployments/production/x-ringsupply-manager
+          cp -r   .   /home/gh-actions/deployments/production/x-ringsupply-manager
           cd /home/gh-actions/deployments/production/x-ringsupply-manager
           pm2 startOrRestart ecosystem.config.cjs --env production
+          pm2 save
