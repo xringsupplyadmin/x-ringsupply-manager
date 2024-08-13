@@ -68,4 +68,4 @@ jobs:
       - run: mkdir -p $APP_DIR
       - run: cp -rf . $APP_DIR/x-ringsupply-manager
       - run: cd $APP_DIR/x-ringsupply-manager
-      - run: ssh production "cd $APP_DIR/x-ringsupply-manager; ./deploy.sh"
+      - run: ssh production "cd $APP_DIR/x-ringsupply-manager; $SHELL ./deploy.sh"
