@@ -26,9 +26,6 @@ jobs:
     runs-on: self-hosted
     environment: production
     steps:
-      - name: CLI Dependencies
-        run: |
-          npm i -g dotenv-cli
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Node
@@ -36,6 +33,9 @@ jobs:
         with:
           node-version: "20"
           cache: npm
+      - name: CLI Dependencies
+        run: |
+          npm i -g dotenv-cli
       - name: Restore cache
         uses: actions/cache@v4
         with:
