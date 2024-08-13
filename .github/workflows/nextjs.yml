@@ -66,10 +66,7 @@ jobs:
       - name: Deploy to LocalNode
         id: deployment
         run: |
-          echo "skipping deployment temporarily"
-          ls -lAh
-          exit 0
           mkdir -p /home/gh-actions/deployments/production
-          mv ./out /home/gh-actions/deployments/production/x-ringsupply-manager
+          cp .   /home/gh-actions/deployments/production/x-ringsupply-manager
           cd /home/gh-actions/deployments/production/x-ringsupply-manager
-          pm2 restart x-ringsupply-manager || pm2 start --name "x-ringsupply-manager"
+          pm2 startOrRestart ecosystem.config.cjs --env production
