@@ -26,6 +26,9 @@ jobs:
     runs-on: self-hosted
     environment: production
     steps:
+      - name: CLI Dependencies
+        run: |
+          npm i -g dotenv-cli
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Node
@@ -50,7 +53,7 @@ jobs:
         env:
           DOTENV_KEY: ${{ secrets.DOTENV_KEY }}
         run: |
-          dotenv -- npm run build
+          npx --no-install  dotenv -- npm run build
 
   # Deployment job
   deploy:
