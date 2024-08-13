@@ -35,8 +35,7 @@ jobs:
           cache: npm
       - name: CLI Dependencies
         run: |
-          npm i -g dotenv-cli
-          npm i -g pm2
+          npm i -g dotenv-cli pm2
       - name: Restore cache
         uses: actions/cache@v4
         with:
