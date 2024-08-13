@@ -43,3 +43,8 @@ yarn-error.log*
 *.tsbuildinfo
 
 dbschema/edgeql-js
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault

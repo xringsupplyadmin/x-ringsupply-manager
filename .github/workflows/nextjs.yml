@@ -45,15 +45,11 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
         run: |
-          npm i -g vercel
           npm ci
       - name: Build
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          EDGEDB_SECRET_KEY: ${{ secrets.EDGEDB_SECRET_KEY }}
         run: |
-          vercel pull --environment production --yes --token $VERCEL_TOKEN
-          vercel build --prod
+          npm run build
 
   # Deployment job
   deploy:
@@ -66,6 +62,9 @@ jobs:
       - name: Deploy to LocalNode
         id: deployment
         run: |
+          echo "skipping deployment temporarily"
+          ls -lAh
+          exit 0
           mkdir -p /home/gh-actions/deployments/production
           mv ./out /home/gh-actions/deployments/production/x-ringsupply-manager
           cd /home/gh-actions/deployments/production/x-ringsupply-manager
