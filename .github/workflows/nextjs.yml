@@ -63,20 +63,8 @@ jobs:
     runs-on: self-hosted
     needs: build
     steps:
-      - name: Copy deployment
-        run: |
-          mkdir -p /home/gh-actions/deployments/production
-          cp -rf . /home/gh-actions/deployments/production/x-ringsupply-manager
-          cd /home/gh-actions/deployments/production/x-ringsupply-manager
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-      - name: CLI Dependencies
-        run: |
-          npm i -g npm2
-      - name: Initialize server
-        run: |
-          npx --no-install pm2 startOrRestart ecosystem.config.cjs --env production
-          npx --no-install pm2 save
+      - run: mkdir -p /home/gh-actions/deployments/production
+      - run: cp -rf . /home/gh-actions/deployments/production/x-ringsupply-manager
+      - run: cd /home/gh-actions/deployments/production/x-ringsupply-manager
+      - run: /usr/bin/env sh -c npx --no-install pm2 startOrRestart ecosystem.config.cjs --env production
+      - run: /usr/bin/env sh -c npx --no-install pm2 save
