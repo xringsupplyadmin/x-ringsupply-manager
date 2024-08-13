@@ -48,8 +48,9 @@ jobs:
           npm ci
       - name: Build
         env:
+          DOTENV_KEY: ${{ secrets.DOTENV_KEY }}
         run: |
-          npm run build
+          dotenv -- npm run build
 
   # Deployment job
   deploy:
