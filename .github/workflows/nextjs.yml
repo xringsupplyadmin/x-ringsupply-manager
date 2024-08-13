@@ -66,5 +66,10 @@ jobs:
       - run: mkdir -p /home/gh-actions/deployments/production
       - run: cp -rf . /home/gh-actions/deployments/production/x-ringsupply-manager
       - run: cd /home/gh-actions/deployments/production/x-ringsupply-manager
-      - run: /usr/bin/env sh -c npx --no-install pm2 startOrRestart ecosystem.config.cjs --env production
-      - run: /usr/bin/env sh -c npx --no-install pm2 save
+      - name: "Create deployment script"
+        run: |
+          echo "npx --no-install pm2 startOrRestart ecosystem.config.cjs --env production" > deploy.sh
+          echo "/usr/bin/env sh -c npx --no-install pm2 save" >> deploy.sh
+          chmod +x deploy.sh
+      - name: "Deploy application"
+        run: ssh production "cd /home/gh-actions/deployments/production/x-ringsupply-manager; ./deploy.sh"
