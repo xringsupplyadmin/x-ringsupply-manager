@@ -35,7 +35,7 @@ jobs:
           cache: npm
       - name: CLI Dependencies
         run: |
-          npm i -g dotenv-cli pm2
+          npm i -g dotenv-cli   pm2
       - name: Restore cache
         uses: actions/cache@v4
         with:
@@ -63,11 +63,12 @@ jobs:
     runs-on: self-hosted
     needs: build
     steps:
-      - name: Deploy to LocalNode
-        id: deployment
+      - name: Copy deployment
         run: |
           mkdir -p /home/gh-actions/deployments/production
           cp -r   .   /home/gh-actions/deployments/production/x-ringsupply-manager
           cd /home/gh-actions/deployments/production/x-ringsupply-manager
-          pm2 startOrRestart ecosystem.config.cjs --env production
-          pm2 save
+      - name: Initialize server
+        run: |
+          npx pm2 startOrRestart ecosystem.config.cjs --env production
+          npx pm2 save
