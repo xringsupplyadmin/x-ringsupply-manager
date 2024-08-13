@@ -62,14 +62,10 @@ jobs:
       url: https://inngest.manager.x-ringsupply.com/
     runs-on: self-hosted
     needs: build
+    env:
+      APP_DIR: "/home/gh-actions/deployments/production"
     steps:
-      - run: mkdir -p /home/gh-actions/deployments/production
-      - run: cp -rf . /home/gh-actions/deployments/production/x-ringsupply-manager
-      - run: cd /home/gh-actions/deployments/production/x-ringsupply-manager
-      - name: "Create deployment script"
-        run: |
-          echo "npx --no-install pm2 startOrRestart ecosystem.config.cjs --env production" > deploy.sh
-          echo "/usr/bin/env sh -c npx --no-install pm2 save" >> deploy.sh
-          chmod +x deploy.sh
-      - name: "Deploy application"
-        run: ssh production "cd /home/gh-actions/deployments/production/x-ringsupply-manager; ./deploy.sh"
+      - run: mkdir -p $APP_DIR
+      - run: cp -rf . $APP_DIR/x-ringsupply-manager
+      - run: cd $APP_DIR/x-ringsupply-manager
+      - run: ssh production "cd $APP_DIR/x-ringsupply-manager; ./deploy.sh"
