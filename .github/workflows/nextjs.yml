@@ -53,6 +53,7 @@ jobs:
         env:
           DOTENV_KEY: ${{ secrets.DOTENV_KEY }}
         run: |
+          echo "DOTENV_KEY=$DOTENV_KEY" > .env
           npx --no-install dotenv -- npm run build
 
   # Deployment job
@@ -68,4 +69,4 @@ jobs:
       - run: mkdir -p $APP_DIR
       - run: cp -rf . $APP_DIR/x-ringsupply-manager
       - run: cd $APP_DIR/x-ringsupply-manager
-      - run: ssh production "source ~/.zshrc; cd $APP_DIR/x-ringsupply-manager; ./deploy.sh"
+      - run: ssh production "source ~/.zshrc; cd $APP_DIR/x-ringsupply-manager;   ./deploy.sh"
