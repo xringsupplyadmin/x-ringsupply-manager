@@ -2,45 +2,67 @@ import { Column, Img, Row, Section, Text } from "@react-email/components";
 import { renderAsync } from "@react-email/render";
 import { env } from "~/env";
 import { formatDate } from "~/lib/utils";
-import { type ProductAddon, type CartItemWithAddons } from "~/server/db/types";
-
-function getItemListPrice(item: CartItemWithAddons) {
-  return item.addons.reduce(
-    (sum, addon) => sum + addon.salePrice,
-    item.listPrice,
-  );
-}
-
-function getDisplayPrice(item: CartItemWithAddons) {
-  const listPrice = getItemListPrice(item);
-
-  // Only flex the discount if its good (10% or more)
-  return (
-    <Text style={{ fontSize: "16px" }}>
-      {item.quantity}&nbsp;x{" "}
-      {listPrice != 0 && listPrice >= item.unitPrice * 1.1 ? (
-        <>
-          <span style={{ textDecoration: "line-through" }}>
-            $&nbsp;{listPrice}
-          </span>{" "}
-          <span style={{ color: "#c92d18", fontStyle: "italic" }}>
-            $&nbsp;{item.unitPrice}
-          </span>
-        </>
-      ) : (
-        "$\u00A0" + item.unitPrice
-      )}
-    </Text>
-  );
-}
 
 type DebugInfo = {
-  sequence: string;
-  firstName: string;
-  lastName: string;
+  sequence: number;
+  name: string;
   email: string;
   origination: Date;
 };
+
+type EmailCartItem = {
+  cartItemId: number;
+  description: string;
+  smallImageUrl: string;
+  unitPrice: number;
+  listPrice: number;
+  quantity: number;
+};
+
+function formatPrice(price: number) {
+  return Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  })
+    .format(price)
+    .replace("$", "$\u00A0");
+}
+
+function getDisplayPrice(item: EmailCartItem) {
+  return (
+    <Text style={{ fontSize: "16px", marginLeft: "8px" }}>
+      <span>{item.quantity}&nbsp;x</span>
+      <span
+        // Price container
+        style={{
+          display: "block",
+          width: "max-content",
+          marginLeft: "auto",
+        }}
+      >
+        {/* Only flex the discount if its good (10% or more) */}
+        {item.listPrice != 0 && item.listPrice >= item.unitPrice * 1.1 ? (
+          <>
+            <span style={{ display: "block", textDecoration: "line-through" }}>
+              {formatPrice(item.listPrice)}
+            </span>{" "}
+            <span
+              style={{
+                display: "block",
+                color: "#c92d18",
+                fontStyle: "italic",
+              }}
+            >
+              {formatPrice(item.unitPrice)}
+            </span>
+          </>
+        ) : (
+          formatPrice(item.unitPrice)
+        )}
+      </span>
+    </Text>
+  );
+}
 
 export function DebugInfo({ debug }: { debug: DebugInfo }) {
   return (
@@ -51,7 +73,7 @@ export function DebugInfo({ debug }: { debug: DebugInfo }) {
         {formatDate(debug.origination)}
       </Text>
       <Text style={{ marginTop: 0 }}>
-        {debug.firstName} {debug.lastName} - {debug.email}
+        {debug.name} - {debug.email}
       </Text>
     </>
   );
@@ -61,7 +83,7 @@ export function CartTemplate({
   items,
   debug,
 }: {
-  items: CartItemWithAddons[];
+  items: EmailCartItem[];
   debug?: DebugInfo;
 }) {
   return (
@@ -74,7 +96,7 @@ export function CartTemplate({
   );
 }
 
-export function CartItemTemplate({ item }: { item: CartItemWithAddons }) {
+export function CartItemTemplate({ item }: { item: EmailCartItem }) {
   const priceContainer = getDisplayPrice(item);
   return (
     <Row style={{ marginBottom: "16px" }}>
@@ -93,46 +115,8 @@ export function CartItemTemplate({ item }: { item: CartItemWithAddons }) {
       </Column>
       <Column style={{ paddingLeft: "25px" }}>
         <h4 style={{ margin: 0 }}>{item.description}</h4>
-        {/* {item.addons.length > 0 ? (
-          <Row>
-            <ProductAddonsTemplate addons={item.addons} />
-            {priceContainer}
-          </Row>
-        ) : (
-          priceContainer
-        )} */}
         <Column style={{ textAlign: "right" }}>{priceContainer}</Column>
       </Column>
-    </Row>
-  );
-}
-
-export function ProductAddonsTemplate({ addons }: { addons: ProductAddon[] }) {
-  return (
-    <>
-      {addons.map((addon) => (
-        <ProductAddonTemplate key={addon.productAddonId} addon={addon} />
-      ))}
-    </>
-  );
-}
-
-export function ProductAddonTemplate({ addon }: { addon: ProductAddon }) {
-  return (
-    <Row style={{}}>
-      <Column style={{ width: "75%" }}>
-        {addon.groupDescription ? (
-          <>
-            <Text style={{ margin: 0 }}>{addon.groupDescription}</Text>
-            <Text style={{ marginTop: 0 }}>{addon.description}</Text>
-          </>
-        ) : (
-          <Text style={{ marginTop: 0 }}>{addon.description}</Text>
-        )}
-      </Column>
-      <Text style={{ marginTop: 0, textAlign: "right" }}>
-        $&nbsp;{addon.salePrice}
-      </Text>
     </Row>
   );
 }
