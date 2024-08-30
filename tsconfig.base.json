@@ -1,6 +1,4 @@
 {
-  "references": [{ "path": "./dbschema" }, { "path": "./src" }],
-  "files": [],
   "compilerOptions": {
     /* Base Options: */
     "esModuleInterop": true,
@@ -19,7 +17,9 @@
 
     /* Bundled projects */
     "lib": ["dom", "dom.iterable", "ES2022"],
-    "noEmit": true,
+    "composite": true,
+    "rootDir": ".",
+    "outDir": "./dist",
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "preserve",
@@ -33,14 +33,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": [
-    ".eslintrc.cjs",
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.cjs",
-    "**/*.js",
-    ".next/types/**/*.ts"
-  ],
+  "include": [".eslintrc.cjs", "next-env.d.ts", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
