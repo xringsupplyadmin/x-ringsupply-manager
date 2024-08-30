@@ -1,8 +1,10 @@
-import { z } from "zod";
-import { authorize } from "./cf_authorization";
-import { type ApiResponse, fetchSession } from "../common";
 import { urlJoinP } from "url-join-ts";
+import { z } from "zod";
 import { env } from "~/env";
+import { fetchSession } from "~/lib/utils";
+import { inngest } from "../inngest";
+import { authorizeApi } from "./api_authorization";
+import logInngestError from "./error_handling";
 
 const formattedNumber = z.preprocess(
   (num) =>
@@ -27,9 +29,10 @@ const safeUrl = (fallback: string) =>
   }, z.string().url());
 
 /**
- * The response from the CF API for the cart items
+ * The response from the CF "API" for the cart items
  *
- * I hate this so much, for sanity sake keep this definition minimized
+ * Why is this not a normal API method?
+ * Because CF is a piece of sh*t (pardon the french)
  */
 const RetailStoreCart = z.object({
   shopping_cart_items: z
@@ -42,35 +45,7 @@ const RetailStoreCart = z.object({
         coerce: true,
       }),
       quantity: z.number(),
-      sale_price: formattedNumber,
-      product_addons: z
-        .union([z.never().array(), z.object({}).passthrough()])
-        .transform((addons) => {
-          if (Array.isArray(addons)) {
-            return addons;
-          }
-
-          return z
-            .object({
-              product_addon_id: z.number(),
-              product_id: z.number(),
-              description: z.string(),
-              group_description: z.string(),
-              sale_price: formattedNumber,
-              sort_order: z.number(),
-              shopping_cart_item_addon_id: z.number(),
-              shopping_cart_item_id: z.number(),
-              quantity: z.number(),
-            })
-            .array()
-            .parse(Object.values(addons));
-        }),
       unit_price: formattedNumber,
-      upc_code: z.string().transform((str) => (str === "" ? undefined : str)),
-      manufacturer_sku: z
-        .string()
-        .transform((str) => (str === "" ? undefined : str)),
-      model: z.string().transform((str) => (str === "" ? undefined : str)),
       list_price: formattedNumber,
       small_image_url: safeUrl(
         "https://placehold.co/300/jpg?text=Image+Not+Found",
@@ -89,48 +64,44 @@ const RetailStoreCartResponse = RetailStoreCart.extend({
   }),
 );
 
-export async function fetchApiShoppingCart(
-  contactId: number,
-  checkAuth = true,
-): Promise<ApiResponse<{ cart: RetailStoreCart }>> {
-  if (checkAuth) {
-    const authorization = await authorize();
+export const fetchApiCart = inngest.createFunction(
+  {
+    id: "fetchApiCart",
+    name: "Fetch Retail Store Cart",
+    onFailure: logInngestError,
+  },
+  {
+    event: "api/fetch.cart",
+  },
+  async ({ event, step }) => {
+    await step.invoke("authorize-api", {
+      function: authorizeApi,
+    });
 
-    if (!authorization.success) {
-      return authorization;
+    const response = await fetchSession(
+      urlJoinP(env.NEXT_PUBLIC_CF_HOST, ["retail-store-controller"], {
+        ajax: true,
+        url_action: "get_shopping_cart_items",
+        contact_id: event.data.cfContactId,
+      }),
+      {
+        method: "GET",
+        cache: "no-cache",
+      },
+    );
+
+    const responseData = RetailStoreCartResponse.safeParse(
+      await response.json(),
+    );
+
+    if (!responseData.success) {
+      throw new Error(responseData.error.message);
     }
-  }
 
-  const response = await fetchSession(
-    urlJoinP(env.NEXT_PUBLIC_CF_HOST, ["retail-store-controller"], {
-      ajax: true,
-      url_action: "get_shopping_cart_items",
-      contact_id: contactId,
-    }),
-    {
-      method: "GET",
-      cache: "no-cache",
-    },
-  );
+    if (responseData.data.requires_user !== undefined) {
+      throw new Error("AUTH: RetailStoreController Authentication Rejected");
+    }
 
-  const data = RetailStoreCartResponse.safeParse(await response.json());
-
-  if (!data.success) {
-    return {
-      success: false,
-      error: data.error.message,
-    };
-  }
-
-  if (data.data.requires_user !== undefined) {
-    return {
-      success: false,
-      error: "AUTH: RetailStoreController Authentication Failure",
-    };
-  }
-
-  return {
-    success: true,
-    cart: data.data,
-  };
-}
+    return responseData.data.shopping_cart_items;
+  },
+);

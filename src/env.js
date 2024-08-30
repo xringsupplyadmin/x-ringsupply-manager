@@ -1,7 +1,7 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
-import "dotenv/config"; 
+import "dotenv/config";
 
 export const env = createEnv({
   /**
@@ -29,7 +29,6 @@ export const env = createEnv({
     CF_USERNAME: z.string(),
     CF_PASSWORD: z.string(),
     COREILLA_WEBHOOK_URL: z.string(),
-    WATCHDOG_CRON: z.string(),
     EMAIL_SEQUENCE: z.string().transform((n) =>
       n
         .split(" ")
@@ -37,15 +36,12 @@ export const env = createEnv({
         .filter((s) => s >= 0)
         .sort(),
     ),
-    MAX_AGE_THRESHOLD: z.string().transform((n) => parseInt(n)),
-    MIN_AGE_THRESHOLD: z.string().transform((n) => parseInt(n)),
-    FOLLOWUP_START_HOUR: z.string().transform((n) => parseInt(n)),
-    FOLLOWUP_END_HOUR: z.string().transform((n) => parseInt(n)),
+    FOLLOWUP_CRON: z.string(),
     DEBUG: z
       .string()
       .transform((s) => s.toLowerCase() === "true")
       .or(z.boolean()),
-    DEBUG_CONTACT_ID: z.string().transform((s) => parseInt(s)),
+    DEBUG_EMAIL: z.string().email(),
   },
 
   /**
@@ -72,14 +68,10 @@ export const env = createEnv({
     CF_USERNAME: process.env.CF_USERNAME,
     CF_PASSWORD: process.env.CF_PASSWORD,
     COREILLA_WEBHOOK_URL: process.env.COREILLA_WEBHOOK_URL,
-    WATCHDOG_CRON: process.env.WATCHDOG_CRON,
     EMAIL_SEQUENCE: process.env.EMAIL_SEQUENCE,
-    MAX_AGE_THRESHOLD: process.env.MAX_AGE_THRESHOLD,
-    MIN_AGE_THRESHOLD: process.env.MIN_AGE_THRESHOLD,
-    FOLLOWUP_START_HOUR: process.env.FOLLOWUP_START_HOUR,
-    FOLLOWUP_END_HOUR: process.env.FOLLOWUP_END_HOUR,
+    FOLLOWUP_CRON: process.env.FOLLOWUP_CRON,
     DEBUG: process.env.DEBUG,
-    DEBUG_CONTACT_ID: process.env.DEBUG_CONTACT_ID,
+    DEBUG_EMAIL: process.env.DEBUG_EMAIL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

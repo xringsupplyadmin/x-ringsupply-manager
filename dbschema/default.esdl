@@ -18,7 +18,7 @@ module default {
             constraint exclusive;
         };
         required verified: bool {
-            default := false;
+            default := (select count(User) = 1);
         };
     }
  

@@ -27,6 +27,7 @@ export namespace cfg {
     "allow_user_specified_id"?: boolean | null;
     "cors_allow_origins": string[];
     "auto_rebuild_query_cache"?: boolean | null;
+    "auto_rebuild_query_cache_timeout"?: edgedb.Duration | null;
     "query_cache_mode"?: QueryCacheMode | null;
     "shared_buffers"?: edgedb.ConfigMemory | null;
     "query_work_mem"?: edgedb.ConfigMemory | null;
@@ -79,64 +80,33 @@ export namespace coreforce {
     "description": string;
     "imageUrl": string;
     "listPrice": number;
-    "manufacturerSku"?: string | null;
-    "model"?: string | null;
     "productId": number;
     "quantity": number;
-    "salePrice": number;
     "smallImageUrl": string;
     "timeSubmitted": Date;
     "unitPrice": number;
-    "upcCode"?: string | null;
-    "addons": ProductAddon[];
     "contact": Contact;
   }
   export interface Contact extends std.$Object {
-    "contactId": number;
-    "address1"?: string | null;
-    "address2"?: string | null;
-    "alternateEmail"?: string | null;
-    "businessName"?: string | null;
-    "city"?: string | null;
-    "company"?: string | null;
-    "country"?: string | null;
-    "firstName"?: string | null;
-    "lastName"?: string | null;
-    "notes"?: string | null;
-    "phone"?: string | null;
-    "phoneNumbers"?: string | null;
-    "postalCode"?: string | null;
-    "primaryEmailAddress"?: string | null;
-    "salutation"?: string | null;
-    "state"?: string | null;
-    "unsubscribed"?: boolean | null;
+    "unsubscribed": boolean;
+    "email": string;
+    "cfContactId": number;
+    "fullName": string;
     "items": CartItem[];
     "activeTask"?: EmailTask | null;
     "steps": EmailTaskStep[];
   }
   export interface EmailTask extends std.$Object {
     "origination": Date;
-    "sequence"?: number | null;
+    "sequence": number;
     "contact": Contact;
   }
   export interface EmailTaskStep extends std.$Object {
     "message": string;
-    "sequence"?: number | null;
+    "sequence": number;
     "success": boolean;
     "time": Date;
     "contact": Contact;
-  }
-  export interface ProductAddon extends std.$Object {
-    "productAddonId": number;
-    "cartItemId": number;
-    "cartItemAddonId": number;
-    "description": string;
-    "groupDescription"?: string | null;
-    "productId": number;
-    "quantity": number;
-    "salePrice": number;
-    "sortOrder": number;
-    "cartItem": CartItem;
   }
 }
 export namespace $default {
@@ -469,7 +439,6 @@ export interface types {
     "Contact": coreforce.Contact;
     "EmailTask": coreforce.EmailTask;
     "EmailTaskStep": coreforce.EmailTaskStep;
-    "ProductAddon": coreforce.ProductAddon;
   };
   "default": {
     "Account": $default.Account;

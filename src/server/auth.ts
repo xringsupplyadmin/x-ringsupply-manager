@@ -9,7 +9,7 @@ import { EdgeDBAdapter } from "@auth/edgedb-adapter";
 
 import { env } from "~/env";
 import client from "./db/client";
-import { getUserPermissions } from "./db/query/default";
+import e from "@/dbschema/edgeql-js";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
       user: {
         ...session.user,
         id: user.id,
-        permissions: await getUserPermissions(user.id),
+        permissions: await getOrCreatePermission(user.id),
       },
     }),
   },
@@ -68,3 +68,23 @@ export const authOptions: NextAuthOptions = {
  * @see https://next-auth.js.org/configuration/nextjs
  */
 export const getServerAuthSession = () => getServerSession(authOptions);
+
+export async function getOrCreatePermission(userId: string) {
+  const permissionQuery = e.select(
+    e
+      .insert(e.default.UserPermission, {
+        user: e.select(e.default.User, (u) => ({
+          filter_single: e.op(u.id, "=", e.uuid(userId)),
+        })),
+      })
+      .unlessConflict((p) => ({
+        on: p.user,
+        else: p,
+      })),
+    (p) => ({
+      ...p["*"],
+    }),
+  );
+
+  return await permissionQuery.run(client);
+}
