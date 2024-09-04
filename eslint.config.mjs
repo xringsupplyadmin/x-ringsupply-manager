@@ -24,6 +24,7 @@ export default tseslint.config(
   ...compat.extends("plugin:react-hooks/recommended"),
   {
     languageOptions: {
+      parser: tseslint.parser,
       parserOptions: {
         project: true,
       },
