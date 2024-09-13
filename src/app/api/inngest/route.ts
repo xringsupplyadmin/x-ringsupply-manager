@@ -1,15 +1,18 @@
 import { serve } from "inngest/next";
 import { inngest } from "~/server/api/inngest";
-import { updateContactCart } from "~/server/api/functions/update_contact_cart";
-import { authorizeApi } from "~/server/api/functions/api_authorization";
-import { executeTask } from "~/server/api/functions/execute_task";
-import { createTask, deleteTask } from "~/server/api/functions/task_common";
-import { fetchApiCart } from "~/server/api/functions/fetch_cart";
-import { followup } from "~/server/api/functions/followup";
+import { updateContactCart } from "~/server/api/functions/emails/update_contact_cart";
+import { authorizeApi } from "~/server/api/functions/emails/api_authorization";
+import { executeTask } from "~/server/api/functions/emails/execute_task";
+import {
+  createTask,
+  deleteTask,
+} from "~/server/api/functions/emails/task_common";
+import { fetchApiCart } from "~/server/api/functions/emails/fetch_cart";
+import { followup } from "~/server/api/functions/emails/followup";
 import {
   cancelContactTask,
   createContact,
-} from "~/server/api/functions/contact";
+} from "~/server/api/functions/emails/contact";
 
 export const { GET, POST, PUT } = serve({
   client: inngest,

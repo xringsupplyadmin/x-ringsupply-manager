@@ -4,7 +4,7 @@ import {
   getTemplateHtml,
 } from "~/components/email/cart_template";
 import { env } from "~/env";
-import { inngest } from "../inngest";
+import { inngest } from "../../inngest";
 import {
   deleteTask,
   getTask,

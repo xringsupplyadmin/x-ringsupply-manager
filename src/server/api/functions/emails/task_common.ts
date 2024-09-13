@@ -1,6 +1,6 @@
 import e from "@/dbschema/edgeql-js";
 import client from "~/server/db/client";
-import { inngest } from "../inngest";
+import { inngest } from "../../inngest";
 import logInngestError from "./error_handling";
 
 type TaskStep = {

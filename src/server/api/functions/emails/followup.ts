@@ -1,7 +1,7 @@
 import e from "@/dbschema/edgeql-js";
 import { env } from "~/env";
 import client from "~/server/db/client";
-import { inngest } from "../inngest";
+import { inngest } from "../../inngest";
 import logInngestError from "./error_handling";
 
 function getSequenceDate(days: number) {
