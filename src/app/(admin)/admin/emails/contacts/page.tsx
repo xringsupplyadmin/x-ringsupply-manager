@@ -43,7 +43,7 @@ export default async function TaskManagerPage() {
                 <TableCell>{contact.email}</TableCell>
                 <TableCell>
                   {contact.activeTask ? (
-                    <Link href={`/admin/task-manager/${contact.id}`}>
+                    <Link href={`/admin/emails/task-manager/${contact.id}`}>
                       View Task
                     </Link>
                   ) : (
@@ -52,10 +52,10 @@ export default async function TaskManagerPage() {
                 </TableCell>
                 <TableCell>{contact.items.length}</TableCell>
                 <TableCell className="flex flex-row gap-2 align-middle">
-                  <Link href={`/admin/touchpoint-manager/${contact.id}`}>
+                  <Link href={`/admin/emails/touchpoint-manager/${contact.id}`}>
                     View Touchpoints
                   </Link>
-                  <Link href={`/admin/view-cart/${contact.id}`}>View Cart</Link>
+                  <Link href={`/admin/emails/view-cart/${contact.id}`}>View Cart</Link>
                 </TableCell>
               </TableRow>
             ))

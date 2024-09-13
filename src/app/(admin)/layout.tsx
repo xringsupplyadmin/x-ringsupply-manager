@@ -1,5 +1,13 @@
 import Link from "next/link";
 import { DarkModeToggle } from "~/components/dark_mode_toggle";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuList,
+  NavigationMenuListItem,
+  NavigationMenuTrigger,
+} from "~/components/ui/navigation-menu";
 import { getServerAuthSession } from "~/server/auth";
 
 export const metadata = {
@@ -12,20 +20,72 @@ async function NavLinks() {
   const session = await getServerAuthSession();
   if (session?.user) {
     return (
-      <>
-        <Link href="/admin/task-manager/all" className="">
-          Task Manager
-        </Link>
-        <Link href="/admin/touchpoint-manager/all" className="">
-          Touchpoint Manager
-        </Link>
-        <Link href="/admin/contacts" className="">
-          View Contacts
-        </Link>
-        <Link href="/admin/all-cart-items" className="">
-          All Cart Items
-        </Link>
-      </>
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Emails</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid gap-2 p-2 md:w-[400px] lg:w-[500px] lg:grid-cols-2">
+                <NavigationMenuListItem
+                  href="/admin/emails/task-manager/all"
+                  title="Active Tasks"
+                >
+                  View all active email tasks
+                </NavigationMenuListItem>
+                <NavigationMenuListItem
+                  href="/admin/emails/touchpoint-manager/all"
+                  title="Touchpoints"
+                >
+                  View touchpoints for all contacts
+                </NavigationMenuListItem>
+                <NavigationMenuListItem
+                  href="/admin/emails/contacts"
+                  title="Contacts"
+                >
+                  Manage contacts for emails
+                </NavigationMenuListItem>
+                <NavigationMenuListItem
+                  href="/admin/emails/all-cart-items"
+                  title="Cart Items"
+                >
+                  View all items in abandoned carts
+                </NavigationMenuListItem>
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid gap-2 p-2 md:w-[400px] lg:w-[600px] lg:grid-cols-2">
+                <NavigationMenuListItem
+                  href="/admin/products/catalog"
+                  title="View Catalog"
+                >
+                  View all currently imported products
+                </NavigationMenuListItem>
+                <NavigationMenuListItem
+                  href="/admin/products/bulk-editor"
+                  title="Bulk Editor"
+                >
+                  Manage multiple products at once
+                </NavigationMenuListItem>
+                <NavigationMenuListItem
+                  href="/admin/products/import"
+                  title="Import"
+                >
+                  Import products from a CoreFORCE generated CSV file
+                </NavigationMenuListItem>
+                <NavigationMenuListItem
+                  href="/admin/products/export"
+                  title="Export"
+                >
+                  Export products to a CoreFORCE compatible CSV file
+                </NavigationMenuListItem>
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
     );
   } else {
     return null;
