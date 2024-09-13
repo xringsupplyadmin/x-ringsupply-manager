@@ -1,5 +1,4 @@
 import Link from "next/link";
-import ServerAuthWrapper from "~/components/server_auth";
 import { getServerAuthSession } from "~/server/auth";
 
 export const metadata = {
@@ -58,7 +57,7 @@ export default async function RootLayout({
         </div>
       </nav>
       <main className="container flex flex-grow flex-col items-center justify-start bg-background py-6 text-foreground">
-        <ServerAuthWrapper page={() => <>{children}</>} />
+        {children}
       </main>
     </>
   );
