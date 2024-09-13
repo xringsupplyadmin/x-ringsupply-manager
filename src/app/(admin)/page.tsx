@@ -1,13 +1,7 @@
 import { AlertTriangle } from "lucide-react";
-import { redirect } from "next/navigation";
 import { Alert, AlertDescription } from "~/components/ui/alert";
-import { getServerAuthSession } from "~/server/auth";
 
 export default async function UnsubscribePage() {
-  const session = await getServerAuthSession();
-  if (session?.user) {
-    redirect("/admin");
-  }
   return (
     <main className="container flex items-center justify-center bg-background py-6 text-foreground">
       <Alert variant="destructive" className="w-3/5">

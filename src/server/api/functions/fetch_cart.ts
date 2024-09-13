@@ -1,7 +1,7 @@
 import { urlJoinP } from "url-join-ts";
 import { z } from "zod";
 import { env } from "~/env";
-import { fetchSession } from "~/lib/utils";
+import { fetchSession } from "~/lib/server_utils";
 import { inngest } from "../inngest";
 import { authorizeApi } from "./api_authorization";
 import logInngestError from "./error_handling";

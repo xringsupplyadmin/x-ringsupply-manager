@@ -4,7 +4,7 @@ import logInngestError from "./error_handling";
 import e from "@/dbschema/edgeql-js";
 import { urlJoinP } from "url-join-ts";
 import { env } from "~/env";
-import { CF_API_HEADER } from "~/lib/utils";
+import { CF_API_HEADER } from "~/lib/server_utils";
 import { z } from "zod";
 
 const GetContactsResponse = z

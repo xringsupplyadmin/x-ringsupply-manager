@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { DarkModeToggle } from "~/components/dark_mode_toggle";
 import { getServerAuthSession } from "~/server/auth";
 
 export const metadata = {
-  title: "X-Ring Supply Email Dashboard",
+  title: "X-Ring Supply Management Dashboard",
   description: "Internal Use Only",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
@@ -39,21 +40,22 @@ export default async function RootLayout({
   const session = await getServerAuthSession();
   return (
     <>
-      <nav className="flex items-center justify-between gap-4 bg-primary p-4 text-primary-foreground">
+      <nav className="flex items-center justify-between gap-4 bg-secondary p-4 text-secondary-foreground">
         <h1 className="text-2xl font-bold">X-Ring Supply</h1>
         <NavLinks />
         <div className="justify-right ml-auto flex flex-row items-center gap-4">
-          <p className="text-center text-lg text-white">
+          <p className="text-center text-lg">
             {session && (
               <span>Logged in as {session.user?.name ?? "Unknown"}</span>
             )}
           </p>
           <Link
             href={session ? "/api/auth/signout" : "/api/auth/signin"}
-            className="rounded-full bg-secondary px-5 py-1 font-semibold text-secondary-foreground no-underline transition hover:opacity-50"
+            className="rounded-full bg-primary px-5 py-1 font-semibold text-primary-foreground no-underline transition hover:opacity-50"
           >
             {session ? "Sign out" : "Sign in"}
           </Link>
+          <DarkModeToggle />
         </div>
       </nav>
       <main className="container flex flex-grow flex-col items-center justify-start bg-background py-6 text-foreground">
