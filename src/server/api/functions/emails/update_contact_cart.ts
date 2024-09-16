@@ -1,5 +1,5 @@
 import e from "@/dbschema/edgeql-js";
-import { fetchApiCart } from "~/server/api/functions/emails/fetch_cart";
+import { fetchApiCart } from "~/server/api/functions/retailstore/fetch_cart";
 import client from "~/server/db/client";
 import { inngest } from "../../inngest";
 import logInngestError from "./error_handling";

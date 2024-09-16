@@ -4,7 +4,7 @@ import { env } from "~/env";
 import { fetchSession } from "~/lib/server_utils";
 import { inngest } from "../../inngest";
 import { authorizeApi } from "./api_authorization";
-import logInngestError from "./error_handling";
+import logInngestError from "../emails/error_handling";
 
 const formattedNumber = z.preprocess(
   (num) =>

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { env } from "~/env";
 import { fetchSession, CF_API_HEADER } from "~/lib/server_utils";
 import { inngest } from "../../inngest";
-import logInngestError from "./error_handling";
+import logInngestError from "../emails/error_handling";
 
 const LoginResponse = z.union([
   z.object({
