@@ -54,26 +54,17 @@ const syncCategories = inngest.createFunction(
     });
 
     for (const category of categories) {
-      await step.run(
-        `update-category-${category.product_category_id}`,
-        async () => {
-          const categoryData = {
-            cfId: category.product_category_id,
-            code: category.product_category_code,
-            description: category.description,
-          };
-
-          await e
-            .insert(e.products.Category, categoryData)
-            .unlessConflict((record) => ({
-              on: record.cfId,
-              else: e.update(record, () => ({
-                set: categoryData,
-              })),
-            }))
-            .run(client);
-        },
-      );
+      await step.run(`update-category-${category.cfId}`, async () => {
+        await e
+          .insert(e.products.Category, category)
+          .unlessConflict((record) => ({
+            on: record.cfId,
+            else: e.update(record, () => ({
+              set: category,
+            })),
+          }))
+          .run(client);
+      });
     }
   },
 );
@@ -91,33 +82,24 @@ const syncDepartments = inngest.createFunction(
     });
 
     for (const department of departments) {
-      await step.run(
-        `update-department-${department.product_department_id}`,
-        async () => {
-          const departmentData = {
-            cfId: department.product_department_id,
-            code: department.product_department_code,
-            description: department.description,
-            categories: e.select(e.products.Category, (c) => ({
-              filter: e.op(
-                c.cfId,
-                "in",
-                e.set(...department.product_categories),
-              ),
-            })),
-          };
+      await step.run(`update-department-${department.cfId}`, async () => {
+        const departmentData = {
+          ...department,
+          categories: e.select(e.products.Category, (c) => ({
+            filter: e.op(c.cfId, "in", e.set(...department.categories)),
+          })),
+        };
 
-          await e
-            .insert(e.products.Department, departmentData)
-            .unlessConflict((record) => ({
-              on: record.cfId,
-              else: e.update(record, () => ({
-                set: departmentData,
-              })),
-            }))
-            .run(client);
-        },
-      );
+        await e
+          .insert(e.products.Department, departmentData)
+          .unlessConflict((record) => ({
+            on: record.cfId,
+            else: e.update(record, () => ({
+              set: departmentData,
+            })),
+          }))
+          .run(client);
+      });
     }
   },
 );
@@ -135,30 +117,17 @@ const syncManufacturers = inngest.createFunction(
     });
 
     for (const manufacturer of manufacturers) {
-      await step.run(
-        `update-manufacturer-${manufacturer.product_manufacturer_id}`,
-        async () => {
-          const manufacturerData = {
-            cfId: manufacturer.product_manufacturer_id,
-            code: manufacturer.product_manufacturer_code,
-            description: manufacturer.description,
-            detailedDescription: manufacturer.detailed_description,
-            metaDescription: manufacturer.meta_description,
-            imageId: manufacturer.image_id,
-            inactive: manufacturer.inactive,
-          };
-
-          await e
-            .insert(e.products.Manufacturer, manufacturerData)
-            .unlessConflict((record) => ({
-              on: record.cfId,
-              else: e.update(record, () => ({
-                set: manufacturerData,
-              })),
-            }))
-            .run(client);
-        },
-      );
+      await step.run(`update-manufacturer-${manufacturer.cfId}`, async () => {
+        await e
+          .insert(e.products.Manufacturer, manufacturer)
+          .unlessConflict((record) => ({
+            on: record.cfId,
+            else: e.update(record, () => ({
+              set: manufacturer,
+            })),
+          }))
+          .run(client);
+      });
     }
   },
 );
@@ -176,22 +145,13 @@ const syncTags = inngest.createFunction(
     });
 
     for (const tag of tags) {
-      await step.run(`update-tag-${tag.product_tag_id}`, async () => {
-        const tagData = {
-          cfId: tag.product_tag_id,
-          code: tag.product_tag_code,
-          description: tag.description,
-          detailedDescription: tag.detailed_description,
-          metaDescription: tag.meta_description,
-          inactive: tag.inactive,
-        };
-
+      await step.run(`update-tag-${tag.cfId}`, async () => {
         await e
-          .insert(e.products.Tag, tagData)
+          .insert(e.products.Tag, tag)
           .unlessConflict((record) => ({
             on: record.cfId,
             else: e.update(record, () => ({
-              set: tagData,
+              set: tag,
             })),
           }))
           .run(client);
@@ -213,21 +173,13 @@ const syncLocations = inngest.createFunction(
     });
 
     for (const location of locations) {
-      await step.run(`update-location-${location.location_id}`, async () => {
-        const locationData = {
-          cfId: location.location_id,
-          code: location.location_code,
-          description: location.description,
-          internalUse: location.internal_use_only,
-          inactive: location.inactive,
-        };
-
+      await step.run(`update-location-${location.cfId}`, async () => {
         await e
-          .insert(e.products.Location, locationData)
+          .insert(e.products.Location, location)
           .unlessConflict((record) => ({
             on: record.cfId,
             else: e.update(record, () => ({
-              set: locationData,
+              set: location,
             })),
           }))
           .run(client);

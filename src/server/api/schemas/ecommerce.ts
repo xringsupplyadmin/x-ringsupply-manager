@@ -1,5 +1,6 @@
 import { type LiteralZodEventSchema } from "inngest";
 import { z } from "zod";
+import { ProductResult } from "../functions/ecommerce/cf_api";
 
 const syncCategories = z.object({
   name: z.literal("ecommerce/sync/categories"),
@@ -31,6 +32,13 @@ const syncAll = z.object({
   data: z.object({}),
 }) satisfies LiteralZodEventSchema;
 
+const importProducts = z.object({
+  name: z.literal("ecommerce/import/products"),
+  data: z.object({
+    products: ProductResult.array(),
+  }),
+}) satisfies LiteralZodEventSchema;
+
 const schema = [
   syncCategories,
   syncDepartments,
@@ -38,5 +46,6 @@ const schema = [
   syncTags,
   syncLocations,
   syncAll,
+  importProducts,
 ];
 export default schema;
