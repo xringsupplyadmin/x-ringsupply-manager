@@ -13,6 +13,7 @@ import {
   cancelContactTask,
   createContact,
 } from "~/server/api/functions/emails/contact";
+import ecommerceSync from "~/server/api/functions/ecommerce/sync";
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
@@ -26,5 +27,6 @@ export const { GET, POST, PUT } = serve({
     deleteTask,
     executeTask,
     followup,
+    ...ecommerceSync,
   ],
 });

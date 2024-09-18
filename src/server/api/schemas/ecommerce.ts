@@ -26,11 +26,17 @@ const syncLocations = z.object({
   data: z.object({}),
 }) satisfies LiteralZodEventSchema;
 
+const syncAll = z.object({
+  name: z.literal("ecommerce/sync/all"),
+  data: z.object({}),
+}) satisfies LiteralZodEventSchema;
+
 const schema = [
   syncCategories,
   syncDepartments,
   syncManufacturers,
   syncTags,
   syncLocations,
+  syncAll,
 ];
 export default schema;
