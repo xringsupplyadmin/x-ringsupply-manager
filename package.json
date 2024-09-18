@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "next build",
-    "prebuild": "pnpm dlx @edgedb/generate edgeql-js && pnpm dlx @edgedb/generate interfaces",
+    "prebuild": "pnpm dlx @edgedb/generate edgeql-js && pnpm dlx @edgedb/generate interfaces && pnpm dlx edgedb-zod",
     "migrate:dev": "edgedb migrate --dev-mode",
     "migrate:create": "edgedb migration create && edgedb migrate --dev-mode",
     "migrate:prod": "edgedb migrate -I xringsupplyadmin/x-ringsupply-manager",
