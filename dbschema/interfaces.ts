@@ -173,6 +173,67 @@ export namespace fts {
   export type PGLanguage = "xxx_simple" | "ara" | "hye" | "eus" | "cat" | "dan" | "nld" | "eng" | "fin" | "fra" | "deu" | "ell" | "hin" | "hun" | "ind" | "gle" | "ita" | "lit" | "npi" | "nor" | "por" | "ron" | "rus" | "srp" | "spa" | "swe" | "tam" | "tur" | "yid";
   export type Weight = "A" | "B" | "C" | "D";
 }
+export namespace products {
+  export interface Category extends std.$Object {
+    "cfId": number;
+    "code": string;
+    "description": string;
+  }
+  export interface Department extends std.$Object {
+    "cfId": number;
+    "code": string;
+    "description": string;
+    "categories": Category[];
+  }
+  export interface Location extends std.$Object {
+    "cfId": number;
+    "code": string;
+    "description": string;
+    "inactive": boolean;
+    "internalUse": boolean;
+  }
+  export interface Manufacturer extends std.$Object {
+    "cfId": number;
+    "code": string;
+    "description": string;
+    "detailed_description"?: string | null;
+    "image_id"?: number | null;
+    "inactive": boolean;
+    "meta_description"?: string | null;
+  }
+  export interface Product extends std.$Object {
+    "upcCode"?: string | null;
+    "productCategoryIds"?: number[] | null;
+    "productTagIds"?: number[] | null;
+    "baseCost"?: number | null;
+    "cfId": number;
+    "code": string;
+    "dateCreated"?: Date | null;
+    "description": string;
+    "detailedDescription"?: string | null;
+    "imageId"?: number | null;
+    "imageUrls"?: string[] | null;
+    "linkName"?: string | null;
+    "listPrice"?: number | null;
+    "manufacturerAdvertisedPrice"?: number | null;
+    "manufacturerImageId"?: number | null;
+    "manufacturerSku"?: string | null;
+    "model"?: string | null;
+    "productManufacturerId"?: number | null;
+    "sortOrder": number;
+    "timeChanged"?: Date | null;
+    "productCategories": Category[];
+    "productTags": Tag[];
+  }
+  export interface Tag extends std.$Object {
+    "cfId": number;
+    "code": string;
+    "description": string;
+    "detailed_description"?: string | null;
+    "inactive": boolean;
+    "meta_description"?: string | null;
+  }
+}
 export namespace schema {
   export type AccessKind = "Select" | "UpdateRead" | "UpdateWrite" | "Delete" | "Insert";
   export interface $Object extends std.BaseObject {
@@ -446,6 +507,14 @@ export interface types {
     "LuceneLanguage": fts.LuceneLanguage;
     "PGLanguage": fts.PGLanguage;
     "Weight": fts.Weight;
+  };
+  "products": {
+    "Category": products.Category;
+    "Department": products.Department;
+    "Location": products.Location;
+    "Manufacturer": products.Manufacturer;
+    "Product": products.Product;
+    "Tag": products.Tag;
   };
   "schema": {
     "AccessKind": schema.AccessKind;
