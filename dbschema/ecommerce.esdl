@@ -26,9 +26,9 @@ module products {
       constraint exclusive;
     };
     required description: str;
-    detailed_description: str;
-    meta_description: str;
-    image_id: int64;
+    detailedDescription: str;
+    metaDescription: str;
+    imageId: int64;
     required inactive: bool;
   }
   type Tag {
@@ -39,8 +39,8 @@ module products {
       constraint exclusive;
     };
     required description: str;
-    detailed_description: str;
-    meta_description: str;
+    detailedDescription: str;
+    metaDescription: str;
     required inactive: bool;
   }
   type Location {

@@ -1,6 +1,19 @@
 import { z, type ZodTypeAny } from "zod";
 import { makeApiRequest, parseApiResponse } from "~/lib/server_utils";
 
+const undefineEmpty = <Type extends ZodTypeAny>(type: Type) =>
+  z.preprocess((val) => {
+    if (val === "") {
+      return undefined;
+    } else {
+      return val;
+    }
+  }, type.optional());
+const optApiNumber = undefineEmpty(z.number());
+const optApiNumberString = undefineEmpty(z.coerce.number());
+const optApiString = undefineEmpty(z.string());
+const idListString = z.string().transform((val) => val.split(",").map(Number));
+
 const CategoryResult = z.object({
   product_categories: z
     .object({
@@ -28,9 +41,9 @@ const ManufacturerResult = z.object({
       product_manufacturer_id: z.number(),
       product_manufacturer_code: z.string(),
       description: z.string(),
-      detailed_description: z.string().optional(),
-      meta_description: z.string().optional(),
-      image_id: z.number().optional(),
+      detailed_description: optApiString,
+      meta_description: optApiString,
+      image_id: optApiNumber,
       inactive: z.coerce.boolean(),
     })
     .array(),
@@ -42,8 +55,8 @@ const TagResult = z.object({
       product_tag_id: z.number(),
       product_tag_code: z.string(),
       description: z.string(),
-      detailed_description: z.string().optional(),
-      meta_description: z.string().optional(),
+      detailed_description: optApiString,
+      meta_description: optApiString,
       inactive: z.coerce.boolean(),
     })
     .array(),
@@ -125,19 +138,6 @@ export async function getLocations() {
     }),
   );
 }
-
-const undefineEmpty = <Type extends ZodTypeAny>(type: Type) =>
-  z.preprocess((val) => {
-    if (val === "") {
-      return undefined;
-    } else {
-      return val;
-    }
-  }, type.optional());
-const optApiNumber = undefineEmpty(z.number());
-const optApiNumberString = undefineEmpty(z.coerce.number());
-const optApiString = undefineEmpty(z.string());
-const idListString = z.string().transform((val) => val.split(",").map(Number));
 
 export const ProductResult = z.object({
   /* Data that can be modified */
@@ -234,7 +234,45 @@ export async function searchProducts(
   );
 
   return {
-    products: result.results,
+    products: result.results.map((product) => {
+      if (product.primary_product_id !== product.product_id) {
+        console.warn(
+          "Primary product ID does not match product ID",
+          product.primary_product_id,
+          product.product_id,
+          product.product_code,
+        );
+      }
+
+      const alternateImageUrls = product.alternate_image_urls.map(
+        (urlData) => urlData.url,
+      );
+
+      return {
+        cfId: product.product_id,
+        code: product.product_code,
+        description: product.description,
+        detailedDescription: product.detailed_description,
+        manufacturerSku: product.manufacturer_sku,
+        model: product.model,
+        upcCode: product.upc_code,
+        linkName: product.link_name,
+        productManufacturerId: product.product_manufacturer_id,
+        productCategoryIds: product.product_category_ids,
+        productTagIds: product.product_tag_ids,
+        baseCost: product.base_cost,
+        listPrice: product.list_price,
+        manufacturerAdvertisedPrice: product.manufacturer_advertised_price,
+        imageUrls: product.image_url
+          ? [product.image_url, ...alternateImageUrls]
+          : alternateImageUrls,
+        imageId: product.image_id,
+        dateCreated: product.date_created,
+        timeChanged: product.time_changed,
+        sortOrder: product.sort_order,
+        manufacturerImageId: product.manufacturer_image_id,
+      };
+    }),
     hasNextPage: result.result_count < limit ? false : true,
   };
 }

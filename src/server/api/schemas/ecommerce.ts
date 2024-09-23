@@ -1,6 +1,5 @@
 import { type LiteralZodEventSchema } from "inngest";
 import { z } from "zod";
-import { ProductResult } from "../functions/ecommerce/cf_api";
 
 const syncCategories = z.object({
   name: z.literal("ecommerce/sync/categories"),
@@ -32,10 +31,35 @@ const syncAll = z.object({
   data: z.object({}),
 }) satisfies LiteralZodEventSchema;
 
+export const ImportProduct = z.object({
+  /* Data that can be modified */
+  cfId: z.number(),
+  code: z.string(),
+  description: z.string(),
+  detailedDescription: z.string().optional(),
+  manufacturerSku: z.string().optional(),
+  model: z.string().optional(),
+  upcCode: z.string().optional(),
+  linkName: z.string().optional(),
+  productManufacturerId: z.number().optional(),
+  productCategoryIds: z.number().array(),
+  productTagIds: z.number().array(),
+  baseCost: z.number().optional(),
+  listPrice: z.number().optional(),
+  manufacturerAdvertisedPrice: z.number().optional(),
+  imageUrls: z.string().url().array(),
+  /* Data used for display */
+  imageId: z.number().optional(),
+  dateCreated: z.coerce.date(),
+  timeChanged: z.coerce.date(),
+  sortOrder: z.number(),
+  manufacturerImageId: z.number().optional(),
+});
+
 const importProducts = z.object({
   name: z.literal("ecommerce/import/products"),
   data: z.object({
-    products: ProductResult.array(),
+    products: ImportProduct.array(),
   }),
 }) satisfies LiteralZodEventSchema;
 

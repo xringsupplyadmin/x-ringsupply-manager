@@ -14,6 +14,7 @@ import {
   createContact,
 } from "~/server/api/functions/emails/contact";
 import ecommerceSync from "~/server/api/functions/ecommerce/sync";
+import products from "~/server/api/functions/ecommerce/products";
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
@@ -28,5 +29,6 @@ export const { GET, POST, PUT } = serve({
     executeTask,
     followup,
     ...ecommerceSync,
+    ...products,
   ],
 });

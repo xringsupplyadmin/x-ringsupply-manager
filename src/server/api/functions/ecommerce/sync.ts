@@ -18,26 +18,34 @@ const syncAll = inngest.createFunction(
   },
   { event: "ecommerce/sync/all" },
   async ({ step }) => {
-    await step.invoke("sync-categories", {
+    const categories = await step.invoke("sync-categories", {
       function: syncCategories,
       data: {},
     });
-    await step.invoke("sync-departments", {
+    const departments = await step.invoke("sync-departments", {
       function: syncDepartments,
       data: {},
     });
-    await step.invoke("sync-manufacturers", {
+    const manufacturers = await step.invoke("sync-manufacturers", {
       function: syncManufacturers,
       data: {},
     });
-    await step.invoke("sync-tags", {
+    const tags = await step.invoke("sync-tags", {
       function: syncTags,
       data: {},
     });
-    await step.invoke("sync-locations", {
+    const locations = await step.invoke("sync-locations", {
       function: syncLocations,
       data: {},
     });
+
+    return {
+      categories: categories.count,
+      departments: departments.count,
+      manufacturers: manufacturers.count,
+      tags: tags.count,
+      locations: locations.count,
+    };
   },
 );
 
@@ -53,19 +61,25 @@ const syncCategories = inngest.createFunction(
       return await getCategories();
     });
 
-    for (const category of categories) {
-      await step.run(`update-category-${category.cfId}`, async () => {
-        await e
-          .insert(e.products.Category, category)
-          .unlessConflict((record) => ({
-            on: record.cfId,
-            else: e.update(record, () => ({
-              set: category,
-            })),
-          }))
-          .run(client);
+    await step.run(`update-database`, async () => {
+      await client.transaction(async (tx) => {
+        for (const category of categories) {
+          await e
+            .insert(e.products.Category, category)
+            .unlessConflict((record) => ({
+              on: record.cfId,
+              else: e.update(record, () => ({
+                set: category,
+              })),
+            }))
+            .run(tx);
+        }
       });
-    }
+    });
+
+    return {
+      count: categories.length,
+    };
   },
 );
 
@@ -81,26 +95,36 @@ const syncDepartments = inngest.createFunction(
       return await getDepartments();
     });
 
-    for (const department of departments) {
-      await step.run(`update-department-${department.cfId}`, async () => {
-        const departmentData = {
-          ...department,
-          categories: e.select(e.products.Category, (c) => ({
-            filter: e.op(c.cfId, "in", e.set(...department.categories)),
-          })),
-        };
+    await step.run(`update-database`, async () => {
+      await client.transaction(async (tx) => {
+        for (const department of departments) {
+          const categories =
+            department.categories.length > 0
+              ? e.select(e.products.Category, (c) => ({
+                  filter: e.op(c.cfId, "in", e.set(...department.categories)),
+                }))
+              : e.set();
+          const departmentData = {
+            ...department,
+            categories: categories,
+          };
 
-        await e
-          .insert(e.products.Department, departmentData)
-          .unlessConflict((record) => ({
-            on: record.cfId,
-            else: e.update(record, () => ({
-              set: departmentData,
-            })),
-          }))
-          .run(client);
+          await e
+            .insert(e.products.Department, departmentData)
+            .unlessConflict((record) => ({
+              on: record.cfId,
+              else: e.update(record, () => ({
+                set: departmentData,
+              })),
+            }))
+            .run(tx);
+        }
       });
-    }
+    });
+
+    return {
+      count: departments.length,
+    };
   },
 );
 
@@ -116,19 +140,25 @@ const syncManufacturers = inngest.createFunction(
       return await getManufacturers();
     });
 
-    for (const manufacturer of manufacturers) {
-      await step.run(`update-manufacturer-${manufacturer.cfId}`, async () => {
-        await e
-          .insert(e.products.Manufacturer, manufacturer)
-          .unlessConflict((record) => ({
-            on: record.cfId,
-            else: e.update(record, () => ({
-              set: manufacturer,
-            })),
-          }))
-          .run(client);
+    await step.run(`update-database`, async () => {
+      await client.transaction(async (tx) => {
+        for (const manufacturer of manufacturers) {
+          await e
+            .insert(e.products.Manufacturer, manufacturer)
+            .unlessConflict((record) => ({
+              on: record.cfId,
+              else: e.update(record, () => ({
+                set: manufacturer,
+              })),
+            }))
+            .run(tx);
+        }
       });
-    }
+    });
+
+    return {
+      count: manufacturers.length,
+    };
   },
 );
 
@@ -144,19 +174,25 @@ const syncTags = inngest.createFunction(
       return await getTags();
     });
 
-    for (const tag of tags) {
-      await step.run(`update-tag-${tag.cfId}`, async () => {
-        await e
-          .insert(e.products.Tag, tag)
-          .unlessConflict((record) => ({
-            on: record.cfId,
-            else: e.update(record, () => ({
-              set: tag,
-            })),
-          }))
-          .run(client);
+    await step.run(`update-database`, async () => {
+      await client.transaction(async (tx) => {
+        for (const tag of tags) {
+          await e
+            .insert(e.products.Tag, tag)
+            .unlessConflict((record) => ({
+              on: record.cfId,
+              else: e.update(record, () => ({
+                set: tag,
+              })),
+            }))
+            .run(tx);
+        }
       });
-    }
+    });
+
+    return {
+      count: tags.length,
+    };
   },
 );
 
@@ -172,19 +208,25 @@ const syncLocations = inngest.createFunction(
       return await getLocations();
     });
 
-    for (const location of locations) {
-      await step.run(`update-location-${location.cfId}`, async () => {
-        await e
-          .insert(e.products.Location, location)
-          .unlessConflict((record) => ({
-            on: record.cfId,
-            else: e.update(record, () => ({
-              set: location,
-            })),
-          }))
-          .run(client);
+    await step.run(`update-database`, async () => {
+      await client.transaction(async (tx) => {
+        for (const location of locations) {
+          await e
+            .insert(e.products.Location, location)
+            .unlessConflict((record) => ({
+              on: record.cfId,
+              else: e.update(record, () => ({
+                set: location,
+              })),
+            }))
+            .run(tx);
+        }
       });
-    }
+    });
+
+    return {
+      count: locations.length,
+    };
   },
 );
 

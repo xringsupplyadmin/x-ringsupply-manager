@@ -20,7 +20,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${GeistSans.variable}`}>
+    <html
+      lang="en"
+      className={`${GeistSans.variable}`}
+      suppressHydrationWarning={true}
+    >
       <body className="flex min-h-screen flex-col justify-normal bg-background">
         <ThemeProvider
           attribute="class"

@@ -196,10 +196,10 @@ export namespace products {
     "cfId": number;
     "code": string;
     "description": string;
-    "detailed_description"?: string | null;
-    "image_id"?: number | null;
     "inactive": boolean;
-    "meta_description"?: string | null;
+    "detailedDescription"?: string | null;
+    "imageId"?: number | null;
+    "metaDescription"?: string | null;
   }
   export interface Product extends std.$Object {
     "upcCode"?: string | null;
@@ -229,9 +229,9 @@ export namespace products {
     "cfId": number;
     "code": string;
     "description": string;
-    "detailed_description"?: string | null;
     "inactive": boolean;
-    "meta_description"?: string | null;
+    "detailedDescription"?: string | null;
+    "metaDescription"?: string | null;
   }
 }
 export namespace schema {

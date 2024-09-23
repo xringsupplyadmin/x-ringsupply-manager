@@ -81,6 +81,12 @@ async function NavLinks() {
                 >
                   Export products to a CoreFORCE compatible CSV file
                 </NavigationMenuListItem>
+                <NavigationMenuListItem
+                  href="/admin/products/data-sync"
+                  title="Data Sync"
+                >
+                  Keep taxonomy and product data in sync with CoreFORCE
+                </NavigationMenuListItem>
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
