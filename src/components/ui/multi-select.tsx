@@ -14,7 +14,6 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -27,6 +26,7 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { Separator } from "~/components/ui/separator";
+import { useDebounce } from "~/lib/hooks";
 import { cn } from "~/lib/utils";
 
 /**
@@ -100,6 +100,12 @@ interface MultiSelectProps
   maxCount?: number;
 
   /**
+   * Maximum number of options to display. Extra options will be summarized.
+   * Optional, defaults to 100.
+   */
+  maxVisible?: number;
+
+  /**
    * The modality of the popover. When set to true, interaction with outside elements
    * will be disabled and only popover content will be visible to screen readers.
    * Optional, defaults to false.
@@ -132,6 +138,7 @@ export const MultiSelect = React.forwardRef<
       placeholder = "Select options",
       animation = 0,
       maxCount = 3,
+      maxVisible = 100,
       modalPopover = false,
       asChild = false,
       className,
@@ -141,8 +148,39 @@ export const MultiSelect = React.forwardRef<
   ) => {
     const [selectedValues, setSelectedValues] =
       React.useState<string[]>(defaultValue);
+    // Sometimes default values are loaded in later
+    React.useEffect(() => {
+      setSelectedValues(defaultValue);
+    }, [defaultValue]);
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
     const [isAnimating, setIsAnimating] = React.useState(false);
+
+    // Manual filtering for large datasets
+    const [filteredOptions, setFilteredOptions] = React.useState(options);
+    const [searchInput, setSearchInput] = useDebounce<string | undefined>(
+      undefined,
+      100,
+    );
+    const [rawSearchInput, setRawSearchInput] = React.useState<
+      string | undefined
+    >(undefined);
+    React.useEffect(() => {
+      if (searchInput) {
+        setFilteredOptions(
+          options.filter((option) =>
+            option.label.toLowerCase().includes(searchInput.toLowerCase()),
+          ),
+        );
+      } else {
+        setFilteredOptions(options);
+      }
+    }, [searchInput, maxVisible, options]);
+
+    // Helpers for filtering
+    const visibleValues = filteredOptions.map((option) => option.value);
+    const visibleSelectedValues = selectedValues.filter((value) =>
+      visibleValues.includes(value),
+    );
 
     const handleInputKeyDown = (
       event: React.KeyboardEvent<HTMLInputElement>,
@@ -181,13 +219,26 @@ export const MultiSelect = React.forwardRef<
     };
 
     const toggleAll = () => {
-      if (selectedValues.length === options.length) {
-        handleClear();
+      let newValues: string[];
+
+      const noSearch = !searchInput || searchInput === "";
+      const selected = noSearch ? selectedValues : visibleSelectedValues;
+      const available = noSearch ? options : filteredOptions;
+
+      if (selected.length === available.length) {
+        if (selected === selectedValues) {
+          newValues = [];
+        } else {
+          newValues = selectedValues.filter(
+            (value) => !selected.includes(value),
+          );
+        }
       } else {
-        const allValues = options.map((option) => option.value);
-        setSelectedValues(allValues);
-        onValueChange(allValues);
+        newValues = available.map((option) => option.value);
       }
+
+      setSelectedValues(newValues);
+      onValueChange(newValues);
     };
 
     return (
@@ -285,32 +336,43 @@ export const MultiSelect = React.forwardRef<
           align="start"
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
         >
-          <Command>
+          <Command shouldFilter={false} className="max-h-64">
             <CommandInput
               placeholder="Search..."
+              value={rawSearchInput}
               onKeyDown={handleInputKeyDown}
+              onValueChange={(newSearchInput) => {
+                setRawSearchInput(newSearchInput);
+                setSearchInput(newSearchInput);
+              }}
             />
             <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
-                <CommandItem
-                  key="all"
-                  onSelect={toggleAll}
-                  className="cursor-pointer"
-                >
-                  <div
-                    className={cn(
-                      "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                      selectedValues.length === options.length
-                        ? "bg-primary text-primary-foreground"
-                        : "opacity-50 [&_svg]:invisible",
-                    )}
+                {filteredOptions.length === 0 && (
+                  <CommandItem className="justify-center">
+                    No results found.
+                  </CommandItem>
+                )}
+                {filteredOptions.length > 1 && (
+                  <CommandItem
+                    key="all"
+                    onSelect={toggleAll}
+                    className="cursor-pointer"
                   >
-                    <CheckIcon className="h-4 w-4" />
-                  </div>
-                  <span>(Select All)</span>
-                </CommandItem>
-                {options.map((option) => {
+                    <div
+                      className={cn(
+                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                        visibleSelectedValues.length === filteredOptions.length
+                          ? "bg-primary text-primary-foreground"
+                          : "opacity-50 [&_svg]:invisible",
+                      )}
+                    >
+                      <CheckIcon className="h-4 w-4" />
+                    </div>
+                    <span>(Select All)</span>
+                  </CommandItem>
+                )}
+                {filteredOptions.slice(0, maxVisible).map((option) => {
                   const isSelected = selectedValues.includes(option.value);
                   return (
                     <CommandItem
@@ -335,6 +397,11 @@ export const MultiSelect = React.forwardRef<
                     </CommandItem>
                   );
                 })}
+                {filteredOptions.length > maxVisible && (
+                  <CommandItem className="justify-center">
+                    + {filteredOptions.length - maxVisible} more
+                  </CommandItem>
+                )}
               </CommandGroup>
               <CommandSeparator />
               <CommandGroup>

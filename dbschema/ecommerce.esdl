@@ -7,6 +7,7 @@ module products {
       constraint exclusive;
     };
     required description: str;
+    department := .<categories[is Department];
   }
   type Department {
     required cfId: int64 {

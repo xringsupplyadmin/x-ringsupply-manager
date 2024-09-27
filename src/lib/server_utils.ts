@@ -20,19 +20,18 @@ export async function makeApiRequest(
   params?: object,
   init?: RequestInit,
 ) {
-  return await fetch(
-    urlJoinP(env.NEXT_PUBLIC_CF_HOST, ["api.php"], {
-      method: action,
-      ...params,
-    }),
-    {
-      ...init,
-      headers: {
-        ...CF_API_HEADER,
-        ...init?.headers,
-      },
+  const url = urlJoinP(env.NEXT_PUBLIC_CF_HOST, ["api.php"], {
+    method: action,
+    ...params,
+  });
+  console.log(url);
+  return await fetch(url, {
+    ...init,
+    headers: {
+      ...CF_API_HEADER,
+      ...init?.headers,
     },
-  );
+  });
 }
 
 /**

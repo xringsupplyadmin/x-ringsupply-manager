@@ -1,6 +1,6 @@
 import e from "@/dbschema/edgeql-js";
 import client from "~/server/db/client";
-import { CoreforceFilter } from "./filters_components";
+import { CoreforceFilter, SearchTextFilter } from "./filters_components";
 import { cache } from "react";
 
 export async function CategoryFilter() {
@@ -29,9 +29,10 @@ export async function ManufacturerFilter() {
   const manufacturers = await cache(
     async () =>
       await e
-        .select(e.products.Manufacturer, () => ({
+        .select(e.products.Manufacturer, (m) => ({
           cfId: true,
           description: true,
+          filter: e.op(m.inactive, "=", false),
         }))
         .run(client),
   )();
@@ -59,4 +60,17 @@ export async function LocationFilter() {
     .run(client);
 
   return <CoreforceFilter values={locations} storeName="locations" />;
+}
+
+export function SearchFilters() {
+  return (
+    <>
+      <SearchTextFilter />
+      <CategoryFilter />
+      <DepartmentFilter />
+      <ManufacturerFilter />
+      <TagFilter />
+      <LocationFilter />
+    </>
+  );
 }

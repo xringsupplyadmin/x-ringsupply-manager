@@ -178,6 +178,7 @@ export namespace products {
     "cfId": number;
     "code": string;
     "description": string;
+    "department": Department[];
   }
   export interface Department extends std.$Object {
     "cfId": number;

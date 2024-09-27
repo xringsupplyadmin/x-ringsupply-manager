@@ -172,7 +172,7 @@ export const ProductResult = z.object({
 export type ProductResult = z.infer<typeof ProductResult>;
 
 function getArrayQueryString(array?: number[]) {
-  return array ? array.join("|") : undefined;
+  return array ? array.join(",") : undefined;
 }
 
 /**
@@ -180,12 +180,12 @@ function getArrayQueryString(array?: number[]) {
  *
  * @throws {Error} If the API returns an error
  */
-export async function searchProducts(
+export async function apiSearchProducts(
   query?: {
     searchText?: string;
     productId?: number;
   },
-  options?: {
+  pageData?: {
     limit?: number;
     offset?: number;
   },
@@ -203,15 +203,15 @@ export async function searchProducts(
     manufacturers?: number[];
   },
 ) {
-  const limit = options?.limit ?? 50;
-  const response = await makeApiRequest("search_products", {
+  const limit = pageData?.limit ?? 60;
+  const payload = {
     /* Query */
     search_text: query?.searchText,
     product_id: query?.productId,
     /* Options */
     show_out_of_stock: filter?.out_of_stock ? "1" : undefined,
     limit: limit,
-    offset: options?.offset ?? 0,
+    offset: pageData?.offset ?? 0,
     /* Excludes */
     exclude_product_category_ids: getArrayQueryString(exclude?.categories),
     exclude_product_department_ids: getArrayQueryString(exclude?.departments),
@@ -223,7 +223,21 @@ export async function searchProducts(
     product_department_ids: getArrayQueryString(filter?.departments),
     product_manufacturer_ids: getArrayQueryString(filter?.manufacturers),
     product_tag_ids: getArrayQueryString(filter?.tags),
-  });
+  };
+  // Filter out empty values
+  for (const key in payload) {
+    // type stuff
+    const index = key as keyof typeof payload;
+    if (
+      payload[index] === undefined ||
+      payload[index] === "" ||
+      payload[index] === null
+    ) {
+      delete payload[index];
+    }
+  }
+
+  const response = await makeApiRequest("search_products", payload);
 
   const result = await parseApiResponse(
     response,
@@ -273,7 +287,7 @@ export async function searchProducts(
         manufacturerImageId: product.manufacturer_image_id,
       };
     }),
-    hasNextPage: result.result_count < limit ? false : true,
+    hasNextPage: result.result_count === limit,
   };
 }
 
@@ -350,7 +364,7 @@ export type ProductChangeData = {
  * @param data The data to update the product with
  * @throws {Error} If the API returns an error
  */
-export async function updateProduct(
+export async function apiUpdateProduct(
   productId: number,
   data: ProductChangeData,
 ) {
