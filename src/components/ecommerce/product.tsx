@@ -6,6 +6,8 @@ import { urlJoinP } from "url-join-ts";
 import { env } from "~/env";
 import Image from "next/image";
 import type { ComponentProps } from "react";
+import parse from "html-react-parser";
+import { Alert } from "../ui/alert";
 
 type DatabaseProperties = "id" | "productCategories" | "productTags";
 export type ImportProduct = Omit<products.Product, DatabaseProperties>;
@@ -98,8 +100,30 @@ function ProductCardImpl({
       </CardHeader>
       <CardContent className="flex flex-1 flex-col">
         <h3 className="text-lg font-semibold">Description</h3>
+        <div className="my-2 min-w-full basis-1 rounded bg-accent/50" />
         <div className="h-full max-h-32 overflow-y-scroll">
-          <p className="break-words">{product.detailedDescription}</p>
+          {/* <p className="break-words">{product.detailedDescription}</p> */}
+          {product.detailedDescription &&
+            parse(product.detailedDescription, {
+              replace: (domNode) => {
+                if (domNode instanceof Element) {
+                  if (domNode.tagName === "script") {
+                    return (
+                      <Alert variant="destructive">
+                        Illegal script tag in item description!
+                      </Alert>
+                    );
+                  }
+                  if (domNode.tagName === "style") {
+                    return (
+                      <Alert variant="default">
+                        Illegal style tag in item description!
+                      </Alert>
+                    );
+                  }
+                }
+              },
+            })}
         </div>
       </CardContent>
       <CardFooter className="flex flex-row gap-4">

@@ -23,11 +23,22 @@ export async function apiSearchProductAction(
       manufacturers: filters.manufacturers,
       tags: filters.tags,
       locations: filters.locations,
-      out_of_stock: filters.showOutOfStock,
+      hideOutOfStock: filters.hideOutOfStock,
     },
   );
 
   return results;
+}
+
+/**
+ * Hacky method to get the count of products matching a filter
+ */
+export async function apiProductCountAction(filters: FilterStore) {
+  const data = await apiSearchProductAction(filters, {
+    limit: 0,
+    offset: 999999,
+  });
+  return data.queryItemCount;
 }
 
 export async function dbSearchProductAction(

@@ -195,7 +195,7 @@ export async function apiSearchProducts(
     manufacturers?: number[];
     tags?: number[];
     locations?: number[];
-    out_of_stock?: boolean;
+    hideOutOfStock?: boolean;
   },
   exclude?: {
     categories?: number[];
@@ -204,14 +204,15 @@ export async function apiSearchProducts(
   },
 ) {
   const limit = pageData?.limit ?? 60;
+  const offset = pageData?.offset ?? 0;
   const payload = {
     /* Query */
     search_text: query?.searchText,
     product_id: query?.productId,
     /* Options */
-    show_out_of_stock: filter?.out_of_stock ? "1" : undefined,
+    show_out_of_stock: filter?.hideOutOfStock ? "0" : undefined,
     limit: limit,
-    offset: pageData?.offset ?? 0,
+    offset: offset,
     /* Excludes */
     exclude_product_category_ids: getArrayQueryString(exclude?.categories),
     exclude_product_department_ids: getArrayQueryString(exclude?.departments),
@@ -224,6 +225,7 @@ export async function apiSearchProducts(
     product_manufacturer_ids: getArrayQueryString(filter?.manufacturers),
     product_tag_ids: getArrayQueryString(filter?.tags),
   };
+
   // Filter out empty values
   for (const key in payload) {
     // type stuff
@@ -247,8 +249,10 @@ export async function apiSearchProducts(
     }),
   );
 
+  console.log(result.result_count, limit);
+
   return {
-    products: result.results.map((product) => {
+    data: result.results.map((product) => {
       if (product.primary_product_id !== product.product_id) {
         console.warn(
           "Primary product ID does not match product ID",
@@ -287,7 +291,8 @@ export async function apiSearchProducts(
         manufacturerImageId: product.manufacturer_image_id,
       };
     }),
-    hasNextPage: result.result_count === limit,
+    hasNextPage: result.result_count === limit + offset,
+    queryItemCount: result.result_count,
   };
 }
 

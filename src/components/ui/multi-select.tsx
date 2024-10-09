@@ -26,7 +26,7 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { Separator } from "~/components/ui/separator";
-import { useDebounce } from "~/lib/hooks";
+import { useDebounce } from "~/lib/hooks/debounce";
 import { cn } from "~/lib/utils";
 
 /**

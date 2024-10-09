@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useDebounce } from "~/lib/hooks";
+import { useDebounce } from "~/lib/hooks/debounce";
 import {
   useFilterStore,
   type FilterValue,
@@ -46,22 +46,24 @@ export function CoreforceFilter({
 }
 
 export function SearchTextFilter() {
-  const { searchText } = useFilterStore();
-  const [searchInput, setSearchInput] = useDebounce<string | undefined>(
-    undefined,
-    100,
-  );
+  const searchText = useFilterStore((state) => state.searchText);
+  const [searchInput, setSearchInput, rawInput] = useDebounce<
+    string | undefined
+  >(undefined, 100);
 
   useEffect(() => {
-    if (searchInput)
+    if (searchInput !== undefined) {
       useFilterStore.setState(() => ({ searchText: searchInput }));
+    }
   }, [searchInput]);
 
   return (
     <Input
       placeholder="Search for products"
-      defaultValue={searchText}
-      onChange={(e) => setSearchInput(e.target.value)}
+      value={rawInput ?? searchText}
+      onChange={(e) => {
+        setSearchInput(e.target.value);
+      }}
     />
   );
 }

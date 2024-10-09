@@ -17,12 +17,14 @@ export type TaxonomyFilter = {
 
 export type SearchFilter = {
   searchText: string;
-  showOutOfStock: boolean;
+  hideOutOfStock: boolean;
 };
 
 export type FilterStore = TaxonomyFilter & SearchFilter;
 
-export const useFilterStore = create<FilterStore>()(
+// There's something not quite right about this implementation
+// But I can't figure it out so its fine for now...
+export const useFilterStore = create(
   persist(
     (): FilterStore => ({
       categories: [],
@@ -32,7 +34,7 @@ export const useFilterStore = create<FilterStore>()(
       locations: [],
       products: [],
       searchText: "",
-      showOutOfStock: false,
+      hideOutOfStock: true,
     }),
     {
       name: "ecommerce-filters",
