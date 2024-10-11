@@ -12,7 +12,7 @@ const importProducts = inngest.createFunction(
     for (const product of event.data.products) {
       await step.run(`import-product-${product.cfId}`, async () => {
         await e
-          .insert(e.products.Product, product)
+          .insert(e.ecommerce.Product, product)
           .unlessConflict((record) => ({
             on: record.code,
             else: e.update(record, () => ({

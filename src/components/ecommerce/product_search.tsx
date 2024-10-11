@@ -1,11 +1,13 @@
 "use client";
 
-import { Loader2, Search } from "lucide-react";
-import { useCallback, useState, type ComponentProps } from "react";
-import { apiProductCountAction, apiSearchProductAction } from "~/lib/actions";
-import { usePagination } from "~/lib/hooks/paginator";
-import { useFilterStore, type FilterStore } from "~/lib/stores";
+import { Loader2, Plus, Search } from "lucide-react";
+import { type ComponentProps } from "react";
+import { usePagination, type PageDataProvider } from "~/hooks/paginator";
+import { useToast } from "~/hooks/use-toast";
+import { useFilterStore } from "~/lib/stores";
 import { cn } from "~/lib/utils";
+import type { ApiProduct, DbProduct } from "~/server/api/coreforce/api_util";
+import { api } from "~/trpc/react";
 import { Button } from "../ui/button";
 import {
   Pagination,
@@ -16,36 +18,79 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../ui/pagination";
-import { ImportProductCard, type ImportProduct } from "./product";
+import { ProductCard } from "./product";
 
 export function ApiProductSearch(
   props: ComponentProps<"div"> & {
     filterSidebar: JSX.Element;
   },
 ) {
-  return <ProductSearchGrid {...props} />;
+  const trpc = api.useUtils();
+  const filterValues = useFilterStore();
+  const dataProvider = {
+    getData: (pageData: { limit: number; offset: number } | undefined) =>
+      trpc.ecommerce.cfApi.products.search.fetch({
+        filters: filterValues,
+        pageData: pageData,
+      }),
+    getCountAsync: () =>
+      trpc.ecommerce.cfApi.products.count.fetch({ filters: filterValues }),
+  };
+  const cardComponent = (product: ApiProduct) => (
+    <ImportProductCard product={product} />
+  );
+  return (
+    <ProductSearchGrid
+      {...props}
+      dataProvider={dataProvider}
+      cardComponent={cardComponent}
+    />
+  );
 }
 
-function ProductSearchGrid({
+export function DbProductSearch(
+  props: ComponentProps<"div"> & {
+    filterSidebar: JSX.Element;
+  },
+) {
+  const trpc = api.useUtils();
+  const filterValues = useFilterStore();
+  const dataProvider = {
+    getData: (pageData: { limit: number; offset: number } | undefined) =>
+      trpc.ecommerce.db.products.search.fetch({
+        filters: filterValues,
+        pageData: pageData,
+      }),
+  };
+  const cardComponent = (product: DbProduct) => (
+    <DbProductCard product={product} />
+  );
+  return (
+    <ProductSearchGrid
+      {...props}
+      dataProvider={dataProvider}
+      cardComponent={cardComponent}
+    />
+  );
+}
+
+function ProductSearchGrid<Datatype>({
   className,
   filterSidebar,
+  dataProvider,
+  cardComponent,
   ...props
 }: ComponentProps<"div"> & {
   filterSidebar: JSX.Element;
+  dataProvider: PageDataProvider<Datatype>;
+  cardComponent: (product: Datatype) => JSX.Element;
 }) {
-  const filterValues = useFilterStore();
-  // const [searchValue, setSearchValue] = useState<FilterStore>();
-  const { loading, reset, data, navigation } = usePagination({
-    dataProvider: () => apiSearchProductAction(filterValues),
-    countProvider: () => apiProductCountAction(filterValues),
-  });
-
-  const newSearch = useCallback(
-    () => reset(), //setSearchValue(filterValues),
-    [filterValues],
-  );
-
-  console.log("navigation", navigation);
+  const {
+    loading,
+    reset: newSearch,
+    data,
+    navigation,
+  } = usePagination(dataProvider);
 
   return (
     <div
@@ -102,7 +147,7 @@ function ProductSearchGrid({
                         <PaginationLink
                           href="#"
                           isActive={
-                            navigation.page === i + navigation.firstPage
+                            navigation.currentPage === i + navigation.firstPage
                           }
                           onClick={() =>
                             navigation.selectPage(i + navigation.firstPage)
@@ -129,7 +174,7 @@ function ProductSearchGrid({
                 </PaginationContent>
               </Pagination>
             )}
-            <ProductGrid products={data} />
+            <ProductGrid products={data} cardComponent={cardComponent} />
           </>
         )}
       </div>
@@ -137,7 +182,13 @@ function ProductSearchGrid({
   );
 }
 
-function ProductGrid({ products }: { products: ImportProduct[] | null }) {
+function ProductGrid<Datatype>({
+  products,
+  cardComponent,
+}: {
+  products: Datatype[] | null;
+  cardComponent: (product: Datatype) => JSX.Element;
+}) {
   if (products === null) {
     return <p>Start a search to begin</p>;
   }
@@ -148,9 +199,71 @@ function ProductGrid({ products }: { products: ImportProduct[] | null }) {
 
   return (
     <div className="grid flex-1 grid-cols-2 gap-4">
-      {products.map((product) => (
-        <ImportProductCard key={product.cfId} product={product} />
-      ))}
+      {products.map((product) => cardComponent(product))}
     </div>
+  );
+}
+
+function DbProductCard({ product }: { product: DbProduct }) {
+  return <ProductCard product={product} />;
+}
+
+function ImportProductCard({ product }: { product: ApiProduct }) {
+  const importProduct = api.ecommerce.db.products.importProduct.useMutation();
+  const { data: dbProduct, refetch: refetchDbProduct } =
+    api.ecommerce.db.products.getByCfId.useQuery({
+      cfId: product.cfId,
+    });
+  const dbId = dbProduct === undefined ? "..." : dbProduct?.id;
+
+  const { toast } = useToast();
+
+  return (
+    <ProductCard
+      product={{
+        ...product,
+        id: dbId,
+      }}
+      footerControls={() => (
+        <div>
+          <Button
+            icon={
+              importProduct.isPending ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <Plus />
+              )
+            }
+            iconAlignEnd
+            disabled={dbProduct === undefined || importProduct.isPending}
+            onClick={async () => {
+              importProduct.mutate(
+                {
+                  product: product,
+                },
+                {
+                  onError: (error) => {
+                    toast({
+                      title: "Error Importing Product",
+                      description: error.message,
+                      variant: "destructive",
+                    });
+                  },
+                  onSuccess: (data) => {
+                    refetchDbProduct(); // Refetch the product to get the ID
+                    toast({
+                      title: "Product Imported Successfully!",
+                      description: `Imported Product ID ${product.cfId} (${data.id})`,
+                    });
+                  },
+                },
+              );
+            }}
+          >
+            {dbProduct?.id ? "Update" : "Import"}
+          </Button>
+        </div>
+      )}
+    />
   );
 }

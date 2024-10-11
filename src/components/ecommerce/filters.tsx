@@ -5,7 +5,7 @@ import { cache } from "react";
 
 export async function CategoryFilter() {
   const categories = await e
-    .select(e.products.Category, () => ({
+    .select(e.ecommerce.Category, () => ({
       cfId: true,
       description: true,
     }))
@@ -16,7 +16,7 @@ export async function CategoryFilter() {
 
 export async function DepartmentFilter() {
   const departments = await e
-    .select(e.products.Department, () => ({
+    .select(e.ecommerce.Department, () => ({
       cfId: true,
       description: true,
     }))
@@ -29,7 +29,7 @@ export async function ManufacturerFilter() {
   const manufacturers = await cache(
     async () =>
       await e
-        .select(e.products.Manufacturer, (m) => ({
+        .select(e.ecommerce.Manufacturer, (m) => ({
           cfId: true,
           description: true,
           filter: e.op(m.inactive, "=", false),
@@ -42,7 +42,7 @@ export async function ManufacturerFilter() {
 
 export async function TagFilter() {
   const tags = await e
-    .select(e.products.Tag, () => ({
+    .select(e.ecommerce.Tag, () => ({
       cfId: true,
       description: true,
     }))
@@ -53,7 +53,7 @@ export async function TagFilter() {
 
 export async function LocationFilter() {
   const locations = await e
-    .select(e.products.Location, () => ({
+    .select(e.ecommerce.Location, () => ({
       cfId: true,
       description: true,
     }))

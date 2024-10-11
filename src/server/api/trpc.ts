@@ -13,6 +13,7 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import client from "../db/client";
+import e from "@/dbschema/edgeql-js";
 
 /**
  * 1. CONTEXT
@@ -30,7 +31,10 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getServerAuthSession();
 
   return {
-    db: client,
+    db: {
+      e,
+      client,
+    },
     session,
     ...opts,
   };

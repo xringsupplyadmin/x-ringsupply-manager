@@ -2,12 +2,12 @@ import client from "~/server/db/client";
 import { inngest } from "../../inngest";
 import logInngestError from "../emails/error_handling";
 import {
-  getCategories,
-  getDepartments,
-  getLocations,
-  getManufacturers,
-  getTags,
-} from "./cf_api";
+  apiGetCategories,
+  apiGetDepartments,
+  apiGetLocations,
+  apiGetManufacturers,
+  apiGetTags,
+} from "../../coreforce/taxonomy";
 import e from "@/dbschema/edgeql-js";
 
 const syncAll = inngest.createFunction(
@@ -58,14 +58,14 @@ const syncCategories = inngest.createFunction(
   { event: "ecommerce/sync/categories" },
   async ({ step }) => {
     const categories = await step.run("get-categories", async () => {
-      return await getCategories();
+      return await apiGetCategories();
     });
 
     await step.run(`update-database`, async () => {
       await client.transaction(async (tx) => {
         for (const category of categories) {
           await e
-            .insert(e.products.Category, category)
+            .insert(e.ecommerce.Category, category)
             .unlessConflict((record) => ({
               on: record.cfId,
               else: e.update(record, () => ({
@@ -92,7 +92,7 @@ const syncDepartments = inngest.createFunction(
   { event: "ecommerce/sync/departments" },
   async ({ step }) => {
     const departments = await step.run("get-departments", async () => {
-      return await getDepartments();
+      return await apiGetDepartments();
     });
 
     await step.run(`update-database`, async () => {
@@ -100,7 +100,7 @@ const syncDepartments = inngest.createFunction(
         for (const department of departments) {
           const categories =
             department.categories.length > 0
-              ? e.select(e.products.Category, (c) => ({
+              ? e.select(e.ecommerce.Category, (c) => ({
                   filter: e.op(c.cfId, "in", e.set(...department.categories)),
                 }))
               : e.set();
@@ -110,7 +110,7 @@ const syncDepartments = inngest.createFunction(
           };
 
           await e
-            .insert(e.products.Department, departmentData)
+            .insert(e.ecommerce.Department, departmentData)
             .unlessConflict((record) => ({
               on: record.cfId,
               else: e.update(record, () => ({
@@ -137,14 +137,14 @@ const syncManufacturers = inngest.createFunction(
   { event: "ecommerce/sync/manufacturers" },
   async ({ step }) => {
     const manufacturers = await step.run("get-manufacturers", async () => {
-      return await getManufacturers();
+      return await apiGetManufacturers();
     });
 
     await step.run(`update-database`, async () => {
       await client.transaction(async (tx) => {
         for (const manufacturer of manufacturers) {
           await e
-            .insert(e.products.Manufacturer, manufacturer)
+            .insert(e.ecommerce.Manufacturer, manufacturer)
             .unlessConflict((record) => ({
               on: record.cfId,
               else: e.update(record, () => ({
@@ -171,14 +171,14 @@ const syncTags = inngest.createFunction(
   { event: "ecommerce/sync/tags" },
   async ({ step }) => {
     const tags = await step.run("get-tags", async () => {
-      return await getTags();
+      return await apiGetTags();
     });
 
     await step.run(`update-database`, async () => {
       await client.transaction(async (tx) => {
         for (const tag of tags) {
           await e
-            .insert(e.products.Tag, tag)
+            .insert(e.ecommerce.Tag, tag)
             .unlessConflict((record) => ({
               on: record.cfId,
               else: e.update(record, () => ({
@@ -205,14 +205,14 @@ const syncLocations = inngest.createFunction(
   { event: "ecommerce/sync/locations" },
   async ({ step }) => {
     const locations = await step.run("get-locations", async () => {
-      return await getLocations();
+      return await apiGetLocations();
     });
 
     await step.run(`update-database`, async () => {
       await client.transaction(async (tx) => {
         for (const location of locations) {
           await e
-            .insert(e.products.Location, location)
+            .insert(e.ecommerce.Location, location)
             .unlessConflict((record) => ({
               on: record.cfId,
               else: e.update(record, () => ({

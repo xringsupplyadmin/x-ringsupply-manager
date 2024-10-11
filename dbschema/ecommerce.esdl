@@ -1,4 +1,4 @@
-module products {
+module ecommerce {
   type Category {
     required cfId: int64 {
       constraint exclusive;
@@ -69,21 +69,21 @@ module products {
     upcCode: str;
     linkName: str;
     productManufacturerId: int64;
-    productCategoryIds: array<int64>;
+    required productCategoryIds: array<int64>;
     multi productCategories := (
       select Category filter .cfId in array_unpack(__source__.productCategoryIds)
     );
-    productTagIds: array<int64>;
+    required productTagIds: array<int64>;
     multi productTags := (
       select Tag filter .cfId in array_unpack(__source__.productTagIds)
     );
     baseCost: float64;
     listPrice: float64;
     manufacturerAdvertisedPrice: float64;
-    imageUrls: array<str>;
+    required imageUrls: array<str>;
     imageId: int64;
-    dateCreated: datetime;
-    timeChanged: datetime;
+    required dateCreated: datetime;
+    required timeChanged: datetime;
     required sortOrder: int64 {
       default := 100;
     };

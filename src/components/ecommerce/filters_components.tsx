@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useDebounce } from "~/lib/hooks/debounce";
+import { useDebounce } from "~/hooks/debounce";
 import {
   useFilterStore,
   type FilterValue,
@@ -35,7 +35,7 @@ export function CoreforceFilter({
     <MultiSelect
       options={makeSelectOptions(values)}
       onValueChange={(value) =>
-        useFilterStore.setState(() => ({ [storeName]: value }))
+        useFilterStore.setState(() => ({ [storeName]: value.map(parseInt) }))
       }
       defaultValue={selected.map((n) => n.toString())}
       placeholder={`Filter ${storeName}`}

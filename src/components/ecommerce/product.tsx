@@ -1,35 +1,12 @@
-import type { products } from "@/dbschema/interfaces";
-import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
-import { Button } from "../ui/button";
-import { Plus } from "lucide-react";
-import { urlJoinP } from "url-join-ts";
-import { env } from "~/env";
+import type { ecommerce } from "@/dbschema/interfaces";
+import parse from "html-react-parser";
 import Image from "next/image";
 import type { ComponentProps } from "react";
-import parse from "html-react-parser";
+import { urlJoinP } from "url-join-ts";
+import { env } from "~/env";
 import { Alert } from "../ui/alert";
-
-type DatabaseProperties = "id" | "productCategories" | "productTags";
-export type ImportProduct = Omit<products.Product, DatabaseProperties>;
-
-export function ProductCard({ product }: { product: products.Product }) {
-  return <ProductCardImpl product={product} />;
-}
-
-export function ImportProductCard({ product }: { product: ImportProduct }) {
-  return (
-    <ProductCardImpl
-      product={product}
-      footerControls={() => (
-        <div>
-          <Button icon={<Plus />} iconAlignEnd>
-            Import
-          </Button>
-        </div>
-      )}
-    />
-  );
-}
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import type { ApiProduct } from "~/server/api/coreforce/api_util";
 
 function ProductImage({
   description,
@@ -75,10 +52,9 @@ function ProductImage({
 }
 
 // Weird type union to get the DB-only properties to be optional
-type DisplayProduct = ImportProduct &
-  Partial<Pick<products.Product, DatabaseProperties>>;
+type DisplayProduct = ApiProduct & Partial<Pick<ecommerce.Product, "id">>;
 
-function ProductCardImpl({
+export function ProductCard({
   product,
   footerControls,
 }: {
@@ -127,9 +103,11 @@ function ProductCardImpl({
         </div>
       </CardContent>
       <CardFooter className="flex flex-row gap-4">
-        <div className="flex flex-col items-start text-sm italic">
-          <p>DbID: {product.id ? product.id : "Not yet imported"}</p>
-          <p>CfID: {product.cfId}</p>
+        <div className="flex flex-col items-start text-left text-sm italic">
+          <small>
+            <p>DbID: {product.id ? product.id : "Not yet imported"}</p>
+            <p>CfID: {product.cfId}</p>
+          </small>
         </div>
         {footerControls && (
           <div className="ml-auto flex items-end">

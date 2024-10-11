@@ -1,26 +1,30 @@
+import { z } from "zod";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type FilterValue = {
-  description: string;
-  cfId: number;
-};
+export const FilterValue = z.object({
+  description: z.string(),
+  cfId: z.number(),
+});
+export type FilterValue = z.infer<typeof FilterValue>;
 
-export type TaxonomyFilter = {
-  categories: number[];
-  departments: number[];
-  manufacturers: number[];
-  tags: number[];
-  locations: number[];
-  products: number[];
-};
+export const TaxonomyFilter = z.object({
+  categories: z.number().array(),
+  departments: z.number().array(),
+  manufacturers: z.number().array(),
+  tags: z.number().array(),
+  locations: z.number().array(),
+});
+export type TaxonomyFilter = z.infer<typeof TaxonomyFilter>;
 
-export type SearchFilter = {
-  searchText: string;
-  hideOutOfStock: boolean;
-};
+export const SearchFilter = z.object({
+  searchText: z.string(),
+  hideOutOfStock: z.boolean(),
+});
+export type SearchFilter = z.infer<typeof SearchFilter>;
 
-export type FilterStore = TaxonomyFilter & SearchFilter;
+export const FilterStore = TaxonomyFilter.and(SearchFilter);
+export type FilterStore = z.infer<typeof FilterStore>;
 
 // There's something not quite right about this implementation
 // But I can't figure it out so its fine for now...
@@ -32,7 +36,6 @@ export const useFilterStore = create(
       manufacturers: [],
       tags: [],
       locations: [],
-      products: [],
       searchText: "",
       hideOutOfStock: true,
     }),
@@ -41,22 +44,3 @@ export const useFilterStore = create(
     },
   ),
 );
-
-// useStore.ts
-import { useState, useEffect } from "react";
-
-export const useStore = <T, F>(
-  store: (callback: (state: T) => unknown) => unknown,
-  callback: (state: T) => F,
-) => {
-  const result = store(callback) as F;
-  const [data, setData] = useState<F>();
-
-  useEffect(() => {
-    setData(result);
-  }, [result]);
-
-  return data;
-};
-
-export default useStore;
