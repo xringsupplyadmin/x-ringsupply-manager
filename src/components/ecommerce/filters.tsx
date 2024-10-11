@@ -1,7 +1,11 @@
 import e from "@/dbschema/edgeql-js";
-import client from "~/server/db/client";
-import { CoreforceFilter, SearchTextFilter } from "./filters_components";
 import { cache } from "react";
+import client from "~/server/db/client";
+import {
+  CoreforceFilter,
+  SearchTextFilter,
+  ShowOutOfStockFilter,
+} from "./filters_components";
 
 export async function CategoryFilter() {
   const categories = await e
@@ -71,6 +75,7 @@ export function SearchFilters() {
       <ManufacturerFilter />
       <TagFilter />
       <LocationFilter />
+      <ShowOutOfStockFilter />
     </>
   );
 }

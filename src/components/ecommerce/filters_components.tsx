@@ -7,6 +7,7 @@ import {
   type FilterValue,
   type TaxonomyFilter,
 } from "~/lib/stores";
+import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { MultiSelect } from "../ui/multi-select";
 
@@ -66,5 +67,25 @@ export function SearchTextFilter() {
         setSearchInput(e.target.value);
       }}
     />
+  );
+}
+
+export function ShowOutOfStockFilter() {
+  const hideOutOfStock = useFilterStore((state) => state.hideOutOfStock);
+
+  return (
+    <div className="flex items-center justify-start gap-2">
+      <Checkbox
+        id="filter-hide-out-of-stock"
+        checked={hideOutOfStock}
+        onCheckedChange={(e) => {
+          const value = e.valueOf();
+          if (typeof value === "boolean") {
+            useFilterStore.setState(() => ({ hideOutOfStock: value }));
+          }
+        }}
+      />
+      <label htmlFor="filter-hide-out-of-stock">Hide out of stock</label>
+    </div>
   );
 }
