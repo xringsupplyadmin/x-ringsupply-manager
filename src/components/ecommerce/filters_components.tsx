@@ -17,9 +17,6 @@ function makeSelectOptions(values: FilterValue[]) {
   }));
 }
 
-/**
- * This really needs to be optimized
- */
 export function CoreforceFilter({
   values,
   storeName,
@@ -35,7 +32,11 @@ export function CoreforceFilter({
     <MultiSelect
       options={makeSelectOptions(values)}
       onValueChange={(value) =>
-        useFilterStore.setState(() => ({ [storeName]: value.map(parseInt) }))
+        useFilterStore.setState(() => ({
+          [storeName]: value
+            .map((v) => Number.parseInt(v))
+            .filter((v) => Number.isFinite(v)), // make sure we only have numbers
+        }))
       }
       defaultValue={selected.map((n) => n.toString())}
       placeholder={`Filter ${storeName}`}
