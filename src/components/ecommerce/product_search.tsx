@@ -97,7 +97,7 @@ function ProductSearchGrid<Datatype>({
       className={cn("flex h-full w-full flex-1 flex-row gap-4", className)}
       {...props}
     >
-      <div className="flex basis-48 flex-col gap-4">
+      <div className="flex flex-shrink-0 flex-grow-0 basis-64 flex-col gap-2">
         <Button
           icon={loading ? <Loader2 className="animate-spin" /> : <Search />}
           onClick={() => newSearch()}
