@@ -62,19 +62,18 @@ export const ecommerceRouter = createTRPCRouter({
           const data = await searchProducts(filters, pageData);
           if (data.data.length === 0) {
             // Try searching by product ID
-            try {
-              const productId = parseInt(filters.searchText);
-              const data = await searchProducts(
-                {
-                  productId: productId,
-                  ...filters,
-                },
-                pageData,
-              );
+            const productId = Number.parseInt(filters.searchText);
+            if (!Number.isFinite(productId)) {
+              // If search text is not a number, return the original data
               return data;
-            } catch {
-              /* Ignore */
             }
+            return await searchProducts(
+              {
+                productId: productId,
+                ...filters,
+              },
+              pageData,
+            );
           }
           return data;
         }),
