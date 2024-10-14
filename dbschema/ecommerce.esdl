@@ -69,6 +69,9 @@ module ecommerce {
     upcCode: str;
     linkName: str;
     productManufacturerId: int64;
+    productManufacturer := (
+      select Manufacturer filter .cfId = __source__.productManufacturerId
+    );
     required productCategoryIds: array<int64>;
     multi productCategories := (
       select Category filter .cfId in array_unpack(__source__.productCategoryIds)

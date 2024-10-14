@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { FilterStore } from "~/lib/stores";
+import { FilterStore } from "~/stores/filter_store";
 import { ApiProduct } from "../coreforce/api_util";
 import {
   apiGetProduct,
@@ -209,6 +209,7 @@ export const ecommerceRouter = createTRPCRouter({
                 ...p["*"],
                 productTags: p.productTags["*"],
                 productCategories: p.productCategories["*"],
+                productManufacturer: p.productManufacturer["*"],
               };
             });
 
@@ -230,6 +231,161 @@ export const ecommerceRouter = createTRPCRouter({
               .run(client);
 
             return results;
+          },
+        ),
+    },
+    taxonomy: {
+      getSidebar: protectedProcedure.query(
+        async ({
+          ctx: {
+            db: { e, client },
+          },
+        }) => {
+          const categories = await e.select(e.ecommerce.Category, () => ({
+            cfId: true,
+            description: true,
+          }));
+          const departments = await e.select(e.ecommerce.Department, () => ({
+            cfId: true,
+            description: true,
+          }));
+          const manufacturers = await e.select(
+            e.ecommerce.Manufacturer,
+            (m) => ({
+              cfId: true,
+              description: true,
+              filter: e.op(m.inactive, "=", false),
+            }),
+          );
+          const tags = await e.select(e.ecommerce.Tag, () => ({
+            cfId: true,
+            description: true,
+          }));
+          const locations = await e.select(e.ecommerce.Location, () => ({
+            cfId: true,
+            description: true,
+          }));
+
+          return e
+            .select({
+              categories: categories,
+              departments: departments,
+              manufacturers: manufacturers,
+              tags: tags,
+              locations: locations,
+            })
+            .run(client);
+        },
+      ),
+      getCategories: protectedProcedure
+        .input(
+          z.union([
+            z.object({
+              cfIds: z.number().array(),
+              codes: z.undefined(),
+            }),
+            z.object({
+              cfIds: z.undefined(),
+              codes: z.string().array(),
+            }),
+          ]),
+        )
+        .query(
+          async ({
+            ctx: {
+              db: { e, client },
+            },
+            input,
+          }) => {
+            const query = e.select(e.ecommerce.Category, (c) => {
+              let filter;
+              if (input.cfIds !== undefined) {
+                filter = e.op(c.cfId, "in", e.set(...input.cfIds));
+              } else {
+                filter = e.op(c.code, "in", e.set(...input.codes));
+              }
+
+              return {
+                ...c["*"],
+                filter: filter,
+              };
+            });
+
+            return query.run(client);
+          },
+        ),
+      getTags: protectedProcedure
+        .input(
+          z.union([
+            z.object({
+              cfIds: z.number().array(),
+              codes: z.undefined(),
+            }),
+            z.object({
+              cfIds: z.undefined(),
+              codes: z.string().array(),
+            }),
+          ]),
+        )
+        .query(
+          async ({
+            ctx: {
+              db: { e, client },
+            },
+            input,
+          }) => {
+            const query = e.select(e.ecommerce.Tag, (t) => {
+              let filter;
+              if (input.cfIds !== undefined) {
+                filter = e.op(t.cfId, "in", e.set(...input.cfIds));
+              } else {
+                filter = e.op(t.code, "in", e.set(...input.codes));
+              }
+
+              return {
+                ...t["*"],
+                filter: filter,
+              };
+            });
+
+            return query.run(client);
+          },
+        ),
+      getManufacturer: protectedProcedure
+        .input(
+          z.union([
+            z.object({
+              cfId: z.number(),
+              code: z.undefined(),
+            }),
+            z.object({
+              cfId: z.undefined(),
+              code: z.string(),
+            }),
+          ]),
+        )
+        .query(
+          async ({
+            ctx: {
+              db: { e, client },
+            },
+            input,
+          }) => {
+            const query = e.select(e.ecommerce.Manufacturer, (m) => {
+              let filter;
+              if (input.cfId !== undefined) {
+                filter = e.op(m.cfId, "=", input.cfId);
+              } else {
+                filter = e.op(m.code, "=", input.code);
+              }
+
+              return {
+                ...m["*"],
+                filter_single: filter,
+              };
+            });
+
+            return query.run(client);
           },
         ),
     },

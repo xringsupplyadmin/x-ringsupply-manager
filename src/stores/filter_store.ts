@@ -26,21 +26,20 @@ export type SearchFilter = z.infer<typeof SearchFilter>;
 export const FilterStore = TaxonomyFilter.and(SearchFilter);
 export type FilterStore = z.infer<typeof FilterStore>;
 
-// There's something not quite right about this implementation
-// But I can't figure it out so its fine for now...
-export const useFilterStore = create(
-  persist(
-    (): FilterStore => ({
-      categories: [],
-      departments: [],
-      manufacturers: [],
-      tags: [],
-      locations: [],
-      searchText: "",
-      hideOutOfStock: true,
-    }),
-    {
-      name: "ecommerce-filters",
-    },
-  ),
-);
+export const createFilterStore = () =>
+  create(
+    persist<FilterStore>(
+      (): FilterStore => ({
+        categories: [],
+        departments: [],
+        manufacturers: [],
+        tags: [],
+        locations: [],
+        searchText: "",
+        hideOutOfStock: true,
+      }),
+      {
+        name: "ecommerce-filters",
+      },
+    ),
+  );

@@ -218,6 +218,7 @@ export namespace ecommerce {
     "imageUrls": string[];
     "dateCreated": Date;
     "timeChanged": Date;
+    "productManufacturer"?: Manufacturer | null;
   }
   export interface Tag extends std.$Object {
     "cfId": number;

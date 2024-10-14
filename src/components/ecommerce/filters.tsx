@@ -1,81 +1,109 @@
-import e from "@/dbschema/edgeql-js";
-import { cache } from "react";
-import client from "~/server/db/client";
+"use client";
+
+import { Loader2 } from "lucide-react";
+import { type FilterValue, type TaxonomyFilter } from "~/stores/filter_store";
 import {
-  CoreforceFilter,
-  SearchTextFilter,
-  ShowOutOfStockFilter,
-} from "./filters_components";
+  useFilterStore,
+  useFilterStoreContext,
+} from "~/stores/providers/filter_store_provider";
+import { api } from "~/trpc/react";
+import { Checkbox } from "../ui/checkbox";
+import { Input } from "../ui/input";
+import { MultiSelect } from "../ui/multi-select";
 
-export async function CategoryFilter() {
-  const categories = await e
-    .select(e.ecommerce.Category, () => ({
-      cfId: true,
-      description: true,
-    }))
-    .run(client);
-
-  return <CoreforceFilter values={categories} storeName="categories" />;
+function makeSelectOptions(values: FilterValue[]) {
+  return values.map((value) => ({
+    label: value.description,
+    value: value.cfId.toString(),
+  }));
 }
 
-export async function DepartmentFilter() {
-  const departments = await e
-    .select(e.ecommerce.Department, () => ({
-      cfId: true,
-      description: true,
-    }))
-    .run(client);
+export function CoreforceFilter({
+  values,
+  storeName,
+  maxVisible,
+}: {
+  values: FilterValue[];
+  storeName: keyof TaxonomyFilter;
+  maxVisible?: number;
+}) {
+  const filterStore = useFilterStoreContext();
+  const selected = useFilterStore((state) => state[storeName]);
 
-  return <CoreforceFilter values={departments} storeName="departments" />;
-}
-
-export async function ManufacturerFilter() {
-  const manufacturers = await cache(
-    async () =>
-      await e
-        .select(e.ecommerce.Manufacturer, (m) => ({
-          cfId: true,
-          description: true,
-          filter: e.op(m.inactive, "=", false),
-        }))
-        .run(client),
-  )();
-
-  return <CoreforceFilter values={manufacturers} storeName="manufacturers" />;
-}
-
-export async function TagFilter() {
-  const tags = await e
-    .select(e.ecommerce.Tag, () => ({
-      cfId: true,
-      description: true,
-    }))
-    .run(client);
-
-  return <CoreforceFilter values={tags} storeName="tags" />;
-}
-
-export async function LocationFilter() {
-  const locations = await e
-    .select(e.ecommerce.Location, () => ({
-      cfId: true,
-      description: true,
-    }))
-    .run(client);
-
-  return <CoreforceFilter values={locations} storeName="locations" />;
-}
-
-export function SearchFilters() {
   return (
-    <>
-      <SearchTextFilter />
-      <CategoryFilter />
-      <DepartmentFilter />
-      <ManufacturerFilter />
-      <TagFilter />
-      <LocationFilter />
-      <ShowOutOfStockFilter />
-    </>
+    <MultiSelect
+      options={makeSelectOptions(values)}
+      onValueChange={(value) =>
+        filterStore.setState(() => ({
+          [storeName]: value
+            .map((v) => Number.parseInt(v))
+            .filter((v) => Number.isFinite(v)), // make sure we only have numbers
+        }))
+      }
+      defaultValue={selected.map((n) => n.toString())}
+      placeholder={`Filter ${storeName}`}
+      maxCount={5}
+      maxVisible={maxVisible}
+    />
   );
+}
+
+export function SearchTextFilter() {
+  const filterStore = useFilterStoreContext();
+  const searchText = useFilterStore((state) => state.searchText);
+
+  return (
+    <Input
+      placeholder="Search for products"
+      defaultValue={searchText}
+      onChange={(e) => {
+        console.log("value change", e.target.value);
+        filterStore.setState(() => ({ searchText: e.target.value }));
+      }}
+    />
+  );
+}
+
+export function ShowOutOfStockFilter() {
+  const filterStore = useFilterStoreContext();
+  const hideOutOfStock = useFilterStore((state) => state.hideOutOfStock);
+
+  return (
+    <div className="flex items-center justify-start gap-2">
+      <Checkbox
+        id="filter-hide-out-of-stock"
+        checked={hideOutOfStock}
+        onCheckedChange={(e) => {
+          const value = e.valueOf();
+          if (typeof value === "boolean") {
+            filterStore.setState(() => ({ hideOutOfStock: value }));
+          }
+        }}
+      />
+      <label htmlFor="filter-hide-out-of-stock">Hide out of stock</label>
+    </div>
+  );
+}
+
+export function FilterSidebar() {
+  const { data: sidebar } = api.ecommerce.db.taxonomy.getSidebar.useQuery();
+
+  if (sidebar) {
+    return (
+      <>
+        <SearchTextFilter />
+        <CoreforceFilter values={sidebar.categories} storeName="categories" />
+        <CoreforceFilter values={sidebar.departments} storeName="departments" />
+        <CoreforceFilter
+          values={sidebar.manufacturers}
+          storeName="manufacturers"
+        />
+        <CoreforceFilter values={sidebar.tags} storeName="tags" />
+        <CoreforceFilter values={sidebar.locations} storeName="locations" />
+        <ShowOutOfStockFilter />
+      </>
+    );
+  } else {
+    return <Loader2 className="animate-spin self-center" />;
+  }
 }
