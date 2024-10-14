@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState, type ComponentProps } from "react";
 import { usePagination, type PageDataProvider } from "~/hooks/paginator";
 import { useToast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
-import type { ApiProduct, DbProduct } from "~/server/api/coreforce/api_util";
+import type { ApiProduct, DbProduct } from "~/server/api/coreforce/types";
 import { useFilterStore } from "~/stores/providers/filter_store_provider";
 import { api } from "~/trpc/react";
 import { Button } from "../ui/button";

@@ -6,7 +6,7 @@ import Image from "next/image";
 import type { ComponentProps } from "react";
 import { urlJoinP } from "url-join-ts";
 import { env } from "~/env";
-import type { ApiProduct } from "~/server/api/coreforce/api_util";
+import type { ApiProduct } from "~/server/api/coreforce/types";
 import { Alert } from "../ui/alert";
 import { Badge } from "../ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";

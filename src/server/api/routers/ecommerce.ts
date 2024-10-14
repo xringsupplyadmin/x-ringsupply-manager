@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { FilterStore } from "~/stores/filter_store";
-import { ApiProduct } from "../coreforce/api_util";
+import { ApiProduct } from "../coreforce/types";
 import {
   apiGetProduct,
   apiSearchProducts,

@@ -1,13 +1,12 @@
 "use client";
 
-import { createEditorStore } from "~/stores/editor_store";
+import { useEditorStore } from "~/stores/providers/editor_store_provider";
 
 export default function EditProductPage({
   params: { productId },
 }: {
   params: { productId: string };
 }) {
-  const useEditorStore = useCreateStore(createEditorStore);
   const cfId = Number.parseInt(productId);
   const test = useEditorStore();
 

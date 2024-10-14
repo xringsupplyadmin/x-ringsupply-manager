@@ -64,8 +64,8 @@ async function NavLinks() {
                   View all currently imported products
                 </NavigationMenuListItem>
                 <NavigationMenuListItem
-                  href="/admin/products/bulk-editor"
-                  title="Bulk Editor"
+                  href="/admin/products/editor"
+                  title="Editor"
                 >
                   Manage multiple products at once
                 </NavigationMenuListItem>

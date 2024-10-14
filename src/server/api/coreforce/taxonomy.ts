@@ -6,7 +6,7 @@ import {
   LocationResult,
   ManufacturerResult,
   TagResult,
-} from "./api_util";
+} from "./types";
 
 export async function apiGetCategories() {
   const response = await makeApiRequest("get_product_categories");

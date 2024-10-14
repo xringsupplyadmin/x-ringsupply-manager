@@ -3,8 +3,8 @@ import {
   getArrayQueryString,
   makeApiRequest,
   parseApiResponse,
-  ProductResult,
 } from "./api_util";
+import { ProductResult } from "./types";
 
 export const ProductIdentifier = z.union([
   z.object({ product_id: z.number() }),

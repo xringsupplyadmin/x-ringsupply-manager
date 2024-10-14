@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { parseApiResponse } from "./api_util";
 import { makeApiRequest } from "./api_util";
-import { type ProductChangeData } from "./api_util";
+import { type ProductChangeData } from "./types";
 /**
  * Attempt to update a product
  *
