@@ -1,6 +1,6 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { FilterStore } from "~/stores/filter_store";
-import { ApiProduct } from "../coreforce/types";
 import {
   apiGetProduct,
   apiSearchProducts,
@@ -89,7 +89,7 @@ export const ecommerceRouter = createTRPCRouter({
       importProduct: protectedProcedure
         .input(
           z.object({
-            product: ApiProduct,
+            cfId: z.number(),
           }),
         )
         .mutation(
@@ -97,8 +97,19 @@ export const ecommerceRouter = createTRPCRouter({
             ctx: {
               db: { e, client },
             },
-            input: { product },
+            input: { cfId },
           }) => {
+            const product = await apiGetProduct({
+              product_id: cfId,
+            });
+
+            if (!product) {
+              throw new TRPCError({
+                message: "Product not found",
+                code: "BAD_REQUEST",
+              });
+            }
+
             return await e
               .insert(e.ecommerce.Product, product)
               .unlessConflict((r) => ({
@@ -125,6 +136,7 @@ export const ecommerceRouter = createTRPCRouter({
           }) => {
             return await e
               .select(e.ecommerce.Product, (p) => ({
+                ...p["*"],
                 filter_single: e.op(p.cfId, "=", cfId),
               }))
               .run(client);

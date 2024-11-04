@@ -12,7 +12,7 @@ import { Badge } from "../ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Loader2 } from "lucide-react";
 
-function ProductImage({
+export function ProductImage({
   description,
   imageId,
   imageUrls,
@@ -64,12 +64,12 @@ type DisplayProduct = ApiProduct &
     productCategories?: Omit<ecommerce.Category, "department">[];
   };
 
-export function ProductCard({
+export function ProductCard<Product extends DisplayProduct>({
   product,
   footerControls,
 }: {
-  product: DisplayProduct;
-  footerControls?: (product: DisplayProduct) => JSX.Element;
+  product: Product;
+  footerControls?: (product: Product) => JSX.Element;
 }) {
   return (
     <Card className="flex flex-col">
@@ -171,17 +171,15 @@ export function ProductCard({
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-row gap-4">
-        <div className="flex flex-col items-start text-left text-sm italic">
+      <CardFooter className="flex flex-row justify-between gap-4">
+        <div className="flex flex-col items-start justify-between text-left text-sm italic">
           <small>
             <p>DbID: {product.id ? product.id : "Not imported"}</p>
             <p>CfID: {product.cfId}</p>
           </small>
         </div>
         {footerControls && (
-          <div className="ml-auto flex items-end">
-            {footerControls(product)}
-          </div>
+          <div className="flex items-end">{footerControls(product)}</div>
         )}
       </CardFooter>
     </Card>

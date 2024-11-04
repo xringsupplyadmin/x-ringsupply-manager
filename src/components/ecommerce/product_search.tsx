@@ -1,7 +1,7 @@
 "use client";
 
 import type { ecommerce } from "@/dbschema/interfaces";
-import { Loader2, Plus, Search } from "lucide-react";
+import { Edit, Loader2, Plus, Search } from "lucide-react";
 import { useCallback, useEffect, useState, type ComponentProps } from "react";
 import { usePagination, type PageDataProvider } from "~/hooks/paginator";
 import { useToast } from "~/hooks/use-toast";
@@ -21,6 +21,7 @@ import {
 } from "../ui/pagination";
 import { FilterSidebar } from "./filters";
 import { ProductCard } from "./product";
+import Link from "next/link";
 
 export function ApiProductSearch(props: ComponentProps<"div">) {
   const trpc = api.useUtils();
@@ -199,7 +200,18 @@ function ProductGrid<Datatype>({
 }
 
 function DbProductCard({ product }: { product: DbProduct }) {
-  return <ProductCard product={product} />;
+  return (
+    <ProductCard
+      product={product}
+      footerControls={(dbProduct) => (
+        <Link href={`/admin/products/editor/${dbProduct.id}/edit`}>
+          <Button size="icon" variant="ghost">
+            <Edit />
+          </Button>
+        </Link>
+      )}
+    />
+  );
 }
 
 function ImportProductCard({ product }: { product: ApiProduct }) {
@@ -260,7 +272,7 @@ function ImportProductCard({ product }: { product: ApiProduct }) {
         productManufacturer: manufacturer,
       }}
       footerControls={() => (
-        <div>
+        <div className="flex flex-row gap-2">
           <Button
             icon={
               importProduct.isPending ? (
@@ -274,7 +286,7 @@ function ImportProductCard({ product }: { product: ApiProduct }) {
             onClick={async () => {
               importProduct.mutate(
                 {
-                  product: product,
+                  cfId: product.cfId,
                 },
                 {
                   onError: (error) => {
@@ -297,6 +309,13 @@ function ImportProductCard({ product }: { product: ApiProduct }) {
           >
             {dbProduct?.id ? "Update" : "Import"}
           </Button>
+          {dbProduct?.id && (
+            <Link href={`/admin/products/editor/${dbProduct.id}/edit`}>
+              <Button size="icon" variant="ghost">
+                <Edit />
+              </Button>
+            </Link>
+          )}
         </div>
       )}
     />
