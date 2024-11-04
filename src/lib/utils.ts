@@ -1,17 +1,9 @@
 import { type ClassValue, clsx } from "clsx";
-import makeFetchCookie from "fetch-cookie";
 import { twMerge } from "tailwind-merge";
-import { env } from "~/env";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-export const CF_API_HEADER = {
-  "Connection-Key": env.CF_API_KEY,
-};
-
-export const fetchSession = makeFetchCookie(fetch);
 
 let dateFormatter: (date: Date) => string;
 
