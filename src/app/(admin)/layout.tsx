@@ -4,6 +4,7 @@ import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
+  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuListItem,
   NavigationMenuTrigger,
@@ -86,6 +87,19 @@ async function NavLinks() {
                   title="Data Sync"
                 >
                   Keep taxonomy and product data in sync with CoreFORCE
+                </NavigationMenuListItem>
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Utilities</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid gap-2 p-2 md:w-[400px] lg:w-[600px] lg:grid-cols-2">
+                <NavigationMenuListItem
+                  href="/admin/sass-editor"
+                  title="Stylesheet Editor"
+                >
+                  Edit stylesheets for use in SASS headers
                 </NavigationMenuListItem>
               </ul>
             </NavigationMenuContent>
