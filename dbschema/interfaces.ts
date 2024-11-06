@@ -459,6 +459,14 @@ export namespace sys {
   export type TransactionIsolation = "RepeatableRead" | "Serializable";
   export type VersionStage = "dev" | "alpha" | "beta" | "rc" | "final";
 }
+export namespace utils {
+  export interface SassHeader extends std.$Object {
+    "includeOrder": number;
+    "name": string;
+    "value": string;
+    "internal": boolean;
+  }
+}
 export interface types {
   "std": {
     "BaseObject": std.BaseObject;
@@ -585,6 +593,9 @@ export interface types {
     "Role": sys.Role;
     "TransactionIsolation": sys.TransactionIsolation;
     "VersionStage": sys.VersionStage;
+  };
+  "utils": {
+    "SassHeader": utils.SassHeader;
   };
 }
 
