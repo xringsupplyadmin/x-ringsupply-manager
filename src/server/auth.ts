@@ -1,15 +1,11 @@
-import {
-  getServerSession,
-  type DefaultSession,
-  type NextAuthOptions,
-} from "next-auth";
-import { type Adapter } from "next-auth/adapters";
-import GoogleProvider from "next-auth/providers/google";
 import { EdgeDBAdapter } from "@auth/edgedb-adapter";
+import NextAuth, { type DefaultSession, type NextAuthConfig } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
 
+import e from "@/dbschema/edgeql-js";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { env } from "~/env";
 import client from "./db/client";
-import e from "@/dbschema/edgeql-js";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -33,7 +29,7 @@ declare module "next-auth" {
  *
  * @see https://next-auth.js.org/configuration/options
  */
-export const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthConfig = {
   callbacks: {
     session: async ({ session, user }) => ({
       ...session,
@@ -44,7 +40,7 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   },
-  adapter: EdgeDBAdapter(client) as Adapter,
+  adapter: EdgeDBAdapter(client),
   providers: [
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
@@ -62,12 +58,21 @@ export const authOptions: NextAuthOptions = {
   ],
 };
 
+const { auth, handlers } = NextAuth(authOptions);
+export { handlers };
+
 /**
- * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
- *
- * @see https://next-auth.js.org/configuration/nextjs
+ * Wrapper for `auth`
  */
-export const getServerAuthSession = () => getServerSession(authOptions);
+export const getServerAuthSession = () => auth();
+
+/**
+ * Wrapper for `auth`
+ */
+export const getRouteAuthSession = async (
+  req: NextApiRequest,
+  res: NextApiResponse,
+) => auth(req, res);
 
 export async function getOrCreatePermission(userId: string) {
   const permissionQuery = e.select(

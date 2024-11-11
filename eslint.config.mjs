@@ -5,7 +5,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
-// @ts-expect-error no type defs provided
 import reactPlugin from "eslint-plugin-react";
 
 // mimic CommonJS variables -- not needed if using CommonJS
