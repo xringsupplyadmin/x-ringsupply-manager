@@ -26,6 +26,8 @@ import Link from "next/link";
 export function ApiProductSearch(props: ComponentProps<"div">) {
   const trpc = api.useUtils();
   const filterValues = useFilterStore();
+  const toast = useToast();
+  const importAll = api.ecommerce.db.products.importAll.useMutation();
   const dataProvider = {
     getData: (pageData: { limit: number; offset: number } | undefined) =>
       trpc.ecommerce.cfApi.products.search.fetch({
@@ -36,15 +38,49 @@ export function ApiProductSearch(props: ComponentProps<"div">) {
       trpc.ecommerce.cfApi.products.count.fetch({ filters: filterValues }),
   };
   const cardComponent = (product: ApiProduct) => (
-    <ImportProductCard product={product} />
+    <ImportProductCard product={product} key={product.cfId} />
   );
 
   return (
-    <ProductSearchGrid
-      {...props}
-      dataProvider={dataProvider}
-      cardComponent={cardComponent}
-    />
+    <div className="flex flex-1 flex-col gap-4">
+      <Button
+        onClick={() => {
+          const importToast = toast.toast({
+            title: "Importing products",
+            description: "Please wait while products are being imported",
+            variant: "default",
+          });
+          importAll.mutate(
+            { filters: filterValues },
+            {
+              onSuccess(count) {
+                toast.toast({
+                  title: "Success!",
+                  description: `${count} products imported`,
+                });
+              },
+              onError(error) {
+                toast.toast({
+                  title: "Error importing products",
+                  description: error.message,
+                  variant: "destructive",
+                });
+              },
+              onSettled() {
+                importToast.dismiss();
+              },
+            },
+          );
+        }}
+      >
+        Import All
+      </Button>
+      <ProductSearchGrid
+        {...props}
+        dataProvider={dataProvider}
+        cardComponent={cardComponent}
+      />
+    </div>
   );
 }
 
@@ -59,7 +95,7 @@ export function DbProductSearch(props: ComponentProps<"div">) {
       }),
   };
   const cardComponent = (product: DbProduct) => (
-    <DbProductCard product={product} />
+    <DbProductCard product={product} key={product.id} />
   );
 
   return (
@@ -218,7 +254,7 @@ function ImportProductCard({ product }: { product: ApiProduct }) {
   const trpc = api.useUtils();
   const importProduct = api.ecommerce.db.products.importProduct.useMutation();
   const { data: dbProduct, refetch: refetchDbProduct } =
-    api.ecommerce.db.products.getByCfId.useQuery({
+    api.ecommerce.db.products.getById.useQuery({
       cfId: product.cfId,
     });
 

@@ -461,10 +461,10 @@ export namespace sys {
 }
 export namespace utils {
   export interface SassHeader extends std.$Object {
-    "includeOrder": number;
-    "name": string;
     "value": string;
     "internal": boolean;
+    "name": string;
+    "includeOrder": number;
   }
 }
 export interface types {

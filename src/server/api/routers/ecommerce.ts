@@ -7,6 +7,8 @@ import {
   ProductIdentifier,
 } from "../coreforce/search_product";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import client from "~/server/db/client";
+import e from "@/dbschema/edgeql-js";
 
 async function searchProducts(
   filters: FilterStore & { productId?: number },
@@ -30,6 +32,29 @@ async function searchProducts(
   );
 
   return results;
+}
+
+async function deepSearchProducts(
+  filters: FilterStore,
+  pageData?: { limit: number; offset: number },
+) {
+  const data = await searchProducts(filters, pageData);
+  if (data.data.length === 0) {
+    // Try searching by product ID
+    const productId = Number.parseInt(filters.searchText);
+    if (!Number.isFinite(productId)) {
+      // If search text is not a number, return the original data
+      return data;
+    }
+    return await searchProducts(
+      {
+        productId: productId,
+        ...filters,
+      },
+      pageData,
+    );
+  }
+  return data;
 }
 
 export const ecommerceRouter = createTRPCRouter({
@@ -59,23 +84,8 @@ export const ecommerceRouter = createTRPCRouter({
           }),
         )
         .query(async ({ input: { filters, pageData } }) => {
-          const data = await searchProducts(filters, pageData);
-          if (data.data.length === 0) {
-            // Try searching by product ID
-            const productId = Number.parseInt(filters.searchText);
-            if (!Number.isFinite(productId)) {
-              // If search text is not a number, return the original data
-              return data;
-            }
-            return await searchProducts(
-              {
-                productId: productId,
-                ...filters,
-              },
-              pageData,
-            );
-          }
-          return data;
+          const products = await deepSearchProducts(filters, pageData);
+          return products;
         }),
       get: protectedProcedure
         .input(ProductIdentifier)
@@ -121,25 +131,68 @@ export const ecommerceRouter = createTRPCRouter({
               .run(client);
           },
         ),
-      getByCfId: protectedProcedure
+      importAll: protectedProcedure
         .input(
           z.object({
-            cfId: z.number(),
+            filters: FilterStore,
           }),
+        )
+        .mutation(async ({ input: { filters } }) => {
+          const products = await deepSearchProducts(filters);
+
+          if (products.data.length === 0) {
+            return 0;
+          }
+
+          // await client.transaction(async (tx) => {
+          //   for (const product of products.data) {
+          //     await e.insert(e.ecommerce.Product, product).run(tx);
+          //   }
+          // });
+
+          return products.data.length;
+        }),
+      getById: protectedProcedure
+        .input(
+          z
+            .object({
+              cfId: z.number(),
+              id: z.undefined(),
+            })
+            .or(
+              z.object({
+                cfId: z.undefined(),
+                id: z.string(),
+              }),
+            ),
         )
         .query(
           async ({
             ctx: {
               db: { e, client },
             },
-            input: { cfId },
+            input: { cfId, id },
           }) => {
-            return await e
-              .select(e.ecommerce.Product, (p) => ({
-                ...p["*"],
-                filter_single: e.op(p.cfId, "=", cfId),
-              }))
-              .run(client);
+            if (cfId !== undefined) {
+              return await e
+                .select(e.ecommerce.Product, (p) => ({
+                  ...p["*"],
+                  filter_single: e.op(p.cfId, "=", cfId),
+                }))
+                .run(client);
+            } else if (id !== undefined) {
+              return await e
+                .select(e.ecommerce.Product, (p) => ({
+                  ...p["*"],
+                  filter_single: e.op(p.id, "=", e.uuid(id)),
+                }))
+                .run(client);
+            } else {
+              throw new TRPCError({
+                message: "Either cfId or id must be provided",
+                code: "BAD_REQUEST",
+              });
+            }
           },
         ),
       search: protectedProcedure

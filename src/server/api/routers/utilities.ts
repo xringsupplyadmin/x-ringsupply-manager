@@ -111,7 +111,10 @@ export const utilitiesRouter = createTRPCRouter({
       .input(
         z.object({
           id: z.string(),
-          value: z.string(),
+          name: z.string().optional(),
+          internal: z.boolean().optional(),
+          includeOrder: z.number().optional(),
+          value: z.string().optional(),
         }),
       )
       .mutation(
@@ -119,12 +122,15 @@ export const utilitiesRouter = createTRPCRouter({
           ctx: {
             db: { e, client },
           },
-          input: { id, value },
+          input: { id, name, internal, includeOrder, value },
         }) => {
           return await e
             .update(e.utils.SassHeader, (s) => ({
               filter_single: e.op(s.id, "=", e.uuid(id)),
               set: {
+                name: name,
+                internal: internal,
+                includeOrder: includeOrder,
                 value: value,
               },
             }))
@@ -136,10 +142,18 @@ export const utilitiesRouter = createTRPCRouter({
         z.object({
           name: z.string(),
           internal: z.boolean(),
+          includeOrder: z.number(),
         }),
       )
-      .mutation(async () => {
-        return "";
+      .mutation(async ({ input }) => {
+        return await e
+          .insert(e.utils.SassHeader, {
+            name: input.name,
+            internal: input.internal,
+            includeOrder: input.includeOrder,
+            value: "",
+          })
+          .run(client);
       }),
     compileCheck: protectedProcedure
       .output(
