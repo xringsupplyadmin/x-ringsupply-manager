@@ -3,10 +3,11 @@ import { Alert, AlertDescription } from "~/components/ui/alert";
 import { unsubscribeContact } from "~/server/db/query/coreforce";
 
 export default async function UnsubscribePage({
-  params: { email },
+  params,
 }: {
   params: { email: string };
 }) {
+  const { email } = await params;
   let alert;
   const result = await unsubscribeContact(decodeURIComponent(email));
 

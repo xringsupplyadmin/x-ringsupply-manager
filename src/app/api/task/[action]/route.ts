@@ -8,8 +8,9 @@ const CoreillaContact = z.object({
 
 export async function POST(
   request: Request,
-  { params }: { params: { action: string } },
+  { params }: { params: Promise<{ action: string }> },
 ) {
+  const { action } = await params;
   const body = CoreillaContact.safeParse(await request.json());
 
   if (!body.success) {
@@ -22,7 +23,7 @@ export async function POST(
   }
 
   let eventIds: { ids: string[] };
-  if (params.action === "create") {
+  if (action === "create") {
     eventIds = await inngest.send({
       name: "contact/create",
       data: {
@@ -33,7 +34,7 @@ export async function POST(
         createTask: true,
       },
     });
-  } else if (params.action === "delete") {
+  } else if (action === "delete") {
     eventIds = await inngest.send({
       name: "contact/cancel.task",
       data: {

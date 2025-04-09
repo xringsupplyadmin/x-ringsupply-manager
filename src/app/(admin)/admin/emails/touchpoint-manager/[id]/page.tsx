@@ -11,10 +11,12 @@ import { Check, X } from "lucide-react";
 import { formatDate } from "~/lib/utils";
 
 export default async function TouchpointManagerPage({
-  params: { id },
+  params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
+
   let contacts;
   let header;
 

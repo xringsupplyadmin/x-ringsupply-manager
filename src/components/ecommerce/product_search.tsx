@@ -42,7 +42,7 @@ export function ApiProductSearch(props: ComponentProps<"div">) {
   );
 
   return (
-    <div className="flex flex-1 flex-col gap-4">
+    <div className="flex w-full flex-col gap-4">
       <Button
         onClick={() => {
           const importToast = toast.toast({
@@ -240,7 +240,7 @@ function DbProductCard({ product }: { product: DbProduct }) {
     <ProductCard
       product={product}
       footerControls={(dbProduct) => (
-        <Link href={`/admin/products/editor/${dbProduct.id}/edit`}>
+        <Link href={`/admin/products/editor/${dbProduct.cfId}/edit`}>
           <Button size="icon" variant="ghost">
             <Edit />
           </Button>
@@ -346,7 +346,7 @@ function ImportProductCard({ product }: { product: ApiProduct }) {
             {dbProduct?.id ? "Update" : "Import"}
           </Button>
           {dbProduct?.id && (
-            <Link href={`/admin/products/editor/${dbProduct.id}/edit`}>
+            <Link href={`/admin/products/editor/${dbProduct.cfId}/edit`}>
               <Button size="icon" variant="ghost">
                 <Edit />
               </Button>

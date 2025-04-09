@@ -129,6 +129,21 @@ export const ApiProduct = z.object({
 });
 export type ApiProduct = z.infer<typeof ApiProduct>;
 
+export const ApiProductEditable = ApiProduct.pick({
+  code: true,
+  description: true,
+  detailedDescription: true,
+  manufacturerSku: true,
+  model: true,
+  upcCode: true,
+  linkName: true,
+  baseCost: true,
+  listPrice: true,
+  manufacturerAdvertisedPrice: true,
+  sortOrder: true,
+});
+export type ApiProductEditable = z.infer<typeof ApiProductEditable>;
+
 export const DbProduct = ApiProduct.extend({
   id: z.string(),
 });
@@ -164,7 +179,7 @@ type LocationChangeData =
       product_price?: never;
     };
 
-export type ProductChangeData = {
+export type ProductChangeData = Partial<{
   /** Required product code (index) */
   product_code: string;
 
@@ -197,5 +212,6 @@ export type ProductChangeData = {
     /** The quantity available for the location */
     quantity?: number;
   }[];
-} & ImageUrlsChangeData &
+}> &
+  ImageUrlsChangeData &
   LocationChangeData;

@@ -2,6 +2,28 @@ import { urlJoinP } from "url-join-ts";
 import { z, type ZodObject, type ZodRawShape } from "zod";
 import { env } from "~/env";
 import { CF_API_HEADER } from "~/lib/server_utils";
+import type { ApiProduct, ProductChangeData } from "./types";
+
+/**
+ * Remove all undefined, null, or blank values from an object
+ *
+ * Mutates in place
+ *
+ * @param obj The object to filter
+ * @return The same object for convenience
+ */
+export function filterUndefined<T extends object>(obj: T) {
+  // Filter out empty values
+  for (const key in obj) {
+    // type stuff
+    const index = key as keyof typeof obj;
+    if (obj[index] === undefined || obj[index] === "" || obj[index] === null) {
+      delete obj[index];
+    }
+  }
+
+  return obj; // for convenience
+}
 
 const ApiResponse = z
   .object({
@@ -57,4 +79,23 @@ export async function parseApiResponse<
 
 export function getArrayQueryString(array?: number[]) {
   return array ? array.join(",") : undefined;
+}
+
+export function getProductChangeData(product: ApiProduct): ProductChangeData {
+  return filterUndefined({
+    product_code: product.code,
+    description: product.description,
+    detailed_description: product.detailedDescription ?? undefined,
+    manufacturer_sku: product.manufacturerSku ?? undefined,
+    model: product.model ?? undefined,
+    upc_code: product.upcCode ?? undefined,
+    link_name: product.linkName ?? undefined,
+    product_manufacturer_id: product.productManufacturerId ?? undefined,
+    // product_category_ids: product.productCategoryIds ?? undefined,
+    // product_tags: product.product
+    base_cost: product.baseCost ?? undefined,
+    list_price: product.listPrice ?? undefined,
+    manufacturer_advertised_price:
+      product.manufacturerAdvertisedPrice ?? undefined,
+  });
 }

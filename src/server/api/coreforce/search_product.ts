@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  filterUndefined,
   getArrayQueryString,
   makeApiRequest,
   parseApiResponse,
@@ -90,18 +91,7 @@ export async function apiSearchProducts(
     location_ids: getArrayQueryString(filter?.locations),
   };
 
-  // Filter out empty values
-  for (const key in payload) {
-    // type stuff
-    const index = key as keyof typeof payload;
-    if (
-      payload[index] === undefined ||
-      payload[index] === "" ||
-      payload[index] === null
-    ) {
-      delete payload[index];
-    }
-  }
+  filterUndefined(payload);
 
   const response = await makeApiRequest("search_products", payload);
 

@@ -1,14 +1,49 @@
+import e from "@/dbschema/edgeql-js";
 import { TRPCError } from "@trpc/server";
+import type { Transaction } from "edgedb/dist/transaction";
 import { z } from "zod";
+import client from "~/server/db/client";
 import { FilterStore } from "~/stores/filter_store";
 import {
   apiGetProduct,
   apiSearchProducts,
   ProductIdentifier,
 } from "../coreforce/search_product";
+import { type ApiProduct, ApiProductEditable } from "../coreforce/types";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import client from "~/server/db/client";
-import e from "@/dbschema/edgeql-js";
+import { apiUpdateProduct } from "../coreforce/update_product";
+import { getProductChangeData } from "../coreforce/api_util";
+
+const MultiProductIdentifier = z
+  .object({
+    id: z.string(),
+    cfId: z.undefined(),
+  })
+  .or(
+    z.object({
+      id: z.undefined(),
+      cfId: z.number(),
+    }),
+  );
+
+function filterProduct({
+  id,
+  cfId,
+}: { id: string; cfId: undefined } | { id: undefined; cfId: number }) {
+  return e.shape(e.ecommerce.Product, (p) => {
+    let filter;
+    console.log(id, cfId);
+    if (id !== undefined) {
+      filter = e.op(p.id, "=", e.uuid(id));
+    } else {
+      filter = e.op(p.cfId, "=", cfId);
+    }
+
+    return {
+      filter_single: filter,
+    };
+  });
+}
 
 async function searchProducts(
   filters: FilterStore & { productId?: number },
@@ -57,9 +92,40 @@ async function deepSearchProducts(
   return data;
 }
 
+async function dbImportProduct(product: ApiProduct, tx?: Transaction) {
+  return await e
+    .insert(e.ecommerce.Product, product)
+    .unlessConflict((r) => ({
+      on: r.cfId,
+      else: e.update(r, () => ({
+        set: product,
+      })),
+    }))
+    .run(tx ?? client);
+}
+
 export const ecommerceRouter = createTRPCRouter({
   cfApi: {
     products: {
+      update: protectedProcedure
+        .input(MultiProductIdentifier)
+        .mutation(async ({ input }) => {
+          const product = await e
+            .select(e.ecommerce.Product, (p) => ({
+              ...p["*"],
+              ...filterProduct(input)(p),
+            }))
+            .run(client);
+
+          if (!product) {
+            throw new TRPCError({
+              message: "Product not found",
+              code: "NOT_FOUND",
+            });
+          }
+
+          await apiUpdateProduct(product.cfId, getProductChangeData(product));
+        }),
       count: protectedProcedure
         .input(
           z.object({
@@ -96,41 +162,43 @@ export const ecommerceRouter = createTRPCRouter({
   },
   db: {
     products: {
+      update: protectedProcedure
+        .input(
+          z.object({
+            id: MultiProductIdentifier,
+            data: ApiProductEditable.partial(),
+          }),
+        )
+        .mutation(async ({ input }) => {
+          return await e
+            .update(e.ecommerce.Product, (p) => {
+              return {
+                set: input.data,
+                ...filterProduct(input.id)(p),
+              };
+            })
+            .run(client);
+        }),
       importProduct: protectedProcedure
         .input(
           z.object({
             cfId: z.number(),
           }),
         )
-        .mutation(
-          async ({
-            ctx: {
-              db: { e, client },
-            },
-            input: { cfId },
-          }) => {
-            const product = await apiGetProduct({
-              product_id: cfId,
+        .mutation(async ({ input: { cfId } }) => {
+          const product = await apiGetProduct({
+            product_id: cfId,
+          });
+
+          if (!product) {
+            throw new TRPCError({
+              message: "Product not found",
+              code: "NOT_FOUND",
             });
+          }
 
-            if (!product) {
-              throw new TRPCError({
-                message: "Product not found",
-                code: "BAD_REQUEST",
-              });
-            }
-
-            return await e
-              .insert(e.ecommerce.Product, product)
-              .unlessConflict((r) => ({
-                on: r.cfId,
-                else: e.update(r, () => ({
-                  set: product,
-                })),
-              }))
-              .run(client);
-          },
-        ),
+          return await dbImportProduct(product);
+        }),
       importAll: protectedProcedure
         .input(
           z.object({
@@ -138,17 +206,20 @@ export const ecommerceRouter = createTRPCRouter({
           }),
         )
         .mutation(async ({ input: { filters } }) => {
-          const products = await deepSearchProducts(filters);
+          const products = await deepSearchProducts(filters, {
+            limit: 999999,
+            offset: 0,
+          });
 
           if (products.data.length === 0) {
             return 0;
           }
 
-          // await client.transaction(async (tx) => {
-          //   for (const product of products.data) {
-          //     await e.insert(e.ecommerce.Product, product).run(tx);
-          //   }
-          // });
+          await client.transaction(async (tx) => {
+            for (const product of products.data) {
+              await dbImportProduct(product, tx);
+            }
+          });
 
           return products.data.length;
         }),
@@ -171,28 +242,14 @@ export const ecommerceRouter = createTRPCRouter({
             ctx: {
               db: { e, client },
             },
-            input: { cfId, id },
+            input,
           }) => {
-            if (cfId !== undefined) {
-              return await e
-                .select(e.ecommerce.Product, (p) => ({
-                  ...p["*"],
-                  filter_single: e.op(p.cfId, "=", cfId),
-                }))
-                .run(client);
-            } else if (id !== undefined) {
-              return await e
-                .select(e.ecommerce.Product, (p) => ({
-                  ...p["*"],
-                  filter_single: e.op(p.id, "=", e.uuid(id)),
-                }))
-                .run(client);
-            } else {
-              throw new TRPCError({
-                message: "Either cfId or id must be provided",
-                code: "BAD_REQUEST",
-              });
-            }
+            return await e
+              .select(e.ecommerce.Product, (p) => ({
+                ...p["*"],
+                ...filterProduct(input)(p),
+              }))
+              .run(client);
           },
         ),
       search: protectedProcedure

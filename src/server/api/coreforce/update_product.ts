@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { parseApiResponse } from "./api_util";
+import { filterUndefined, parseApiResponse } from "./api_util";
 import { makeApiRequest } from "./api_util";
 import { type ProductChangeData } from "./types";
 /**
@@ -13,7 +13,10 @@ export async function apiUpdateProduct(
   productId: number,
   data: ProductChangeData,
 ) {
+  filterUndefined(data);
+
   const response = await makeApiRequest("import_product", undefined, {
+    method: "POST",
     body: JSON.stringify({
       product_id: productId,
       ...data,

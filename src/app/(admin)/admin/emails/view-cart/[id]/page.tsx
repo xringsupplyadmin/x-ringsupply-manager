@@ -10,10 +10,11 @@ import {
 import { getContact } from "~/server/db/query/coreforce";
 
 export default async function ViewCartPage({
-  params: { id },
+  params,
 }: {
   params: { id: string };
 }) {
+  const { id } = await params;
   let contact;
   try {
     contact = await getContact(id);

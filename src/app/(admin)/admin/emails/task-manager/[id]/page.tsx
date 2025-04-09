@@ -11,12 +11,14 @@ import { formatDate } from "~/lib/utils";
 import { getContact, getContactsWithTasks } from "~/server/db/query/coreforce";
 
 export default async function TaskManagerPage({
-  params: { id },
+  params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   let contacts;
   let header;
+
+  const { id } = await params;
 
   if (id === "all") {
     contacts = await getContactsWithTasks();

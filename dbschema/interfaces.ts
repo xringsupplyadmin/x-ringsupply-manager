@@ -16,13 +16,11 @@ export namespace std {
 export namespace cfg {
   export interface ConfigObject extends std.BaseObject {}
   export interface AbstractConfig extends ConfigObject {
-    "extensions": ExtensionConfig[];
     "session_idle_timeout": edgedb.Duration;
     "session_idle_transaction_timeout": edgedb.Duration;
     "query_execution_timeout": edgedb.Duration;
     "listen_port": number;
     "listen_addresses": string[];
-    "auth": Auth[];
     "allow_dml_in_functions"?: boolean | null;
     "allow_bare_ddl"?: AllowBareDDL | null;
     "apply_access_policies"?: boolean | null;
@@ -39,13 +37,15 @@ export namespace cfg {
     "default_statistics_target"?: number | null;
     "force_database_error"?: string | null;
     "_pg_prepared_statement_cache_size": number;
+    "extensions": ExtensionConfig[];
+    "auth": Auth[];
   }
   export type AllowBareDDL = "AlwaysAllow" | "NeverAllow";
   export interface Auth extends ConfigObject {
     "priority": number;
     "user": string[];
-    "method"?: AuthMethod | null;
     "comment"?: string | null;
+    "method"?: AuthMethod | null;
   }
   export interface AuthMethod extends ConfigObject {
     "transports": ConnectionTransport[];
@@ -97,16 +97,16 @@ export namespace coreforce {
     "steps": EmailTaskStep[];
   }
   export interface EmailTask extends std.$Object {
-    "contact": Contact;
     "origination": Date;
     "sequence": number;
+    "contact": Contact;
   }
   export interface EmailTaskStep extends std.$Object {
-    "contact": Contact;
     "message": string;
     "sequence": number;
     "success": boolean;
     "time": Date;
+    "contact": Contact;
   }
 }
 export namespace $default {
@@ -122,8 +122,8 @@ export namespace $default {
     "session_state"?: string | null;
     "token_type"?: string | null;
     "type": string;
-    "user": User;
     "userId": string;
+    "user": User;
   }
   export interface InngestError extends std.$Object {
     "acknowledged"?: boolean | null;
@@ -134,11 +134,11 @@ export namespace $default {
     "timestamp"?: Date | null;
   }
   export interface Session extends std.$Object {
-    "user": User;
     "userId": string;
     "createdAt"?: Date | null;
     "expires": Date;
     "sessionToken": string;
+    "user": User;
   }
   export interface User extends std.$Object {
     "createdAt"?: Date | null;
@@ -150,8 +150,8 @@ export namespace $default {
     "sessions": Session[];
   }
   export interface UserPermission extends std.$Object {
-    "user": User;
     "verified": boolean;
+    "user": User;
   }
   export interface VerificationToken extends std.$Object {
     "identifier": string;
@@ -174,10 +174,10 @@ export namespace ecommerce {
     "department": Department[];
   }
   export interface Department extends std.$Object {
-    "categories": Category[];
     "cfId": number;
     "code": string;
     "description": string;
+    "categories": Category[];
   }
   export interface Location extends std.$Object {
     "cfId": number;
@@ -190,42 +190,42 @@ export namespace ecommerce {
     "cfId": number;
     "code": string;
     "description": string;
-    "inactive": boolean;
     "detailedDescription"?: string | null;
     "imageId"?: number | null;
+    "inactive": boolean;
     "metaDescription"?: string | null;
   }
   export interface Product extends std.$Object {
+    "productCategoryIds": number[];
+    "productTagIds": number[];
+    "productManufacturerId"?: number | null;
     "baseCost"?: number | null;
     "cfId": number;
     "code": string;
+    "dateCreated": Date;
     "description": string;
     "detailedDescription"?: string | null;
     "imageId"?: number | null;
+    "imageUrls": string[];
     "linkName"?: string | null;
     "listPrice"?: number | null;
     "manufacturerAdvertisedPrice"?: number | null;
     "manufacturerImageId"?: number | null;
     "manufacturerSku"?: string | null;
     "model"?: string | null;
-    "productManufacturerId"?: number | null;
     "sortOrder": number;
-    "upcCode"?: string | null;
-    "productCategories": Category[];
-    "productTags": Tag[];
-    "productCategoryIds": number[];
-    "productTagIds": number[];
-    "imageUrls": string[];
-    "dateCreated": Date;
     "timeChanged": Date;
+    "upcCode"?: string | null;
     "productManufacturer"?: Manufacturer | null;
+    "productTags": Tag[];
+    "productCategories": Category[];
   }
   export interface Tag extends std.$Object {
     "cfId": number;
     "code": string;
     "description": string;
-    "inactive": boolean;
     "detailedDescription"?: string | null;
+    "inactive": boolean;
     "metaDescription"?: string | null;
   }
 }
@@ -251,20 +251,20 @@ export namespace schema {
     "is_final": boolean;
   }
   export interface InheritingObject extends SubclassableObject {
+    "inherited_fields"?: string[] | null;
     "bases": InheritingObject[];
     "ancestors": InheritingObject[];
-    "inherited_fields"?: string[] | null;
   }
   export interface AnnotationSubject extends $Object {
     "annotations": Annotation[];
   }
   export interface AccessPolicy extends InheritingObject, AnnotationSubject {
-    "subject": ObjectType;
     "access_kinds": AccessKind[];
     "condition"?: string | null;
     "action": AccessPolicyAction;
     "expr"?: string | null;
     "errmessage"?: string | null;
+    "subject": ObjectType;
   }
   export type AccessPolicyAction = "Allow" | "Deny";
   export interface Alias extends AnnotationSubject {
@@ -282,30 +282,29 @@ export namespace schema {
   export interface PrimitiveType extends Type {}
   export interface CollectionType extends PrimitiveType {}
   export interface Array extends CollectionType {
-    "element_type": Type;
     "dimensions"?: number[] | null;
+    "element_type": Type;
   }
   export interface ArrayExprAlias extends Array {}
   export interface CallableObject extends AnnotationSubject {
+    "return_typemod"?: TypeModifier | null;
     "params": Parameter[];
     "return_type"?: Type | null;
-    "return_typemod"?: TypeModifier | null;
   }
   export type Cardinality = "One" | "Many";
   export interface VolatilitySubject extends $Object {
     "volatility"?: Volatility | null;
   }
   export interface Cast extends AnnotationSubject, VolatilitySubject {
-    "from_type"?: Type | null;
-    "to_type"?: Type | null;
     "allow_implicit"?: boolean | null;
     "allow_assignment"?: boolean | null;
+    "from_type"?: Type | null;
+    "to_type"?: Type | null;
   }
   export interface ConsistencySubject extends InheritingObject, AnnotationSubject {
     "constraints": Constraint[];
   }
   export interface Constraint extends CallableObject, InheritingObject {
-    "params": Parameter[];
     "expr"?: string | null;
     "subjectexpr"?: string | null;
     "finalexpr"?: string | null;
@@ -313,6 +312,7 @@ export namespace schema {
     "delegated"?: boolean | null;
     "except_expr"?: string | null;
     "subject"?: ConsistencySubject | null;
+    "params": Parameter[];
   }
   export interface Delta extends $Object {
     "parents": Delta[];
@@ -328,17 +328,17 @@ export namespace schema {
   }
   export interface FutureBehavior extends $Object {}
   export interface Global extends AnnotationSubject {
-    "target"?: Type | null;
     "required"?: boolean | null;
     "cardinality"?: Cardinality | null;
     "expr"?: string | null;
     "default"?: string | null;
+    "target"?: Type | null;
   }
   export interface Index extends InheritingObject, AnnotationSubject {
     "expr"?: string | null;
     "except_expr"?: string | null;
-    "params": Parameter[];
     "kwargs"?: {name: string, expr: string}[] | null;
+    "params": Parameter[];
   }
   export interface Pointer extends ConsistencySubject, AnnotationSubject {
     "cardinality"?: Cardinality | null;
@@ -352,20 +352,20 @@ export namespace schema {
     "rewrites": Rewrite[];
   }
   export interface Source extends $Object {
-    "indexes": Index[];
     "pointers": Pointer[];
+    "indexes": Index[];
   }
   export interface Link extends Pointer, Source {
-    "target"?: ObjectType | null;
-    "properties": Property[];
     "on_target_delete"?: TargetDeleteAction | null;
     "on_source_delete"?: SourceDeleteAction | null;
+    "target"?: ObjectType | null;
+    "properties": Property[];
   }
   export interface Migration extends AnnotationSubject, $Object {
-    "parents": Migration[];
     "script": string;
     "message"?: string | null;
     "generated_by"?: MigrationGeneratedBy | null;
+    "parents": Migration[];
   }
   export type MigrationGeneratedBy = "DevMode" | "DDLStatement";
   export interface Module extends AnnotationSubject, $Object {}
@@ -374,27 +374,27 @@ export namespace schema {
   }
   export interface MultiRangeExprAlias extends MultiRange {}
   export interface ObjectType extends Source, ConsistencySubject, InheritingObject, Type, AnnotationSubject {
-    "union_of": ObjectType[];
-    "intersection_of": ObjectType[];
-    "access_policies": AccessPolicy[];
-    "triggers": Trigger[];
     "compound_type": boolean;
     "is_compound_type": boolean;
+    "union_of": ObjectType[];
+    "intersection_of": ObjectType[];
     "links": Link[];
     "properties": Property[];
+    "access_policies": AccessPolicy[];
+    "triggers": Trigger[];
   }
   export interface Operator extends CallableObject, VolatilitySubject {
     "operator_kind"?: OperatorKind | null;
-    "abstract"?: boolean | null;
     "is_abstract"?: boolean | null;
+    "abstract"?: boolean | null;
   }
   export type OperatorKind = "Infix" | "Postfix" | "Prefix" | "Ternary";
   export interface Parameter extends $Object {
-    "type": Type;
     "typemod": TypeModifier;
     "kind": ParameterKind;
     "num": number;
     "default"?: string | null;
+    "type": Type;
   }
   export type ParameterKind = "VariadicParam" | "NamedOnlyParam" | "PositionalParam";
   export interface Property extends Pointer {}
@@ -404,9 +404,9 @@ export namespace schema {
   }
   export interface RangeExprAlias extends Range {}
   export interface Rewrite extends InheritingObject, AnnotationSubject {
-    "subject": Pointer;
     "kind": TriggerKind;
     "expr": string;
+    "subject": Pointer;
   }
   export type RewriteKind = "Update" | "Insert";
   export interface ScalarType extends PrimitiveType, ConsistencySubject, AnnotationSubject {
@@ -417,12 +417,12 @@ export namespace schema {
   export type SourceDeleteAction = "DeleteTarget" | "Allow" | "DeleteTargetIfOrphan";
   export type TargetDeleteAction = "Restrict" | "DeleteSource" | "Allow" | "DeferredRestrict";
   export interface Trigger extends InheritingObject, AnnotationSubject {
-    "subject": ObjectType;
     "timing": TriggerTiming;
     "kinds": TriggerKind[];
     "scope": TriggerScope;
     "expr"?: string | null;
     "condition"?: string | null;
+    "subject": ObjectType;
   }
   export type TriggerKind = "Update" | "Delete" | "Insert";
   export type TriggerScope = "All" | "Each";
@@ -432,8 +432,8 @@ export namespace schema {
     "element_types": TupleElement[];
   }
   export interface TupleElement extends std.BaseObject {
-    "type": Type;
     "name"?: string | null;
+    "type": Type;
   }
   export interface TupleExprAlias extends Tuple {}
   export type TypeModifier = "SetOfType" | "OptionalType" | "SingletonType";
@@ -461,10 +461,10 @@ export namespace sys {
 }
 export namespace utils {
   export interface SassHeader extends std.$Object {
-    "value": string;
+    "includeOrder": number;
     "internal": boolean;
     "name": string;
-    "includeOrder": number;
+    "value": string;
   }
 }
 export interface types {
