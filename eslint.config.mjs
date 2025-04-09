@@ -29,6 +29,7 @@ export default tseslint.config(
       },
     },
     rules: {
+      "@typescript-eslint/no-empty-object-type": "warn",
       "@typescript-eslint/array-type": "off",
       "@typescript-eslint/consistent-type-definitions": "off",
       "@typescript-eslint/consistent-type-imports": [
