@@ -1,6 +1,6 @@
 import e from "@/dbschema/edgeql-js";
 import { TRPCError } from "@trpc/server";
-import type { Transaction } from "edgedb/dist/transaction";
+import type { Transaction } from "gel/dist/transaction";
 import { z } from "zod";
 import client from "~/server/db/client";
 import { FilterStore } from "~/stores/filter_store";

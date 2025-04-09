@@ -1,7 +1,7 @@
-import { edgedb } from "@/dbschema/edgeql-js/imports";
-import { type Transaction } from "edgedb/dist/transaction";
+import { createClient } from "gel";
+import type { Transaction } from "gel/dist/transaction";
 
-const client = edgedb.createClient();
+const client = createClient();
 
 const BATCH_SIZE = 500;
 
