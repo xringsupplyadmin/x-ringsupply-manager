@@ -49,6 +49,10 @@ export const executeTask = inngest.createFunction(
         .run(client);
     });
 
+    if (items.length === 0) {
+      return;
+    }
+
     const origination = new Date(task.origination);
 
     // Send the email
