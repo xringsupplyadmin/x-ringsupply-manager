@@ -5,7 +5,7 @@ import { unsubscribeContact } from "~/server/db/query/coreforce";
 export default async function UnsubscribePage({
   params,
 }: {
-  params: { email: string };
+  params: Promise<{ email: string }>;
 }) {
   const { email } = await params;
   let alert;

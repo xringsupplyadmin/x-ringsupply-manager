@@ -12,7 +12,7 @@ import { getContact } from "~/server/db/query/coreforce";
 export default async function ViewCartPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
   let contact;

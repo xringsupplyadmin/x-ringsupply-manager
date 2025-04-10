@@ -40,6 +40,7 @@ export const authOptions: NextAuthConfig = {
       },
     }),
   },
+  // @ts-expect-error: report to next-auth, not updated to gel types
   adapter: EdgeDBAdapter(client),
   providers: [
     GoogleProvider({

@@ -18,6 +18,7 @@ const compat = new FlatCompat({
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
+  // @ts-expect-error idek
   reactPlugin.configs.flat.recommended,
   ...compat.extends("next/core-web-vitals"),
   ...compat.extends("plugin:react-hooks/recommended"),
