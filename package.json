@@ -6,9 +6,9 @@
   "scripts": {
     "build": "next build",
     "prebuild": "pnpm dlx @gel/generate edgeql-js && pnpm dlx @gel/generate interfaces",
-    "migrate:dev": "edgedb migrate --dev-mode",
-    "migrate:create": "edgedb migration create && edgedb migrate --dev-mode",
-    "migrate:prod": "edgedb migrate -I xringsupplyadmin/x-ringsupply-manager",
+    "migrate:dev": "gel migrate --dev-mode",
+    "migrate:create": "gel migration create && gel migrate --dev-mode",
+    "migrate:prod": "gel migrate -I xringsupplyadmin/x-ringsupply-manager",
     "dev": "next dev --turbo",
     "lint": "SKIP_ENV_VALIDATION=1 pnpm eslint ./src",
     "start": "next start",
