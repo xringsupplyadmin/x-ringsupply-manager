@@ -42,6 +42,7 @@ export const env = createEnv({
       .transform((s) => s.toLowerCase() === "true")
       .or(z.boolean()),
     DEBUG_EMAIL: z.string().email(),
+    KLAVIYO_API_KEY: z.string(),
   },
 
   /**
@@ -64,6 +65,7 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     CF_API_KEY: process.env.CF_API_KEY,
+    KLAVIYO_API_KEY: process.env.KLAVIYO_API_KEY,
     NEXT_PUBLIC_CF_HOST: process.env.NEXT_PUBLIC_CF_HOST,
     CF_USERNAME: process.env.CF_USERNAME,
     CF_PASSWORD: process.env.CF_PASSWORD,
