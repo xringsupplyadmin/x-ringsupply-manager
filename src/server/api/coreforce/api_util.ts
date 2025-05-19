@@ -1,5 +1,5 @@
 import { urlJoinP } from "url-join-ts";
-import { z, type ZodObject, type ZodRawShape } from "zod";
+import { z, type ZodType } from "zod";
 import { env } from "~/env";
 import { CF_API_HEADER } from "~/lib/server_utils";
 import type { ApiProduct, ProductChangeData } from "./types";
@@ -12,12 +12,20 @@ import type { ApiProduct, ProductChangeData } from "./types";
  * @param obj The object to filter
  * @return The same object for convenience
  */
-export function filterUndefined<T extends object>(obj: T) {
+export function filterUndefined<T extends object>(
+  obj: T,
+  allowNull = false,
+  allowEmpty = false,
+) {
   // Filter out empty values
   for (const key in obj) {
     // type stuff
     const index = key as keyof typeof obj;
-    if (obj[index] === undefined || obj[index] === "" || obj[index] === null) {
+    if (
+      obj[index] === undefined ||
+      (!allowEmpty && obj[index] === "") ||
+      (!allowNull && obj[index] === null)
+    ) {
       delete obj[index];
     }
   }
@@ -38,7 +46,7 @@ export async function makeApiRequest(
 ) {
   const url = urlJoinP(env.NEXT_PUBLIC_CF_HOST, ["api.php"], {
     method: action,
-    ...params,
+    ...(params ? filterUndefined(params, true, true) : {}),
   });
   console.debug(url);
   return await fetch(url, {
@@ -59,10 +67,14 @@ export async function makeApiRequest(
  * @throws {Error} If the response is not valid or an API error occurred
  */
 
-export async function parseApiResponse<
-  Shape extends ZodRawShape,
-  Parser extends ZodObject<Shape>,
->(response: Response, parser: Parser) {
+export async function parseApiResponse<Shape, Parser extends ZodType<Shape>>(
+  response: Response,
+  parser: Parser,
+) {
+  if (response.status !== 200) {
+    throw new Error("API Error: code " + response.status);
+  }
+
   const json = await response.json();
 
   const apiResponse = ApiResponse.safeParse(json);
