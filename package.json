@@ -10,7 +10,7 @@
     "migrate:create": "gel migration create && gel migrate --dev-mode",
     "migrate:prod": "gel migrate -I xringsupplyadmin/x-ringsupply-manager",
     "dev": "next dev --turbo",
-    "lint": "SKIP_ENV_VALIDATION=1 pnpm eslint ./src",
+    "lint": "pnpm eslint ./src",
     "start": "next start",
     "inngest": "pnpm dlx inngest-cli@latest dev --no-discovery -u http://localhost:3000/api/inngest"
   },

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { makeApiRequest, parseApiResponse } from "../../coreforce/api_util";
-import { CoreforceContact } from "../../types/coreforce";
+import { CoreforceContact } from "../types/coreforce";
 
 type FieldName =
   | "first_name"

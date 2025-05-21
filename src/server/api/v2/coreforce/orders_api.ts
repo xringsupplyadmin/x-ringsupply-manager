@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { makeApiRequest, parseApiResponse } from "../../coreforce/api_util";
-import { CoreforceOrder } from "../../types/coreforce";
+import { CoreforceOrder } from "../types/coreforce";
 
 export async function getOrderIds(filter: {
   since: Date;

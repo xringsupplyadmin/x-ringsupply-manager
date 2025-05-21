@@ -4,7 +4,7 @@ import {
   type OrderPlacedEvent,
   AbandonedCheckoutApiEvent,
   OrderPlacedApiEvent,
-} from "../../types/klaviyo";
+} from "../types/klaviyo";
 
 export async function sendAbandonedCheckoutEvent(
   event: AbandonedCheckoutEvent,

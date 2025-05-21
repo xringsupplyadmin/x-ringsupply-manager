@@ -23,6 +23,7 @@ const MetricsAddress = z.object({
   zip: z.string(),
   phone: z.string().optional(),
 });
+export type MetricsAddress = z.infer<typeof MetricsAddress>;
 
 const MetricsUser = z.object({
   firstName: z.string(),
@@ -79,6 +80,8 @@ export type OrderPlacedEvent = z.infer<typeof OrderPlacedEvent>;
 export const OrderPlacedApiEvent = OrderPlacedEvent.transform((event) => ({
   metadata: {
     metricID: MetricIDs.Enum["Order Placed"],
+    uniqueId: `order-${event.orderId}`,
+    time: event.orderTime,
     profileEmail: event.customer.email,
     value: event.items.reduce((acc, item) => acc + item.itemPrice, 0),
     valueCurrency: event.currency,

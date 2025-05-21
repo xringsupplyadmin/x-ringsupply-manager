@@ -1,5 +1,8 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
-import { AbandonedCheckoutEvent, OrderPlacedEvent } from "../../types/klaviyo";
+import {
+  AbandonedCheckoutEvent,
+  OrderPlacedEvent,
+} from "../../v2/types/klaviyo";
 import {
   sendAbandonedCheckoutEvent,
   sendOrderPlacedEvent,

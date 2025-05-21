@@ -1,7 +1,8 @@
 import { urlJoinP } from "url-join-ts";
 import { z } from "zod";
 import { env } from "~/env";
-import { fetchSession, CF_API_HEADER } from "~/lib/server_utils";
+import { CF_API_HEADER, fetchSession } from "~/lib/server_utils";
+import { RetailStoreCart } from "../types/coreforce";
 
 const LoginResponse = z.union([
   z.object({
@@ -83,62 +84,6 @@ export async function authorize() {
     throw new Error("Authorization failed: " + status.data.error_message);
   }
 }
-
-const formattedNumber = z.preprocess(
-  (num) =>
-    typeof num === "string"
-      ? Number(num.replaceAll(",", ""))
-      : z.coerce.number().parse(num),
-  z.number(),
-);
-
-const safeUrl = (fallback: string) =>
-  z.preprocess((str) => {
-    if (str === "") {
-      return fallback;
-    }
-
-    const res = z.string().url().safeParse(str);
-    if (res.success) {
-      return res.data;
-    } else {
-      return fallback;
-    }
-  }, z.string().url());
-
-/**
- * The response from the CF "API" for the cart items
- *
- * Why is this not a normal API method?
- * Because CF is a piece of sh*t (pardon the french)
- */
-const RetailStoreCart = z.object({
-  shopping_cart_items: z
-    .object({
-      shopping_cart_item_id: z.number(),
-      shopping_cart_id: z.number(),
-      product_id: z.number(),
-      description: z.string(),
-      time_submitted: z.date({
-        coerce: true,
-      }),
-      quantity: z.number(),
-      unit_price: formattedNumber,
-      list_price: formattedNumber,
-      small_image_url: safeUrl(
-        "https://placehold.co/300/jpg?text=Image+Not+Found",
-      ),
-      image_url: safeUrl("https://placehold.co/600/jpg?text=Image+Not+Found"),
-    })
-    .transform((obj) => ({
-      ...obj,
-      link_name: urlJoinP(env.NEXT_PUBLIC_CF_HOST, ["product-details"], {
-        id: obj.product_id,
-      }),
-    }))
-    .array(),
-});
-export type RetailStoreCart = z.infer<typeof RetailStoreCart>;
 
 const RetailStoreCartResponse = RetailStoreCart.extend({
   requires_user: z.undefined(),

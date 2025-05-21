@@ -6,7 +6,7 @@ import type {
   EventRawMetadata,
   MetricData,
   ProfileData,
-} from "./types/klaviyo";
+} from "./v2/types/klaviyo";
 
 import { v4 as uuidv4 } from "uuid";
 
