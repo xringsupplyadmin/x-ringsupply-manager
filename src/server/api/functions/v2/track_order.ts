@@ -8,7 +8,6 @@ export const klaviyoOrderTracking = inngest.createFunction(
     id: "klaviyo-order-tracking",
     name: "Scheduled Runner for Order Tracking in Klaviyo",
     onFailure: logInngestError,
-    concurrency: 50,
   },
   { cron: "TZ=America/New_York 0 * * * *" },
   async () => {
