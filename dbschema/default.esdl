@@ -1,4 +1,5 @@
 module default {
+    scalar type ModuleName extending enum<ItemTags, ProductEditor, CRM>;
     type User {
         property name -> str;
         required property email -> str {
@@ -17,9 +18,14 @@ module default {
         required user: User {
             constraint exclusive;
         };
-        required verified: bool {
+        required administrator: bool {
             default := (select count(User) = 1);
+        }
+        required verified: bool {
+            default := .administrator;
         };
+        multi moduleWrite: ModuleName;
+        multi moduleRead: ModuleName;
     }
  
     type Account {

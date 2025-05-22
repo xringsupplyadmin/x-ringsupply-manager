@@ -4,7 +4,6 @@ import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuListItem,
   NavigationMenuTrigger,
@@ -98,6 +97,12 @@ async function NavLinks() {
                 <NavigationMenuListItem
                   href="/admin/sass-editor"
                   title="Stylesheet Editor"
+                >
+                  Edit stylesheets for use in SASS headers
+                </NavigationMenuListItem>
+                <NavigationMenuListItem
+                  href="/admin/item-tags"
+                  title="Item Tag Editor"
                 >
                   Edit stylesheets for use in SASS headers
                 </NavigationMenuListItem>

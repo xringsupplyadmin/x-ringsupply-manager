@@ -6,6 +6,7 @@ import e from "@/dbschema/edgeql-js";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { env } from "~/env";
 import client from "./db/client";
+import type { UserPermission } from "@/dbschema/interfaces";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -17,9 +18,7 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      permissions: {
-        verified: boolean;
-      };
+      permissions: Omit<UserPermission, "user">;
     } & DefaultSession["user"];
   }
 }

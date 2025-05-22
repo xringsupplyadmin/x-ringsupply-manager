@@ -1,12 +1,15 @@
+import type { ModuleName } from "@/dbschema/interfaces";
 import { type Session } from "next-auth";
 import { getServerAuthSession } from "~/server/auth";
 
 export default async function ServerAuthWrapper({
   fallback,
   page,
+  module,
 }: {
   fallback?: JSX.Element;
-  page: (session: Session) => JSX.Element;
+  page: (session: Session) => React.ReactNode;
+  module?: ModuleName;
 }) {
   const session = await getServerAuthSession();
   if (!session?.user)
@@ -35,5 +38,23 @@ export default async function ServerAuthWrapper({
       </div>
     );
   }
-  return page(session);
+
+  if (
+    module &&
+    !session.user.permissions.moduleRead.includes(module) &&
+    !session.user.permissions.administrator
+  ) {
+    return (
+      <div>
+        <h1 className="pb-2 text-center text-2xl font-bold">
+          Error: Insufficient permissions
+        </h1>
+        <p className="pb-2 text-center text-lg">
+          You do not have permission to view pages in the {module} module
+        </p>
+      </div>
+    );
+  }
+
+  return <>{page(session)}</>;
 }
