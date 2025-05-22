@@ -5,11 +5,11 @@ import { getServerAuthSession } from "~/server/auth";
 export default async function ServerAuthWrapper({
   fallback,
   page,
-  module,
+  modules,
 }: {
   fallback?: JSX.Element;
   page: (session: Session) => React.ReactNode;
-  module?: ModuleName;
+  modules?: ModuleName[];
 }) {
   const session = await getServerAuthSession();
   if (!session?.user)
@@ -39,21 +39,23 @@ export default async function ServerAuthWrapper({
     );
   }
 
-  if (
-    module &&
-    !session.user.permissions.moduleRead.includes(module) &&
-    !session.user.permissions.administrator
-  ) {
-    return (
-      <div>
-        <h1 className="pb-2 text-center text-2xl font-bold">
-          Error: Insufficient permissions
-        </h1>
-        <p className="pb-2 text-center text-lg">
-          You do not have permission to view pages in the {module} module
-        </p>
-      </div>
-    );
+  if (modules && !session.user.permissions.administrator) {
+    for (const m of modules) {
+      if (!session.user.permissions.modules.find((p) => p.moduleName == m)) {
+        return (
+          <div>
+            <h1 className="pb-2 text-center text-2xl font-bold">
+              Error: Insufficient permissions
+            </h1>
+            <p className="pb-2 text-center text-lg">
+              You do not have permission to view this page
+              <br />
+              Requires: {modules.join(", ")}
+            </p>
+          </div>
+        );
+      }
+    }
   }
 
   return <>{page(session)}</>;

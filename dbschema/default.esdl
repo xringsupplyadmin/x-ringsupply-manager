@@ -24,8 +24,7 @@ module default {
         required verified: bool {
             default := .administrator;
         };
-        multi moduleWrite: ModuleName;
-        multi moduleRead: ModuleName;
+        multi modules: tuple<moduleName: ModuleName, write: bool>;
     }
  
     type Account {

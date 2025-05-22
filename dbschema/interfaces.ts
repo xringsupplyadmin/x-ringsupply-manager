@@ -275,8 +275,7 @@ export namespace $default {
   export interface UserPermission extends std.$Object {
     "administrator": boolean;
     "verified": boolean;
-    "moduleRead": ModuleName[];
-    "moduleWrite": ModuleName[];
+    "modules": {moduleName: ModuleName, write: boolean}[];
     "user": User;
   }
   export interface VerificationToken extends std.$Object {
