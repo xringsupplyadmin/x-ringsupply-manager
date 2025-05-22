@@ -9,7 +9,7 @@ export const klaviyoOrderTracking = inngest.createFunction(
     name: "Scheduled Runner for Order Tracking in Klaviyo",
     onFailure: logInngestError,
   },
-  { cron: "TZ=America/New_York 0 * * * *" },
+  { cron: "TZ=America/New_York 0,30 * * * *" },
   async () => {
     const date = new Date();
     date.setUTCHours(date.getUTCHours() - 1);
