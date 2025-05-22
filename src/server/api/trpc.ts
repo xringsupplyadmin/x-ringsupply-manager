@@ -11,9 +11,10 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
+import e from "@/dbschema/edgeql-js";
+import type { ModuleName } from "@/dbschema/interfaces";
 import { getServerAuthSession } from "~/server/auth";
 import client from "../db/client";
-import e from "@/dbschema/edgeql-js";
 
 /**
  * 1. CONTEXT
@@ -110,3 +111,36 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
     },
   });
 });
+
+export function restrictedProcedure(
+  modules: { moduleName: ModuleName; write: boolean }[],
+  base = protectedProcedure,
+) {
+  return base.use(({ ctx, next }) => {
+    if (!ctx.session || !ctx.session.user) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    for (const { moduleName, write } of modules) {
+      const permission = ctx.session.user.permissions.modules.find(
+        (p) => p.moduleName === moduleName,
+      );
+
+      if (!permission) {
+        throw new TRPCError({
+          message: `Required Permission: ${modules}`,
+          code: "UNAUTHORIZED",
+        });
+      }
+
+      if (write && !permission.write) {
+        throw new TRPCError({
+          message: `Required Permission: ${modules}`,
+          code: "UNAUTHORIZED",
+        });
+      }
+    }
+
+    return next({});
+  });
+}
