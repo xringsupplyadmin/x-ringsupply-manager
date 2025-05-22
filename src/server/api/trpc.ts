@@ -112,16 +112,16 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
   });
 });
 
-export function restrictedProcedure(
-  modules: { moduleName: ModuleName; write: boolean }[],
+export function moduleProcedure(
+  modules: ModuleName[],
   base = protectedProcedure,
 ) {
-  return base.use(({ ctx, next }) => {
+  return base.use(({ ctx, type, next }) => {
     if (!ctx.session || !ctx.session.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
-    for (const { moduleName, write } of modules) {
+    for (const moduleName of modules) {
       const permission = ctx.session.user.permissions.modules.find(
         (p) => p.moduleName === moduleName,
       );
@@ -133,7 +133,7 @@ export function restrictedProcedure(
         });
       }
 
-      if (write && !permission.write) {
+      if (type === "mutation" && !permission.write) {
         throw new TRPCError({
           message: `Required Permission: ${modules}`,
           code: "UNAUTHORIZED",
