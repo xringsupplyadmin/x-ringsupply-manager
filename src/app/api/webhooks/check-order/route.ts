@@ -1,17 +1,11 @@
 import { z } from "zod";
 import { getContact } from "~/server/api/v2/coreforce/contacts_api";
 import { getOrders } from "~/server/api/v2/coreforce/orders_api";
-import { getProduct } from "~/server/api/v2/coreforce/products_api";
 import { getShoppingCartItems } from "~/server/api/v2/coreforce/retailstore";
 import {
+  orderTracking,
   sendAbandonedCheckoutEvent,
-  sendOrderPlacedEvent,
 } from "~/server/api/v2/klaviyo/send_event";
-import {
-  productImageUrl,
-  type CoreforceOrder,
-} from "~/server/api/v2/types/coreforce";
-import type { MetricsAddress } from "~/server/api/v2/types/klaviyo";
 
 const DataParser = z.object({
   customer_email: z.string(),
@@ -55,7 +49,7 @@ export async function POST(request: Request) {
         message: message,
       }),
       {
-        status: 400,
+        status: 500,
         headers: {
           "Content-Type": "application/json",
         },
@@ -129,54 +123,5 @@ export async function POST(request: Request) {
         },
       );
     }
-  }
-}
-
-async function orderTracking(orders: CoreforceOrder[]) {
-  for (const order of orders) {
-    const billingAddress: MetricsAddress = {
-      firstName: order.details.first_name,
-      lastName: order.details.last_name,
-      address1: order.details.address_1,
-      address2: order.details.address_2,
-      city: order.details.city,
-      regionCode: order.details.postal_code,
-      countryCode: "US",
-      zip: order.details.postal_code,
-    };
-
-    const products = [];
-
-    for (const item of order.items) {
-      // janky shit cause the order doesn't include the image URL
-      const productDetails = await getProduct(item.product_id);
-      products.push({
-        productId: item.product_id,
-        sku: item.manufacturer_sku,
-        productName: item.description,
-        quantity: item.quantity,
-        itemPrice: item.sale_price,
-        productUrl: item.link_name,
-        imageUrl: productImageUrl.parse(productDetails?.image_url),
-        categories: [],
-        brand: "",
-      });
-    }
-
-    sendOrderPlacedEvent({
-      orderId: order.details.order_id,
-      orderTime: order.details.order_time,
-      discountCode: undefined,
-      discountValue: 0,
-      items: products,
-      billingAddress: billingAddress,
-      shippingAddress: undefined,
-      currency: "USD",
-      customer: {
-        firstName: order.details.first_name,
-        lastName: order.details.last_name,
-        email: order.details.email_address,
-      },
-    });
   }
 }
