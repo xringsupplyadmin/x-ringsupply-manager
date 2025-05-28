@@ -26,7 +26,7 @@ export type SearchFilter = z.infer<typeof SearchFilter>;
 export const FilterStore = TaxonomyFilter.and(SearchFilter);
 export type FilterStore = z.infer<typeof FilterStore>;
 
-export const createFilterStore = () =>
+export const createFilterStore = (id = "ecommerce-filters") =>
   create(
     persist<FilterStore>(
       (): FilterStore => ({
@@ -39,7 +39,7 @@ export const createFilterStore = () =>
         hideOutOfStock: true,
       }),
       {
-        name: "ecommerce-filters",
+        name: id,
       },
     ),
   );
