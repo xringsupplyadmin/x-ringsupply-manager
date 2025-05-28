@@ -14,9 +14,18 @@ import { ProductCard } from "./product";
 import type { PageData } from "~/hooks/paginator";
 import { FilterSidebar } from "./filters";
 
-export function ProductSearchControls({ loading, reset }: PageData<unknown>) {
+export function ProductSearchControls({
+  loading,
+  reset,
+  children,
+  prependChildren = false,
+}: PageData<unknown> & {
+  children?: React.ReactNode;
+  prependChildren?: boolean;
+}) {
   return (
     <>
+      {prependChildren && children}
       <Button
         icon={loading ? <Loader2 className="animate-spin" /> : <Search />}
         onClick={() => reset()}
@@ -25,6 +34,7 @@ export function ProductSearchControls({ loading, reset }: PageData<unknown>) {
         Search
       </Button>
       <FilterSidebar startSearch={reset} />
+      {!prependChildren && children}
     </>
   );
 }

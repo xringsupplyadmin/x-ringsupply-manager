@@ -66,9 +66,11 @@ type DisplayProduct = ApiProduct &
 
 export function ProductCard<Product extends DisplayProduct>({
   product,
+  minimal = false,
   footerControls,
 }: {
   product: Product;
+  minimal?: boolean;
   footerControls?: (product: Product) => JSX.Element;
 }) {
   return (
@@ -111,65 +113,7 @@ export function ProductCard<Product extends DisplayProduct>({
               },
             })}
         </div>
-
-        <h3 className="text-lg font-semibold">Categories</h3>
-        <div className="flex h-10 items-center justify-center">
-          {product.productCategories ? (
-            product.productCategories.length === 0 ? (
-              <p>None</p>
-            ) : (
-              <div className="mini-scrollbar flex h-full w-full flex-nowrap items-stretch justify-center gap-2 overflow-x-scroll p-1">
-                {product.productCategories.map((category) => (
-                  <Badge
-                    className="w-max max-w-32 overflow-clip text-ellipsis text-nowrap hover:max-w-full"
-                    key={category.cfId}
-                  >
-                    {category.description}
-                  </Badge>
-                ))}
-              </div>
-            )
-          ) : (
-            <Loader2 className="animate-spin" />
-          )}
-        </div>
-
-        <h3 className="text-lg font-semibold">Tags</h3>
-        <div className="flex h-10 items-center justify-center">
-          {product.productTags ? (
-            product.productTags.length === 0 ? (
-              <p>None</p>
-            ) : (
-              <div className="mini-scrollbar flex h-full w-full flex-nowrap items-stretch justify-center gap-2 overflow-x-scroll p-1">
-                {product.productTags.map((tag) => (
-                  <Badge
-                    className="w-max max-w-32 overflow-clip text-ellipsis text-nowrap hover:max-w-full"
-                    key={tag.cfId}
-                  >
-                    {tag.description}
-                  </Badge>
-                ))}
-              </div>
-            )
-          ) : (
-            <Loader2 className="animate-spin" />
-          )}
-        </div>
-
-        <div className="h-8">
-          <div className="flex h-full items-center gap-2">
-            <h3 className="text-lg font-semibold">Manufacturer</h3>
-            {product.productManufacturer !== undefined ? (
-              <p>
-                {product.productManufacturer === null
-                  ? "None"
-                  : product.productManufacturer.description}
-              </p>
-            ) : (
-              <Loader2 className="animate-spin" />
-            )}
-          </div>
-        </div>
+        {!minimal && <ProductDetail product={product} />}
       </CardContent>
       <CardFooter className="flex flex-row justify-between gap-4">
         <div className="flex flex-col items-start justify-between text-left text-sm italic">
@@ -183,5 +127,74 @@ export function ProductCard<Product extends DisplayProduct>({
         )}
       </CardFooter>
     </Card>
+  );
+}
+
+function ProductDetail<Product extends DisplayProduct>({
+  product,
+}: {
+  product: Product;
+}) {
+  return (
+    <>
+      <h3 className="text-lg font-semibold">Categories</h3>
+      <div className="flex h-10 items-center justify-center">
+        {product.productCategories ? (
+          product.productCategories.length === 0 ? (
+            <p>None</p>
+          ) : (
+            <div className="mini-scrollbar flex h-full w-full flex-nowrap items-stretch justify-center gap-2 overflow-x-scroll p-1">
+              {product.productCategories.map((category) => (
+                <Badge
+                  className="w-max max-w-32 overflow-clip text-ellipsis text-nowrap hover:max-w-full"
+                  key={category.cfId}
+                >
+                  {category.description}
+                </Badge>
+              ))}
+            </div>
+          )
+        ) : (
+          <Loader2 className="animate-spin" />
+        )}
+      </div>
+
+      <h3 className="text-lg font-semibold">Tags</h3>
+      <div className="flex h-10 items-center justify-center">
+        {product.productTags ? (
+          product.productTags.length === 0 ? (
+            <p>None</p>
+          ) : (
+            <div className="mini-scrollbar flex h-full w-full flex-nowrap items-stretch justify-center gap-2 overflow-x-scroll p-1">
+              {product.productTags.map((tag) => (
+                <Badge
+                  className="w-max max-w-32 overflow-clip text-ellipsis text-nowrap hover:max-w-full"
+                  key={tag.cfId}
+                >
+                  {tag.description}
+                </Badge>
+              ))}
+            </div>
+          )
+        ) : (
+          <Loader2 className="animate-spin" />
+        )}
+      </div>
+
+      <div className="h-8">
+        <div className="flex h-full items-center gap-2">
+          <h3 className="text-lg font-semibold">Manufacturer</h3>
+          {product.productManufacturer !== undefined ? (
+            <p>
+              {product.productManufacturer === null
+                ? "None"
+                : product.productManufacturer.description}
+            </p>
+          ) : (
+            <Loader2 className="animate-spin" />
+          )}
+        </div>
+      </div>
+    </>
   );
 }
