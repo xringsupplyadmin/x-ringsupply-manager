@@ -1,5 +1,6 @@
 module default {
-    scalar type ModuleName extending enum<ItemTags, ProductEditor, CRM>;
+    scalar type ModuleName extending enum<ItemTags, ProductEditor, CRM, Klaviyo>;
+    
     type User {
         property name -> str;
         required property email -> str {
