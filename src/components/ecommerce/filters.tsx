@@ -48,7 +48,11 @@ export function CoreforceFilter({
   );
 }
 
-export function SearchTextFilter() {
+export function SearchTextFilter({
+  startSearch,
+}: {
+  startSearch?: () => void;
+}) {
   const filterStore = useFilterStoreContext();
   const searchText = useFilterStore((state) => state.searchText);
 
@@ -57,8 +61,10 @@ export function SearchTextFilter() {
       placeholder="Search for products"
       defaultValue={searchText}
       onChange={(e) => {
-        console.log("value change", e.target.value);
         filterStore.setState(() => ({ searchText: e.target.value }));
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") startSearch?.();
       }}
     />
   );
@@ -85,13 +91,13 @@ export function ShowOutOfStockFilter() {
   );
 }
 
-export function FilterSidebar() {
+export function FilterSidebar({ startSearch }: { startSearch?: () => void }) {
   const { data: sidebar } = api.ecommerce.db.taxonomy.getSidebar.useQuery();
 
   if (sidebar) {
     return (
       <>
-        <SearchTextFilter />
+        <SearchTextFilter startSearch={startSearch} />
         <CoreforceFilter values={sidebar.categories} storeName="categories" />
         <CoreforceFilter values={sidebar.departments} storeName="departments" />
         <CoreforceFilter

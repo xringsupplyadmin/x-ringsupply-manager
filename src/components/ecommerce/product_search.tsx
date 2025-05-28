@@ -24,7 +24,7 @@ export function ProductSearchControls({ loading, reset }: PageData<unknown>) {
       >
         Search
       </Button>
-      <FilterSidebar />
+      <FilterSidebar startSearch={reset} />
     </>
   );
 }
