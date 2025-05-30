@@ -6,8 +6,10 @@ import client from "~/server/db/client";
 import { FilterStore } from "~/stores/filter_store";
 import {
   apiGetProduct,
+  apiGetProducts,
   apiSearchProducts,
   ProductIdentifier,
+  ProductIdentifiers,
 } from "../coreforce/search_product";
 import { type ApiProduct, ApiProductEditable } from "../coreforce/types";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
@@ -157,6 +159,11 @@ export const ecommerceRouter = createTRPCRouter({
         .input(ProductIdentifier)
         .query(async ({ input }) => {
           return await apiGetProduct(input);
+        }),
+      getMany: protectedProcedure
+        .input(ProductIdentifiers)
+        .query(async ({ input }) => {
+          return await apiGetProducts(input);
         }),
     },
   },

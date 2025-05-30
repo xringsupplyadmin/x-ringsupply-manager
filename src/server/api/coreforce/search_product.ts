@@ -14,13 +14,20 @@ export const ProductIdentifier = z.union([
 ]);
 export type ProductIdentifier = z.infer<typeof ProductIdentifier>;
 
+export const ProductIdentifiers = z.union([
+  z.object({ product_ids: z.number().array() }),
+  z.object({ product_codes: z.string().array() }),
+  z.object({ upc_codes: z.string().array() }),
+]);
+export type ProductIdentifiers = z.infer<typeof ProductIdentifiers>;
+
 /**
  * Get a product
  *
  * @throws {Error} If the API returns an error
  */
 export async function apiGetProduct(identifier: ProductIdentifier) {
-  const response = await makeApiRequest("search_products", identifier);
+  const response = await makeApiRequest("get_product", identifier);
 
   const result = await parseApiResponse(
     response,
@@ -37,6 +44,33 @@ export async function apiGetProduct(identifier: ProductIdentifier) {
   } else {
     return mapApiProduct(result.results[0]!);
   }
+}
+
+/**
+ * Get some products
+ *
+ * @throws {Error} If the API returns an error
+ */
+export async function apiGetProducts(identifiers: ProductIdentifiers) {
+  if (
+    ("product_ids" in identifiers && identifiers.product_ids.length === 0) ||
+    ("product_codes" in identifiers &&
+      identifiers.product_codes.length === 0) ||
+    ("upc_codes" in identifiers && identifiers.upc_codes.length === 0)
+  )
+    return [];
+
+  const response = await makeApiRequest("get_product", identifiers);
+
+  const result = await parseApiResponse(
+    response,
+    z.object({
+      results: ProductResult.array(),
+      result_count: z.number(),
+    }),
+  );
+
+  return result.results.map(mapApiProduct);
 }
 
 /**
