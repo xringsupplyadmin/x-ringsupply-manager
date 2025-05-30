@@ -1,4 +1,5 @@
 import { FilterStoreProvider } from "~/stores/providers/filter_store_provider";
+import { SelectStoreProvider } from "~/stores/providers/select_store_provider";
 
 export default async function Layout({
   children,
@@ -7,7 +8,9 @@ export default async function Layout({
 }) {
   return (
     <FilterStoreProvider id="klaviyo-product-search-filters">
-      {children}
+      <SelectStoreProvider id="klaviyo-product-search-selected">
+        {children}
+      </SelectStoreProvider>
     </FilterStoreProvider>
   );
 }
