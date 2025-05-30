@@ -1,7 +1,7 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { ecommerceRouter } from "./routers/ecommerce";
 import { utilitiesRouter } from "./routers/utilities";
-import { v2root } from "./routers/v2/root";
+import { v2root } from "./v2/routers/root";
 
 /**
  * This is the primary router for your server.
