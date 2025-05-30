@@ -1,4 +1,9 @@
-import { ApiKeySession, EventsApi } from "klaviyo-api";
+import {
+  ApiKeySession,
+  CatalogsApi,
+  EventsApi,
+  type CollectionLinks,
+} from "klaviyo-api";
 import { env } from "~/env";
 import type {
   EventBuilderMetadata,
@@ -12,7 +17,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const klaviyoSession = new ApiKeySession(env.KLAVIYO_API_KEY);
 const events = new EventsApi(klaviyoSession);
-
+const catalog = new CatalogsApi(klaviyoSession);
 /**
  * Helper function to convert between simple metadata and klaviyo event metadata
  *
@@ -66,6 +71,39 @@ export function buildEvent<T extends Record<string, unknown>>(event: {
   };
 }
 
+type PagedApiResponse<Datatype> = {
+  response: { status: number; statusText: string };
+  body: {
+    data: Array<Datatype>;
+    links?: CollectionLinks;
+  };
+};
+
+export async function allPages<Datatype>(
+  executor: (cursor?: string) => Promise<PagedApiResponse<Datatype>>,
+) {
+  let cursor: string | undefined;
+  let data: Datatype[] = [] as Datatype[];
+
+  while (true) {
+    const { response, body } = await executor(cursor);
+
+    if (response.status !== 200) {
+      throw new Error(
+        `Failed to fetch data (${response.status}): ${response.statusText}`,
+      );
+    }
+
+    data = [...data, ...body.data];
+    cursor = body.links?.next;
+
+    if (!cursor) break;
+  }
+
+  return data;
+}
+
 export const klaviyo = {
   events,
+  catalog,
 };
