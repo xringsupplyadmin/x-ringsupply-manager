@@ -1,5 +1,5 @@
 import { Loader2, RotateCcw } from "lucide-react";
-import type { ComponentProps } from "react";
+import { type ComponentProps } from "react";
 import {
   usePagination,
   type PageData,
@@ -28,7 +28,8 @@ export function PagedCardGrid<Datatype>({
   cardComponent: (product: Datatype) => JSX.Element;
   controls?: (pageData: PageData<Datatype>) => JSX.Element | undefined;
 }) {
-  const { loading, reset, data, navigation } = usePagination(dataProvider);
+  const { loading, reset, fetch, data, navigation } =
+    usePagination(dataProvider);
 
   return (
     <div
@@ -39,8 +40,8 @@ export function PagedCardGrid<Datatype>({
         {controls?.(
           // some typing shenanigans
           data
-            ? { loading, reset, data, navigation }
-            : { loading, reset, data: null, navigation: null },
+            ? { loading, reset, fetch, data, navigation }
+            : { loading, reset, fetch, data: null, navigation: null },
         )}
         {/* Fallback reset button */}
         {!controls && (
