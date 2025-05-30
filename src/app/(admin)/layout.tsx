@@ -23,37 +23,6 @@ async function NavLinks() {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Emails</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid gap-2 p-2 md:w-[400px] lg:w-[500px] lg:grid-cols-2">
-                <NavigationMenuListItem
-                  href="/admin/emails/task-manager/all"
-                  title="Active Tasks"
-                >
-                  View all active email tasks
-                </NavigationMenuListItem>
-                <NavigationMenuListItem
-                  href="/admin/emails/touchpoint-manager/all"
-                  title="Touchpoints"
-                >
-                  View touchpoints for all contacts
-                </NavigationMenuListItem>
-                <NavigationMenuListItem
-                  href="/admin/emails/contacts"
-                  title="Contacts"
-                >
-                  Manage contacts for emails
-                </NavigationMenuListItem>
-                <NavigationMenuListItem
-                  href="/admin/emails/all-cart-items"
-                  title="Cart Items"
-                >
-                  View all items in abandoned carts
-                </NavigationMenuListItem>
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
             <NavigationMenuTrigger>Products</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="grid gap-2 p-2 md:w-[400px] lg:w-[600px] lg:grid-cols-2">
@@ -109,6 +78,19 @@ async function NavLinks() {
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Klaviyo</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid gap-2 p-2 md:w-[400px] lg:w-[600px] lg:grid-cols-2">
+                <NavigationMenuListItem
+                  href="/admin/klaviyo/catalog-import"
+                  title="Catalog Import"
+                >
+                  Synchronize items for use in marketing emails
+                </NavigationMenuListItem>
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
     );
@@ -136,7 +118,7 @@ export default async function RootLayout({
           </p>
           <Link
             href={session ? "/api/auth/signout" : "/api/auth/signin"}
-            className="rounded-full bg-primary px-5 py-1 font-semibold text-primary-foreground no-underline transition hover:opacity-50"
+            className="rounded-full bg-primary px-5 py-1 text-center font-semibold text-primary-foreground no-underline transition hover:opacity-50"
           >
             {session ? "Sign out" : "Sign in"}
           </Link>
