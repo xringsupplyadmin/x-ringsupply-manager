@@ -86,16 +86,20 @@ export async function allPages<Datatype>(
   let data: Datatype[] = [] as Datatype[];
 
   while (true) {
-    const { response, body } = await executor(cursor);
+    try {
+      const { response, body } = await executor(cursor);
 
-    if (response.status !== 200) {
-      throw new Error(
-        `Failed to fetch data (${response.status}): ${response.statusText}`,
-      );
+      if (response.status !== 200) {
+        throw new Error(
+          `Failed to fetch data (${response.status}): ${response.statusText}`,
+        );
+      }
+
+      data = [...data, ...body.data];
+      cursor = body.links?.next;
+    } catch (e) {
+      throw new Error(`Failed to fetch data: ${e}`);
     }
-
-    data = [...data, ...body.data];
-    cursor = body.links?.next;
 
     if (!cursor) break;
   }

@@ -1,15 +1,18 @@
 import type { ModuleName } from "@/dbschema/interfaces";
 import { type Session } from "next-auth";
+import type React from "react";
 import { getServerAuthSession } from "~/server/auth";
 
 export default async function ServerAuthWrapper({
   fallback,
   page,
   modules,
+  children,
 }: {
   fallback?: JSX.Element;
-  page: (session: Session) => React.ReactNode;
+  page?: (session: Session) => React.ReactNode;
   modules?: ModuleName[];
+  children?: React.ReactNode;
 }) {
   const session = await getServerAuthSession();
   if (!session?.user)
@@ -58,5 +61,10 @@ export default async function ServerAuthWrapper({
     }
   }
 
-  return <>{page(session)}</>;
+  return (
+    <>
+      {page?.(session)}
+      {children}
+    </>
+  );
 }

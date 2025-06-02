@@ -417,6 +417,7 @@ export const ecommerceRouter = createTRPCRouter({
               cfIds: z.undefined(),
               codes: z.string().array(),
             }),
+            z.undefined(),
           ]),
         )
         .query(
@@ -428,10 +429,12 @@ export const ecommerceRouter = createTRPCRouter({
           }) => {
             const query = e.select(e.ecommerce.Category, (c) => {
               let filter;
-              if (input.cfIds !== undefined) {
-                filter = e.op(c.cfId, "in", e.set(...input.cfIds));
-              } else {
-                filter = e.op(c.code, "in", e.set(...input.codes));
+              if (input) {
+                if (input.cfIds !== undefined) {
+                  filter = e.op(c.cfId, "in", e.set(...input.cfIds));
+                } else {
+                  filter = e.op(c.code, "in", e.set(...input.codes));
+                }
               }
 
               return {

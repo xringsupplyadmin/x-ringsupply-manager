@@ -10,7 +10,7 @@ import {
 } from "../../coreforce/taxonomy";
 import e from "@/dbschema/edgeql-js";
 
-const syncAll = inngest.createFunction(
+export const syncAll = inngest.createFunction(
   {
     id: "syncAll",
     name: "Sync All",
@@ -49,7 +49,7 @@ const syncAll = inngest.createFunction(
   },
 );
 
-const syncCategories = inngest.createFunction(
+export const syncCategories = inngest.createFunction(
   {
     id: "syncCategories",
     name: "Sync Categories",
@@ -83,7 +83,7 @@ const syncCategories = inngest.createFunction(
   },
 );
 
-const syncDepartments = inngest.createFunction(
+export const syncDepartments = inngest.createFunction(
   {
     id: "syncDepartments",
     name: "Sync Departments",
@@ -128,7 +128,7 @@ const syncDepartments = inngest.createFunction(
   },
 );
 
-const syncManufacturers = inngest.createFunction(
+export const syncManufacturers = inngest.createFunction(
   {
     id: "syncManufacturers",
     name: "Sync Manufacturers",
@@ -162,7 +162,7 @@ const syncManufacturers = inngest.createFunction(
   },
 );
 
-const syncTags = inngest.createFunction(
+export const syncTags = inngest.createFunction(
   {
     id: "syncTags",
     name: "Sync Tags",
@@ -196,7 +196,7 @@ const syncTags = inngest.createFunction(
   },
 );
 
-const syncLocations = inngest.createFunction(
+export const syncLocations = inngest.createFunction(
   {
     id: "syncLocations",
     name: "Sync Locations",

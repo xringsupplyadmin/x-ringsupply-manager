@@ -1,21 +1,8 @@
-import { createTRPCRouter, protectedProcedure } from "../../trpc";
-import { AbandonedCheckoutEvent, OrderPlacedEvent } from "../types/klaviyo";
-import {
-  sendAbandonedCheckoutEvent,
-  sendOrderPlacedEvent,
-} from "../klaviyo/send_event";
+import { createTRPCRouter } from "../../trpc";
+import { klaviyoCatalogRouter } from "./klaviyo/catalog";
+import { klaviyoEventsRouter } from "./klaviyo/events";
 
 export const klaviyoRouter = createTRPCRouter({
-  sendEvent: {
-    abandonedCheckout: protectedProcedure
-      .input(AbandonedCheckoutEvent)
-      .mutation(async ({ input: event }) => {
-        return await sendAbandonedCheckoutEvent(event);
-      }),
-    orderPlaced: protectedProcedure
-      .input(OrderPlacedEvent)
-      .mutation(async ({ input: event }) => {
-        return sendOrderPlacedEvent(event);
-      }),
-  },
+  events: klaviyoEventsRouter,
+  catalog: klaviyoCatalogRouter,
 });
