@@ -1,17 +1,29 @@
 import type {
   CatalogCategoryCreateQueryResourceObject,
   CatalogCategoryUpdateQueryResourceObject,
+  FilterBuilder,
 } from "klaviyo-api";
 import { allPages, klaviyo, unwrapResponse } from "~/server/api/klaviyo";
 
 export const CategoryFields = ["external_id", "name", "updated"] as const;
 export type CategoryFields = (typeof CategoryFields)[number];
 
-export async function getCategories(fields: CategoryFields[], filter?: string) {
+export async function getItem(id: string, fields: CategoryFields[]) {
+  return unwrapResponse(
+    await klaviyo.catalog.getCatalogCategory(id, {
+      fieldsCatalogCategory: fields,
+    }),
+  ).data;
+}
+
+export async function getCategories(
+  fields: CategoryFields[],
+  filterBuilder?: FilterBuilder,
+) {
   const categories = await allPages((cursor) =>
     klaviyo.catalog.getCatalogCategories({
       fieldsCatalogCategory: fields,
-      filter: filter,
+      filter: filterBuilder?.build(),
       pageCursor: cursor,
     }),
   );

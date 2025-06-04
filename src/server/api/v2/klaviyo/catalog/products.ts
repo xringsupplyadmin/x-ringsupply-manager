@@ -1,6 +1,7 @@
 import type {
   CatalogItemCreateQueryResourceObject,
   CatalogItemUpdateQueryResourceObject,
+  FilterBuilder,
 } from "klaviyo-api";
 import { allPages, klaviyo, unwrapResponse } from "~/server/api/klaviyo";
 
@@ -20,11 +21,22 @@ export const ItemFields = [
 ] as const;
 export type ItemFields = (typeof ItemFields)[number];
 
-export async function getItems(fields: ItemFields[], filter?: string) {
+export async function getItem(id: string, fields: ItemFields[]) {
+  return unwrapResponse(
+    await klaviyo.catalog.getCatalogItem(id, {
+      fieldsCatalogItem: fields,
+    }),
+  ).data;
+}
+
+export async function getItems(
+  fields: ItemFields[],
+  filterBuilder?: FilterBuilder,
+) {
   const categories = await allPages((cursor) =>
     klaviyo.catalog.getCatalogItems({
       fieldsCatalogItem: fields,
-      filter: filter,
+      filter: filterBuilder?.build(),
       pageCursor: cursor,
     }),
   );

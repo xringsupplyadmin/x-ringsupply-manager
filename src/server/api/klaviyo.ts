@@ -2,6 +2,7 @@ import {
   ApiKeySession,
   CatalogsApi,
   EventsApi,
+  FilterBuilder,
   type CollectionLinks,
 } from "klaviyo-api";
 import { env } from "~/env";
@@ -148,4 +149,6 @@ export async function allPages<Datatype>(
 export const klaviyo = {
   events,
   catalog,
+  filter: () => new FilterBuilder(),
+  getId: (cfId: number) => `$custom:::$default:::${cfId}`,
 };
