@@ -4,12 +4,21 @@ import { ArrowLeftRight } from "lucide-react";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
-import { api } from "~/trpc/react";
+import { api, withToastStatus } from "~/trpc/react";
 
 export default function KlaviyoDashboard() {
   const toast = useToast();
   const { isPending: syncPending, mutate: sync } =
-    api.v2.klaviyo.catalog.sync.categories.useMutation();
+    api.v2.klaviyo.catalog.sync.categories.useMutation(
+      withToastStatus(toast, {
+        description: "Syncing Klaviyo Categories",
+        successMsg: ({ created, updated, deleted }) => [
+          `Created ${created} categories`,
+          `Updated ${updated} categories`,
+          `Deleted ${deleted} categories`,
+        ],
+      }),
+    );
   const { data: categoryCount, isLoading: countLoading } =
     api.v2.klaviyo.catalog.get.categories.count.useQuery();
 
