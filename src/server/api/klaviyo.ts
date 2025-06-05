@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
   ApiKeySession,
   CatalogsApi,
@@ -15,8 +16,13 @@ import type {
 } from "./v2/types/klaviyo";
 
 import { v4 as uuidv4 } from "uuid";
+import { z } from "zod";
 
+axios.interceptors.response.use(undefined, (error) =>
+  Promise.reject(new KlaviyoError("test", error)),
+);
 const klaviyoSession = new ApiKeySession(env.KLAVIYO_API_KEY);
+
 const events = new EventsApi(klaviyoSession);
 const catalog = new CatalogsApi(klaviyoSession);
 
@@ -73,6 +79,49 @@ export function buildEvent<T extends Record<string, unknown>>(event: {
   };
 }
 
+const KlaviyoErrorData = z.object({
+  errors: z.array(
+    z.object({
+      id: z.string(),
+      status: z.number(),
+      code: z.string(),
+      title: z.string(),
+      detail: z.string(),
+      source: z.record(z.any()),
+    }),
+  ),
+});
+
+/** Magic error wrapper for Klaviyo `AxiosError`s */
+class KlaviyoError extends Error {
+  constructor(message: string, error: unknown) {
+    let errorMsg: string;
+    if (axios.isAxiosError(error)) {
+      try {
+        const { errors } = KlaviyoErrorData.parse(error.response?.data);
+        if (errors.length === 1) {
+          const error = errors[0]!;
+          errorMsg = `${error.title} (code ${error.status}): ${error.detail}`;
+        } else if (errors.length > 1) {
+          const allErrors = errors.map((e, i) => `E${i + 1}: ${e.title}`);
+          errorMsg = `Multiple Errors (check console for details). ${allErrors.join("; ")}`;
+        } else {
+          throw new Error("No error data"); // let the fallback handle it
+        }
+      } catch {
+        errorMsg = `${error.response?.statusText ?? error.message} (code ${error.status ?? "unknown"})`;
+      }
+    } else if (error instanceof Error) {
+      errorMsg = error.message;
+    } else {
+      errorMsg = `${error}`;
+    }
+    super(`KlaviyoError: ${message}! ${errorMsg}`, {
+      cause: error,
+    });
+  }
+}
+
 type ApiResponse<Datatype> = {
   response: { status: number; statusText: string };
   body: Datatype;
@@ -91,25 +140,41 @@ type EmptyApiResponse<Datatype> = {
  * @returns The body of the response
  * @throws If the response status is not in the allowed status codes
  */
-export function unwrapResponse<Datatype>(
+function unwrapResponse<Datatype>(
   response: ApiResponse<Datatype>,
   allowedStatusCodes?: number[],
 ): Datatype;
-export function unwrapResponse<Datatype>(
+function unwrapResponse<Datatype>(
   response: EmptyApiResponse<Datatype>,
   allowedStatusCodes?: number[],
 ): Datatype | undefined;
-export function unwrapResponse<Datatype>(
+function unwrapResponse<Datatype>(
   response: ApiResponse<Datatype> | EmptyApiResponse<Datatype>,
   allowedStatusCodes = [200, 201, 204],
 ) {
   if (!allowedStatusCodes.includes(response.response.status)) {
     throw new Error(
-      `Klaviyo API Request Failed (${response.response.status}): ${response.response.statusText}`,
+      `${response.response.statusText} (${response.response.status})`,
     );
   }
 
   return response.body;
+}
+
+export async function request<Datatype>(
+  executor: () => Promise<ApiResponse<Datatype>>,
+): Promise<Datatype>;
+export async function request<Datatype>(
+  executor: () => Promise<EmptyApiResponse<Datatype>>,
+): Promise<Datatype | undefined>;
+export async function request<Datatype>(
+  executor: () => Promise<ApiResponse<Datatype> | EmptyApiResponse<Datatype>>,
+) {
+  try {
+    return unwrapResponse(await executor());
+  } catch (e) {
+    throw new KlaviyoError("API Request Failed", e);
+  }
 }
 
 type PagedApiResponse<Datatype> = ApiResponse<{
@@ -137,7 +202,7 @@ export async function allPages<Datatype>(
       data = [...data, ...body.data];
       cursor = body.links?.next;
     } catch (e) {
-      throw new Error(`Failed to fetch data: ${e}`);
+      throw new KlaviyoError("Failed to fetch data", e);
     }
 
     if (!cursor) break;
@@ -149,6 +214,7 @@ export async function allPages<Datatype>(
 export const klaviyo = {
   events,
   catalog,
+  request,
   filter: () => new FilterBuilder(),
   getId: (cfId: number) => `$custom:::$default:::${cfId}`,
 };

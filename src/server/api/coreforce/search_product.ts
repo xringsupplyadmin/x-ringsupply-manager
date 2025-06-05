@@ -6,6 +6,8 @@ import {
   parseApiResponse,
 } from "./api_util";
 import { ProductResult } from "./types";
+import { urlJoinP } from "url-join-ts";
+import { env } from "~/env";
 
 export const ProductIdentifier = z.union([
   z.object({ product_id: z.number() }),
@@ -166,13 +168,18 @@ function mapApiProduct(product: ProductResult) {
     manufacturerSku: product.manufacturer_sku,
     model: product.model,
     upcCode: product.upc_code,
-    linkName: product.link_name,
+    linkName:
+      product.link_name ??
+      urlJoinP(env.NEXT_PUBLIC_CF_HOST, ["product-details"], {
+        id: product.product_id,
+      }),
     productManufacturerId: product.product_manufacturer_id,
     productCategoryIds: product.product_category_ids,
     productTagIds: product.product_tag_ids,
     baseCost: product.base_cost,
     listPrice: product.list_price,
     manufacturerAdvertisedPrice: product.manufacturer_advertised_price,
+    primaryImageUrl: product.image_url,
     imageUrls: product.image_url
       ? [product.image_url, ...alternateImageUrls]
       : alternateImageUrls,

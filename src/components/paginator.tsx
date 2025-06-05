@@ -16,6 +16,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "./ui/pagination";
+import { VerticalSeparator } from "./separator";
 
 export function PagedCardGrid<Datatype>({
   className,
@@ -56,8 +57,7 @@ export function PagedCardGrid<Datatype>({
           </Button>
         )}
       </div>
-      {/* Spacer Element */}
-      <div className="min-h-full basis-1 rounded bg-accent/50" />
+      <VerticalSeparator />
       <div className="flex w-full flex-col gap-4 text-center">
         {loading ? (
           <p className="flex flex-row justify-center gap-2">

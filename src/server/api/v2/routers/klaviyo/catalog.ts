@@ -1,4 +1,7 @@
 import e from "@/dbschema/edgeql-js";
+import { z } from "zod";
+import { apiGetProducts } from "~/server/api/coreforce/search_product";
+import { klaviyo } from "~/server/api/klaviyo";
 import { createTRPCRouter } from "~/server/api/trpc";
 import client from "~/server/db/client";
 import {
@@ -7,6 +10,11 @@ import {
   getCategories,
   updateCategories,
 } from "../../klaviyo/catalog/categories";
+import {
+  createItems,
+  deleteItems,
+  getItems,
+} from "../../klaviyo/catalog/products";
 import { klaviyoProcedure } from "../procedures";
 
 export const klaviyoCatalogRouter = createTRPCRouter({
@@ -19,6 +27,23 @@ export const klaviyoCatalogRouter = createTRPCRouter({
         return await getCategories(["external_id", "name"]);
       }),
     },
+  },
+  delete: {
+    products: klaviyoProcedure
+      .input(
+        z.object({
+          ids: z.array(z.number()),
+        }),
+      )
+      .mutation(async ({ input: { ids } }) => {
+        const { deleted, failedids: failedDeleteIds } = await deleteItems(
+          ids.map((id) => klaviyo.getId(id)),
+        );
+        return {
+          deleted,
+          failed: failedDeleteIds,
+        };
+      }),
   },
   sync: {
     categories: klaviyoProcedure.mutation(async () => {
@@ -64,5 +89,56 @@ export const klaviyoCatalogRouter = createTRPCRouter({
         deleted: toDelete.length,
       };
     }),
+    products: klaviyoProcedure
+      .input(
+        z.object({
+          ids: z.array(z.number()),
+        }),
+      )
+      .mutation(async ({ input: { ids } }) => {
+        const klaviyoProducts = await getItems(
+          ["external_id"],
+          klaviyo.filter().any(
+            "ids",
+            ids.map((id) => klaviyo.getId(id)),
+          ),
+        );
+
+        const coreforceProducts = await apiGetProducts({
+          product_ids: ids,
+        });
+
+        const toCreate = coreforceProducts.filter(
+          (p) =>
+            !klaviyoProducts.find(
+              (kp) => kp.attributes.externalId === p.cfId.toString(),
+            ),
+        );
+        const toUpdate = coreforceProducts.filter((p) =>
+          klaviyoProducts.find(
+            (kp) => kp.attributes.externalId === p.cfId.toString(),
+          ),
+        );
+
+        const { failedIds: failedCreate, klaviyoIds: createdIds } =
+          await createItems(
+            toCreate.map((p) => ({
+              cfId: p.cfId,
+              title: p.description,
+              description: p.detailedDescription!,
+              price: p.listPrice,
+              url: p.linkName,
+              imageFullUrl: p.primaryImageUrl,
+              images: p.imageUrls,
+              published: true,
+            })),
+          );
+
+        return {
+          created: Object.keys(createdIds).length,
+          updated: toUpdate.length,
+          failed: [...failedCreate],
+        };
+      }),
   },
 });

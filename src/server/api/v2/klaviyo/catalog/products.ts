@@ -3,7 +3,7 @@ import type {
   CatalogItemUpdateQueryResourceObject,
   FilterBuilder,
 } from "klaviyo-api";
-import { allPages, klaviyo, unwrapResponse } from "~/server/api/klaviyo";
+import { allPages, klaviyo } from "~/server/api/klaviyo";
 
 export const ItemFields = [
   "external_id",
@@ -22,10 +22,12 @@ export const ItemFields = [
 export type ItemFields = (typeof ItemFields)[number];
 
 export async function getItem(id: string, fields: ItemFields[]) {
-  return unwrapResponse(
-    await klaviyo.catalog.getCatalogItem(id, {
-      fieldsCatalogItem: fields,
-    }),
+  return (
+    await klaviyo.request(() =>
+      klaviyo.catalog.getCatalogItem(id, {
+        fieldsCatalogItem: fields,
+      }),
+    )
   ).data;
 }
 
@@ -47,7 +49,7 @@ export async function getItems(
 export type CatalogItem = {
   cfId: number;
   title: string;
-  price: number;
+  price?: number;
   description: string;
   url: string;
   imageFullUrl?: string;
@@ -94,12 +96,14 @@ function mapCatalogItem(item: CatalogItem) {
       published: item.published,
     },
     relationships: {
-      categories: {
-        data: item.categories?.map((cId) => ({
-          type: "catalog-category" as const,
-          id: cId,
-        })),
-      },
+      categories: item.categories
+        ? {
+            data: item.categories.map((cId) => ({
+              type: "catalog-category" as const,
+              id: cId,
+            })),
+          }
+        : undefined,
     },
   } satisfies CatalogItemCreateQueryResourceObject;
 }
@@ -131,8 +135,8 @@ function mapCatalogItemUpdate(item: CatalogItemUpdate) {
 }
 
 export async function createItem(item: CatalogItem) {
-  const body = unwrapResponse(
-    await klaviyo.catalog.createCatalogItem({
+  const body = await klaviyo.request(() =>
+    klaviyo.catalog.createCatalogItem({
       data: mapCatalogItem(item),
     }),
   );
@@ -147,20 +151,21 @@ export async function createItems(items: CatalogItem[]) {
   for (const item of items) {
     try {
       ids[item.cfId] = await createItem(item);
-    } catch {
+    } catch (e) {
+      console.error(e);
       failedIds.push(item.cfId);
     }
   }
 
   return {
-    importedKlaviyoIds: ids,
-    failedImportCfIds: failedIds,
+    klaviyoIds: ids,
+    failedIds: failedIds,
   };
 }
 
 export async function updateItem(item: CatalogItemUpdate) {
-  unwrapResponse(
-    await klaviyo.catalog.updateCatalogItem(item.id, {
+  await klaviyo.request(() =>
+    klaviyo.catalog.updateCatalogItem(item.id, {
       data: mapCatalogItemUpdate(item),
     }),
   );
@@ -172,18 +177,20 @@ export async function updateItems(items: CatalogItemUpdate[]) {
   for (const item of items) {
     try {
       await updateItem(item);
-    } catch {
+    } catch (e) {
+      console.error(e);
       failedIds.push(item.id);
     }
   }
 
   return {
-    failedUpdateIds: failedIds,
+    updated: items.length - failedIds.length,
+    failedIds: failedIds,
   };
 }
 
 export async function deleteItem(itemId: string) {
-  unwrapResponse(await klaviyo.catalog.deleteCatalogItem(itemId));
+  await klaviyo.request(() => klaviyo.catalog.deleteCatalogItem(itemId));
 }
 
 export async function deleteItems(itemIds: string[]) {
@@ -198,6 +205,7 @@ export async function deleteItems(itemIds: string[]) {
   }
 
   return {
-    failedDeleteIds: failedIds,
+    deleted: itemIds.length - failedIds.length,
+    failedids: failedIds,
   };
 }

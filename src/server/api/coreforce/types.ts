@@ -79,7 +79,7 @@ export const ProductResult = z.object({
   product_id: z.number(),
   product_code: z.string(),
   description: z.string(),
-  detailed_description: optApiString,
+  detailed_description: optApiString.default(""),
   manufacturer_sku: optApiString,
   model: optApiString,
   upc_code: optApiString,
