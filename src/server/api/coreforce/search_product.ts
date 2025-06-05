@@ -6,6 +6,8 @@ import {
   parseApiResponse,
 } from "./api_util";
 import { ProductResult } from "./types";
+import { urlJoinP } from "url-join-ts";
+import { env } from "~/env";
 
 export const ProductIdentifier = z.union([
   z.object({ product_id: z.number() }),
@@ -14,13 +16,20 @@ export const ProductIdentifier = z.union([
 ]);
 export type ProductIdentifier = z.infer<typeof ProductIdentifier>;
 
+export const ProductIdentifiers = z.union([
+  z.object({ product_ids: z.number().array() }),
+  z.object({ product_codes: z.string().array() }),
+  z.object({ upc_codes: z.string().array() }),
+]);
+export type ProductIdentifiers = z.infer<typeof ProductIdentifiers>;
+
 /**
  * Get a product
  *
  * @throws {Error} If the API returns an error
  */
 export async function apiGetProduct(identifier: ProductIdentifier) {
-  const response = await makeApiRequest("search_products", identifier);
+  const response = await makeApiRequest("get_product", identifier);
 
   const result = await parseApiResponse(
     response,
@@ -37,6 +46,33 @@ export async function apiGetProduct(identifier: ProductIdentifier) {
   } else {
     return mapApiProduct(result.results[0]!);
   }
+}
+
+/**
+ * Get some products
+ *
+ * @throws {Error} If the API returns an error
+ */
+export async function apiGetProducts(identifiers: ProductIdentifiers) {
+  if (
+    ("product_ids" in identifiers && identifiers.product_ids.length === 0) ||
+    ("product_codes" in identifiers &&
+      identifiers.product_codes.length === 0) ||
+    ("upc_codes" in identifiers && identifiers.upc_codes.length === 0)
+  )
+    return [];
+
+  const response = await makeApiRequest("get_product", identifiers);
+
+  const result = await parseApiResponse(
+    response,
+    z.object({
+      results: ProductResult.array(),
+      result_count: z.number(),
+    }),
+  );
+
+  return result.results.map(mapApiProduct);
 }
 
 /**
@@ -132,13 +168,18 @@ function mapApiProduct(product: ProductResult) {
     manufacturerSku: product.manufacturer_sku,
     model: product.model,
     upcCode: product.upc_code,
-    linkName: product.link_name,
+    linkName:
+      product.link_name ??
+      urlJoinP(env.NEXT_PUBLIC_CF_HOST, ["product-details"], {
+        id: product.product_id,
+      }),
     productManufacturerId: product.product_manufacturer_id,
     productCategoryIds: product.product_category_ids,
     productTagIds: product.product_tag_ids,
     baseCost: product.base_cost,
     listPrice: product.list_price,
     manufacturerAdvertisedPrice: product.manufacturer_advertised_price,
+    primaryImageUrl: product.image_url,
     imageUrls: product.image_url
       ? [product.image_url, ...alternateImageUrls]
       : alternateImageUrls,

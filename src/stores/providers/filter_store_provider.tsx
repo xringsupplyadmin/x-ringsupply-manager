@@ -11,12 +11,14 @@ export const FilterStoreContext = createContext<FilterStoreApi | undefined>(
 
 export const FilterStoreProvider = ({
   children,
+  id,
 }: {
   children: React.ReactNode;
+  id?: string;
 }) => {
   const ref = useRef<FilterStoreApi>();
   if (!ref.current) {
-    ref.current = createFilterStore();
+    ref.current = createFilterStore(id);
   }
 
   return (

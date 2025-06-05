@@ -65,7 +65,7 @@
     "url-join-ts": "^1.0.5",
     "uuid": "^11.1.0",
     "zod": "^3.24.1",
-    "zustand": "5.0.1"
+    "zustand": "5.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -79,6 +79,7 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@typescript-eslint/parser": "^8.20.0",
+    "axios": "^1.9.0",
     "eslint": "^9.18.0",
     "eslint-config-next": "^15.1.4",
     "eslint-plugin-react": "^7.37.4",
@@ -93,5 +94,8 @@
   "ct3aMetadata": {
     "initVersion": "7.34.0"
   },
-  "packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c"
+  "packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c",
+  "peerDependencies": {
+    "axios": "^1.9.0"
+  }
 }

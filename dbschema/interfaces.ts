@@ -255,7 +255,7 @@ export namespace $default {
     "runId": string;
     "timestamp"?: Date | null;
   }
-  export type ModuleName = "ItemTags" | "ProductEditor" | "CRM";
+  export type ModuleName = "ItemTags" | "ProductEditor" | "CRM" | "Klaviyo";
   export interface Session extends std.$Object {
     "userId": string;
     "createdAt"?: Date | null;

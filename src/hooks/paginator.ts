@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type PaginationData<Data> = {
   data: Data[];
@@ -19,6 +19,7 @@ export type Datasource<
 export type PageData<Datatype> = {
   loading: boolean;
   reset: () => void;
+  fetch: () => void;
 } & (
   | {
       data: null;
@@ -54,6 +55,11 @@ export type PageDataProvider<Datatype> = {
    * @returns The total count of items in the dataset
    */
   getCountAsync?: () => Promise<number>;
+  /**
+   * A stateful variable
+   * Data will be refetched when changed
+   */
+  trigger?: unknown;
 };
 
 export type PageProps = {
@@ -61,9 +67,39 @@ export type PageProps = {
   pagesPerQuery?: number;
 };
 
+export function makeArrayDatasource<Datatype>(
+  array: Datatype[],
+): Datasource<Datatype> {
+  return async (pageData?: { limit: number; offset: number }) => ({
+    data: array.slice(
+      pageData?.offset ?? 0,
+      pageData ? pageData.offset + pageData.limit : undefined,
+    ),
+    hasNextPage: false,
+    totalCount: array.length,
+  });
+}
+
+export function transformDatasource<Datatype, Transformed>(
+  dataProvider: Datasource<Datatype>,
+  transform: (data: Datatype[]) => Promise<Transformed>,
+) {
+  return async (pageData?: { limit: number; offset: number }) => {
+    const data = await dataProvider(pageData);
+    return data
+      ? {
+          data: await transform(data.data),
+          hasNextPage: data.hasNextPage,
+          totalCount: data.totalCount,
+        }
+      : null;
+  };
+}
+
 export function usePagination<Datatype>({
   getData: dataProvider,
   getCountAsync: countProviderAsync,
+  trigger,
   itemsPerPage = 20,
   pagesPerQuery = 3,
 }: PageDataProvider<Datatype> & PageProps): PageData<Datatype> {
@@ -72,6 +108,10 @@ export function usePagination<Datatype>({
   const [hasNextQuery, setHasNextQuery] = useState(false);
   const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
   const [doFetch, setDoFetch] = useState(false);
+
+  useEffect(() => {
+    setDoFetch(true);
+  }, [trigger]);
 
   // Page data
   const [page, setPage] = useState(0);
@@ -135,6 +175,7 @@ export function usePagination<Datatype>({
   const basePageData = {
     loading: loading,
     reset: reset,
+    fetch: () => setDoFetch(true),
   };
 
   // Return a null response if the data is still loading or not available
