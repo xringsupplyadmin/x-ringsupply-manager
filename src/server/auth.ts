@@ -63,6 +63,7 @@ export { handlers };
 
 /**
  * Wrapper for `auth`
+ * @deprecated Use `auth` directly instead
  */
 export const getServerAuthSession = () => auth();
 
