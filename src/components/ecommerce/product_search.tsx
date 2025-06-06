@@ -3,7 +3,12 @@
 import type { ecommerce } from "@/dbschema/interfaces";
 import { Edit, Loader2, Plus, Search } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState, type ComponentProps } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  type ComponentProps,
+} from "react";
 import { useToast } from "~/hooks/use-toast";
 import type { ApiProduct, DbProduct } from "~/server/api/coreforce/types";
 import { useFilterStore } from "~/stores/providers/filter_store_provider";
@@ -130,7 +135,7 @@ function DbProductCard({ product }: { product: DbProduct }) {
     <ProductCard
       product={product}
       footerControls={(dbProduct) => (
-        <Link href={`/admin/products/editor/${dbProduct.cfId}/edit`}>
+        <Link href={`/src/app/admin/products/editor/${dbProduct.cfId}/edit`}>
           <Button size="icon" variant="ghost">
             <Edit />
           </Button>
@@ -236,7 +241,9 @@ function ImportProductCard({ product }: { product: ApiProduct }) {
             {dbProduct?.id ? "Update" : "Import"}
           </Button>
           {dbProduct?.id && (
-            <Link href={`/admin/products/editor/${dbProduct.cfId}/edit`}>
+            <Link
+              href={`/src/app/admin/products/editor/${dbProduct.cfId}/edit`}
+            >
               <Button size="icon" variant="ghost">
                 <Edit />
               </Button>

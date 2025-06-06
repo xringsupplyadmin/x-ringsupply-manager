@@ -5,6 +5,7 @@ import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/mode-scss";
 import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-min-noconflict/ext-searchbox";
+import React from "react";
 
 export default function SassEditor(
   props: {

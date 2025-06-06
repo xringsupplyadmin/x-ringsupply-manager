@@ -8,7 +8,9 @@ import {
   NavigationMenuListItem,
   NavigationMenuTrigger,
 } from "~/components/ui/navigation-menu";
-import { getServerAuthSession } from "~/server/auth";
+import { auth, hasPermission } from "~/server/auth";
+import ServerAuthWrapper from "~/components/server_auth";
+import React from "react";
 
 export const metadata = {
   title: "X-Ring Supply Management Dashboard",
@@ -17,12 +19,14 @@ export const metadata = {
 };
 
 async function NavLinks() {
-  const session = await getServerAuthSession();
+  const session = await auth();
   if (session?.user) {
     return (
       <NavigationMenu>
         <NavigationMenuList>
-          <NavigationMenuItem>
+          <NavigationMenuItem
+            hidden={!hasPermission([{ module: "ProductEditor" }], session)}
+          >
             <NavigationMenuTrigger>Products</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="grid gap-2 p-2 md:w-[400px] lg:w-[600px] lg:grid-cols-2">
@@ -78,7 +82,9 @@ async function NavLinks() {
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
-          <NavigationMenuItem>
+          <NavigationMenuItem
+            hidden={!hasPermission([{ module: "Klaviyo" }], session)}
+          >
             <NavigationMenuTrigger>Klaviyo</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="grid gap-2 p-2 md:w-[400px] lg:w-[600px] lg:grid-cols-2">
@@ -104,7 +110,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerAuthSession();
+  const session = await auth();
   return (
     <>
       <nav className="flex items-center justify-between gap-4 bg-secondary p-4 text-secondary-foreground">
@@ -126,7 +132,7 @@ export default async function RootLayout({
         </div>
       </nav>
       <main className="container flex flex-grow flex-col items-center justify-start bg-background py-6 text-foreground">
-        {children}
+        <ServerAuthWrapper>{children}</ServerAuthWrapper>
       </main>
     </>
   );

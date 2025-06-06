@@ -45,13 +45,15 @@ export function ProductImage({
       />
     );
   } else {
-    <Image
-      src={"https://placehold.co/300/jpg?text=Image+Not+Found"}
-      alt="Image not found"
-      width={300}
-      height={300}
-      {...props}
-    />;
+    return (
+      <Image
+        src={"https://placehold.co/300/jpg?text=Image+Not+Found"}
+        alt="Image not found"
+        width={300}
+        height={300}
+        {...props}
+      />
+    );
   }
 }
 

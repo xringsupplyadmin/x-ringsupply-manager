@@ -44,9 +44,9 @@ const NavigationMenuItem = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Item> & {
     hidden?: boolean;
   }
->(({ hidden = false, ...props }) => {
+>(({ hidden = false, ...props }, ref) => {
   if (hidden) return null;
-  return <NavigationMenuPrimitive.Item {...props} />;
+  return <NavigationMenuPrimitive.Item {...props} ref={ref} />;
 });
 NavigationMenuItem.displayName = NavigationMenuPrimitive.Item.displayName;
 

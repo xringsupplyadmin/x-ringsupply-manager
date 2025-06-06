@@ -1,13 +1,14 @@
-import { klaviyo, buildEvent } from "../../klaviyo";
-import { getProduct } from "../coreforce/products_api";
-import { productImageUrl, type CoreforceOrder } from "../types/coreforce";
+import { klaviyo } from "../../../klaviyo";
+import { getProduct } from "../../coreforce/products_api";
+import { type CoreforceOrder, productImageUrl } from "../../types/coreforce";
 import {
+  AbandonedCheckoutApiEvent,
   type AbandonedCheckoutEvent,
   type MetricsAddress,
-  type OrderPlacedEvent,
-  AbandonedCheckoutApiEvent,
   OrderPlacedApiEvent,
-} from "../types/klaviyo";
+  type OrderPlacedEvent,
+} from "../../types/klaviyo";
+import { buildEvent } from "~/server/api/v2/klaviyo/events/event_builder";
 
 export async function sendAbandonedCheckoutEvent(
   event: AbandonedCheckoutEvent,
@@ -17,19 +18,20 @@ export async function sendAbandonedCheckoutEvent(
       buildEvent(AbandonedCheckoutApiEvent.parse(event)),
     );
 
-    return (await response).response.status;
+    return response.response.status;
   } catch {
     return null;
   }
 }
+
 export async function sendOrderPlacedEvent(event: OrderPlacedEvent) {
   // preprocess
   try {
-    const response = klaviyo.events.createEvent(
+    const response = await klaviyo.events.createEvent(
       buildEvent(OrderPlacedApiEvent.parse(event)),
     );
 
-    return (await response).response.status;
+    return response.response.status;
   } catch {
     return null;
   }
@@ -66,7 +68,8 @@ export async function orderTracking(orders: CoreforceOrder[]) {
       });
     }
 
-    sendOrderPlacedEvent({
+    // June 6: I can't believe I forgot to await this...
+    await sendOrderPlacedEvent({
       orderId: order.details.order_id,
       orderTime: order.details.order_time,
       discountCode: undefined,

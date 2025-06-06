@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useRef } from "react";
+import React, { createContext, useContext, useRef } from "react";
 import { createSelectStore, type SelectStore } from "../select_store";
 
 export type SelectStoreApi = ReturnType<typeof createSelectStore>;

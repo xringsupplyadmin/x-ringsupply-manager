@@ -1,5 +1,6 @@
 import { EditorStoreProvider } from "~/stores/providers/editor_store_provider";
 import { FilterStoreProvider } from "~/stores/providers/filter_store_provider";
+import React from "react";
 
 export default async function Layout({
   children,

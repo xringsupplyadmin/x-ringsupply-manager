@@ -1,7 +1,7 @@
 import type { ModuleName } from "@/dbschema/interfaces";
 import { type Session } from "next-auth";
 import type React from "react";
-import { getServerAuthSession } from "~/server/auth";
+import { auth, hasPermission } from "~/server/auth";
 
 export default async function ServerAuthWrapper({
   fallback,
@@ -14,7 +14,7 @@ export default async function ServerAuthWrapper({
   modules?: ModuleName[];
   children?: React.ReactNode;
 }) {
-  const session = await getServerAuthSession();
+  const session = await auth();
   if (!session?.user)
     return (
       fallback ?? (
@@ -42,23 +42,25 @@ export default async function ServerAuthWrapper({
     );
   }
 
-  if (modules && !session.user.permissions.administrator) {
-    for (const m of modules) {
-      if (!session.user.permissions.modules.find((p) => p.moduleName == m)) {
-        return (
-          <div>
-            <h1 className="pb-2 text-center text-2xl font-bold">
-              Error: Insufficient permissions
-            </h1>
-            <p className="pb-2 text-center text-lg">
-              You do not have permission to view this page
-              <br />
-              Requires: {modules.join(", ")}
-            </p>
-          </div>
-        );
-      }
-    }
+  if (
+    modules &&
+    !hasPermission(
+      modules.map((m) => ({ module: m })),
+      session,
+    )
+  ) {
+    return (
+      <div>
+        <h1 className="pb-2 text-center text-2xl font-bold">
+          Error: Insufficient permissions
+        </h1>
+        <p className="pb-2 text-center text-lg">
+          You do not have permission to view this page
+          <br />
+          Requires: {modules.join(", ")}
+        </p>
+      </div>
+    );
   }
 
   return (

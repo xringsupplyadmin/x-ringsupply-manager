@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useRef } from "react";
+import React, { createContext, useContext, useRef } from "react";
 import { createFilterStore, type FilterStore } from "../filter_store";
 
 export type FilterStoreApi = ReturnType<typeof createFilterStore>;

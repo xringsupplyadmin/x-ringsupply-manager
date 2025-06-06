@@ -1,6 +1,6 @@
 import { inngest } from "../../inngest";
 import { getOrders } from "../../v2/coreforce/orders_api";
-import { orderTracking } from "../../v2/klaviyo/send_event";
+import { orderTracking } from "../../v2/klaviyo/events/send_event";
 import logInngestError from "../emails/error_handling";
 
 export const klaviyoOrderTracking = inngest.createFunction(

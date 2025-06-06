@@ -10,6 +10,8 @@ import type { ApiProduct, ProductChangeData } from "./types";
  * Mutates in place
  *
  * @param obj The object to filter
+ * @param allowNull Do not filter null
+ * @param allowEmpty Do not filter empty string
  * @return The same object for convenience
  */
 export function filterUndefined<T extends object>(

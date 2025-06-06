@@ -1,6 +1,7 @@
 import ServerAuthWrapper from "~/components/server_auth";
 import { FilterStoreProvider } from "~/stores/providers/filter_store_provider";
 import { SelectStoreProvider } from "~/stores/providers/select_store_provider";
+import React from "react";
 
 export default async function Layout({
   children,

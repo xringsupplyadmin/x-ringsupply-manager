@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "~/components/ui/alert";
 import { CircleAlert } from "lucide-react";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "~/components/ui/toaster";
+import React from "react";
 
 export const metadata = {
   title: "X-Ring Supply Email Dashboard",

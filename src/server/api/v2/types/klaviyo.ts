@@ -1,4 +1,5 @@
 import { z } from "zod";
+import axios from "axios";
 
 const MetricsProduct = z.object({
   productId: z.number(),
@@ -162,3 +163,45 @@ export type EventData<Properties extends Record<string, unknown>> = {
     } & EventRawMetadata;
   };
 };
+const KlaviyoErrorData = z.object({
+  errors: z.array(
+    z.object({
+      id: z.string(),
+      status: z.number(),
+      code: z.string(),
+      title: z.string(),
+      detail: z.string(),
+      source: z.record(z.any()),
+    }),
+  ),
+});
+
+/** Magic error wrapper for Klaviyo `AxiosError`s */
+export class KlaviyoError extends Error {
+  constructor(message: string, error: unknown) {
+    let errorMsg: string;
+    if (axios.isAxiosError(error)) {
+      try {
+        const { errors } = KlaviyoErrorData.parse(error.response?.data);
+        if (errors.length === 1) {
+          const error = errors[0]!;
+          errorMsg = `${error.title} (code ${error.status}): ${error.detail}`;
+        } else if (errors.length > 1) {
+          const allErrors = errors.map((e, i) => `E${i + 1}: ${e.title}`);
+          errorMsg = `Multiple Errors (check console for details). ${allErrors.join("; ")}`;
+        } else {
+          throw new Error("No error data"); // let the fallback handle it
+        }
+      } catch {
+        errorMsg = `${error.response?.statusText ?? error.message} (code ${error.status ?? "unknown"})`;
+      }
+    } else if (error instanceof Error) {
+      errorMsg = error.message;
+    } else {
+      errorMsg = `${error}`;
+    }
+    super(`KlaviyoError: ${message}! ${errorMsg}`, {
+      cause: error,
+    });
+  }
+}

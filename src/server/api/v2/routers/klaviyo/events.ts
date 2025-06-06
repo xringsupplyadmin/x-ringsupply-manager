@@ -3,7 +3,7 @@ import { AbandonedCheckoutEvent, OrderPlacedEvent } from "../../types/klaviyo";
 import {
   sendAbandonedCheckoutEvent,
   sendOrderPlacedEvent,
-} from "../../klaviyo/send_event";
+} from "../../klaviyo/events/send_event";
 
 export const klaviyoEventsRouter = createTRPCRouter({
   send: {

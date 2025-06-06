@@ -5,7 +5,7 @@ import { getShoppingCartItems } from "~/server/api/v2/coreforce/retailstore";
 import {
   orderTracking,
   sendAbandonedCheckoutEvent,
-} from "~/server/api/v2/klaviyo/send_event";
+} from "~/server/api/v2/klaviyo/events/send_event";
 
 const DataParser = z.object({
   customer_email: z.string(),
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
         });
       }
 
-      sendAbandonedCheckoutEvent({
+      await sendAbandonedCheckoutEvent({
         items: items.map((item) => ({
           quantity: item.quantity,
           categories: [], // TODO: find the categories

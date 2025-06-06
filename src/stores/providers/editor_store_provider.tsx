@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useRef } from "react";
+import React, { createContext, useContext, useRef } from "react";
 import { createEditorStore, type EditorStore } from "../editor_store";
 
 export type EditorStoreApi = ReturnType<typeof createEditorStore>;
