@@ -5,6 +5,7 @@ import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
 import { api, withToastStatus } from "~/trpc/react";
+import { PageTitle } from "~/components/headings";
 
 export default function KlaviyoDashboard() {
   const toast = useToast();
@@ -24,7 +25,7 @@ export default function KlaviyoDashboard() {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <h1 className="text-2xl font-bold">Klaviyo Dashboard</h1>
+      <PageTitle>Klaviyo Category Sync</PageTitle>
       <p className="flex flex-row items-center gap-4">
         Categories in Klaviyo: {countLoading ? <Spinner /> : categoryCount}
         <Button

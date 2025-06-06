@@ -7,6 +7,7 @@ import { useFilterStore } from "~/stores/providers/filter_store_provider";
 import { useSelectStore } from "~/stores/providers/select_store_provider";
 import { api } from "~/trpc/react";
 import { KlaviyoSyncCard } from "./_components";
+import { PageSubtitle, PageTitle } from "~/components/headings";
 
 export default function CatalogImportPage() {
   const trpc = api.useUtils();
@@ -27,7 +28,9 @@ export default function CatalogImportPage() {
   );
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <div className="flex w-full flex-col items-center gap-4">
+      <PageTitle>Klaviyo Catalog Sync</PageTitle>
+      <PageSubtitle>Select items to manage sync settings</PageSubtitle>
       <PagedCardGrid
         dataProvider={dataProvider}
         cardComponent={cardComponent}

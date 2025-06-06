@@ -1,6 +1,6 @@
-import { inngest } from "../../inngest";
-import { syncAll } from "../ecommerce/sync";
-import logInngestError from "../emails/error_handling";
+import { inngest } from "../../../inngest";
+import { syncAll } from "./sync";
+import logInngestError from "../../error_handling";
 
 export const ecommerceAutosync = inngest.createFunction(
   {
@@ -16,3 +16,6 @@ export const ecommerceAutosync = inngest.createFunction(
     });
   },
 );
+
+const functions = [ecommerceAutosync];
+export default functions;

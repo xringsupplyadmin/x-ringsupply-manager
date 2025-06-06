@@ -1,13 +1,13 @@
 import client from "~/server/db/client";
-import { inngest } from "../../inngest";
-import logInngestError from "../emails/error_handling";
+import { inngest } from "../../../inngest";
+import logInngestError from "../../error_handling";
 import {
   apiGetCategories,
   apiGetDepartments,
   apiGetLocations,
   apiGetManufacturers,
   apiGetTags,
-} from "../../coreforce/taxonomy";
+} from "../../../coreforce/taxonomy";
 import { qb } from "@/dbschema/query_builder";
 
 export const syncAll = inngest.createFunction(

@@ -11,6 +11,8 @@ import {
 import { auth, hasPermission } from "~/server/auth";
 import ServerAuthWrapper from "~/components/server_auth";
 import React from "react";
+import Image from "next/image";
+import logo from "@/public/x-ringsupply_logo.png";
 
 export const metadata = {
   title: "X-Ring Supply Management Dashboard",
@@ -94,6 +96,12 @@ async function NavLinks() {
                 >
                   Synchronize items for use in marketing emails
                 </NavigationMenuListItem>
+                <NavigationMenuListItem
+                  href="/admin/klaviyo/category-sync"
+                  title="Category Sync"
+                >
+                  Synchronize categories for catalog taxonomy
+                </NavigationMenuListItem>
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
@@ -114,7 +122,13 @@ export default async function RootLayout({
   return (
     <>
       <nav className="flex items-center justify-between gap-4 bg-secondary p-4 text-secondary-foreground">
-        <h1 className="text-2xl font-bold">X-Ring Supply</h1>
+        <Link href={"/admin"} title={"Home"}>
+          <Image
+            src={logo}
+            alt={"X-Ring Supply"}
+            className={"max-h-12 w-auto"}
+          />
+        </Link>
         <NavLinks />
         <div className="justify-right ml-auto flex flex-row items-center gap-4">
           <p className="text-center text-lg">

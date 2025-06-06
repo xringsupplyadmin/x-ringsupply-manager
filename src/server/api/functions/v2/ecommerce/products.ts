@@ -1,8 +1,8 @@
 import { qb } from "@/dbschema/query_builder";
-import { inngest } from "../../inngest";
+import { inngest } from "../../../inngest";
 import client from "~/server/db/client";
 
-const importProducts = inngest.createFunction(
+export const importProducts = inngest.createFunction(
   {
     id: "importProducts",
     name: "Import Products",

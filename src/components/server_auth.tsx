@@ -2,6 +2,11 @@ import type { ModuleName } from "@/dbschema/interfaces";
 import { type Session } from "next-auth";
 import type React from "react";
 import { auth, hasPermission } from "~/server/auth";
+import { PageTitle } from "~/components/headings";
+
+const UnauthorizedHeader = (
+  <PageTitle className={"pb-2 text-center"}>Authorization Error</PageTitle>
+);
 
 export default async function ServerAuthWrapper({
   fallback,
@@ -19,9 +24,7 @@ export default async function ServerAuthWrapper({
     return (
       fallback ?? (
         <div>
-          <h1 className="pb-2 text-center text-2xl font-bold">
-            Error: Not signed in
-          </h1>
+          {UnauthorizedHeader}
           <p className="pb-2 text-center text-lg">
             You must be logged in to view this page
           </p>
@@ -32,9 +35,7 @@ export default async function ServerAuthWrapper({
   if (!session.user.permissions.verified) {
     return (
       <div>
-        <h1 className="pb-2 text-center text-2xl font-bold">
-          Error: Account not verified
-        </h1>
+        {UnauthorizedHeader}
         <p className="pb-2 text-center text-lg">
           Please contact an administrator to verify your account
         </p>
@@ -51,9 +52,7 @@ export default async function ServerAuthWrapper({
   ) {
     return (
       <div>
-        <h1 className="pb-2 text-center text-2xl font-bold">
-          Error: Insufficient permissions
-        </h1>
+        {UnauthorizedHeader}
         <p className="pb-2 text-center text-lg">
           You do not have permission to view this page
           <br />

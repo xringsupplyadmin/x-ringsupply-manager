@@ -38,6 +38,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useToast } from "~/hooks/use-toast";
 import { api } from "~/trpc/react";
 import SassEditor from "./_editor";
+import { PageTitle } from "~/components/headings";
 
 function EditorTab({ id }: { id: string }) {
   const { toast } = useToast();
@@ -423,7 +424,7 @@ export default function SassEditorPage() {
 
   return (
     <div className="flex w-full flex-1 flex-col items-center justify-start gap-4">
-      <h1 className="text-lg font-bold">Stylesheet Editor</h1>
+      <PageTitle>Stylesheet Editor</PageTitle>
       {pageContent}
     </div>
   );

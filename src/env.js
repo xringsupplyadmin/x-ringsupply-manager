@@ -28,20 +28,10 @@ export const env = createEnv({
     CF_API_KEY: z.string(),
     CF_USERNAME: z.string(),
     CF_PASSWORD: z.string(),
-    COREILLA_WEBHOOK_URL: z.string(),
-    EMAIL_SEQUENCE: z.string().transform((n) =>
-      n
-        .split(" ")
-        .map((s) => parseFloat(s))
-        .filter((s) => s >= 0)
-        .sort(),
-    ),
-    FOLLOWUP_CRON: z.string(),
     DEBUG: z
       .string()
       .transform((s) => s.toLowerCase() === "true")
       .or(z.boolean()),
-    DEBUG_EMAIL: z.string().email(),
     KLAVIYO_API_KEY: z.string(),
   },
 
@@ -66,14 +56,10 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     CF_API_KEY: process.env.CF_API_KEY,
     KLAVIYO_API_KEY: process.env.KLAVIYO_API_KEY,
-    NEXT_PUBLIC_CF_HOST: process.env.NEXT_PUBLIC_CF_HOST,
     CF_USERNAME: process.env.CF_USERNAME,
     CF_PASSWORD: process.env.CF_PASSWORD,
-    COREILLA_WEBHOOK_URL: process.env.COREILLA_WEBHOOK_URL,
-    EMAIL_SEQUENCE: process.env.EMAIL_SEQUENCE,
-    FOLLOWUP_CRON: process.env.FOLLOWUP_CRON,
     DEBUG: process.env.DEBUG,
-    DEBUG_EMAIL: process.env.DEBUG_EMAIL,
+    NEXT_PUBLIC_CF_HOST: process.env.NEXT_PUBLIC_CF_HOST,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
