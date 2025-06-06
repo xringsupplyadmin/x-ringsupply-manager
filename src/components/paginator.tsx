@@ -1,9 +1,9 @@
 import { Loader2, RotateCcw } from "lucide-react";
 import { type ComponentProps } from "react";
 import {
-  usePagination,
   type PageData,
   type PageDataProvider,
+  usePagination,
 } from "~/hooks/paginator";
 import { cn } from "~/lib/utils";
 import { Button } from "./ui/button";

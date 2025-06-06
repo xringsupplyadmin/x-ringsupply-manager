@@ -1,8 +1,8 @@
-import e from "@/dbschema/edgeql-js";
 import { fetchApiCart } from "~/server/api/functions/retailstore/fetch_cart";
 import client from "~/server/db/client";
 import { inngest } from "../../inngest";
 import logInngestError from "./error_handling";
+import { qb } from "@/dbschema/query_builder";
 
 export const updateContactCart = inngest.createFunction(
   {
@@ -14,9 +14,9 @@ export const updateContactCart = inngest.createFunction(
   { event: "contact/update.cart" },
   async ({ event, step }) => {
     const cfContactId = await step.run("get-contact-id", async () => {
-      const contact = await e
-        .select(e.coreforce.Contact, (c) => ({
-          filter_single: e.op(c.id, "=", e.uuid(event.data.contactId)),
+      const contact = await qb
+        .select(qb.coreforce.Contact, (c) => ({
+          filter_single: qb.op(c.id, "=", qb.uuid(event.data.contactId)),
           cfContactId: true,
         }))
         .run(client);
@@ -38,9 +38,9 @@ export const updateContactCart = inngest.createFunction(
     const removedCount = await step.run("clear-cart-items", async () => {
       // Delete all current cart items for the contact
       return (
-        await e
-          .delete(e.coreforce.CartItem, (item) => ({
-            filter: e.op(item.contact.id, "=", e.uuid(event.data.contactId)),
+        await qb
+          .delete(qb.coreforce.CartItem, (item) => ({
+            filter: qb.op(item.contact.id, "=", qb.uuid(event.data.contactId)),
           }))
           .run(client)
       ).length;
@@ -58,14 +58,14 @@ export const updateContactCart = inngest.createFunction(
       {
         await client.transaction(async (tx) => {
           // Get the detached query for the contact
-          const contactQuery = e.select(e.coreforce.Contact, (c) => ({
-            filter_single: e.op(c.id, "=", e.uuid(event.data.contactId)),
+          const contactQuery = qb.select(qb.coreforce.Contact, (c) => ({
+            filter_single: qb.op(c.id, "=", qb.uuid(event.data.contactId)),
           }));
 
           for (const item of apiItems) {
             // Insert the product
-            await e
-              .insert(e.coreforce.CartItem, {
+            await qb
+              .insert(qb.coreforce.CartItem, {
                 cartItemId: item.shopping_cart_item_id,
                 cartId: item.shopping_cart_id,
                 productId: item.product_id,

@@ -69,7 +69,9 @@ export default async function TaskManagerPage({
                   {contact.activeTask?.sequence ?? "No Active Task"}
                 </TableCell>
                 <TableCell className="flex flex-row gap-2 align-middle">
-                  <Link href={`/src/app/admin/emails/touchpoint-manager/${contact.id}`}>
+                  <Link
+                    href={`/src/app/admin/emails/touchpoint-manager/${contact.id}`}
+                  >
                     View Touchpoints
                   </Link>
                   <Link href={`/src/app/admin/emails/view-cart/${contact.id}`}>

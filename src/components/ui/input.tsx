@@ -4,6 +4,7 @@ import { cn } from "~/lib/utils";
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {}
+
 export interface TextAreaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 

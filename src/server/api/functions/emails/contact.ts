@@ -1,11 +1,11 @@
 import client from "~/server/db/client";
 import { inngest } from "../../inngest";
 import logInngestError from "./error_handling";
-import e from "@/dbschema/edgeql-js";
 import { urlJoinP } from "url-join-ts";
 import { env } from "~/env";
 import { CF_API_HEADER } from "~/lib/server_utils";
 import { z } from "zod";
+import { qb } from "@/dbschema/query_builder";
 
 const GetContactsResponse = z
   .object({
@@ -32,9 +32,9 @@ export const createContact = inngest.createFunction(
   { event: "contact/create" },
   async ({ event, step, logger }) => {
     const contact = await step.run("get-contact", async () => {
-      return await e
-        .select(e.coreforce.Contact, (c) => ({
-          filter_single: e.op(c.email, "=", event.data.contact.email),
+      return await qb
+        .select(qb.coreforce.Contact, (c) => ({
+          filter_single: qb.op(c.email, "=", event.data.contact.email),
         }))
         .run(client);
     });
@@ -79,8 +79,8 @@ export const createContact = inngest.createFunction(
       });
 
       const newContact = await step.run("create-contact", async () => {
-        return await e
-          .insert(e.coreforce.Contact, {
+        return await qb
+          .insert(qb.coreforce.Contact, {
             fullName: event.data.contact.fullName,
             email: event.data.contact.email,
             cfContactId: cfContactId,
@@ -111,9 +111,9 @@ export const cancelContactTask = inngest.createFunction(
   { event: "contact/cancel.task" },
   async ({ event, step }) => {
     const contact = await step.run("get-contact", async () => {
-      return await e
-        .select(e.coreforce.Contact, (c) => ({
-          filter_single: e.op(c.email, "=", event.data.email),
+      return await qb
+        .select(qb.coreforce.Contact, (c) => ({
+          filter_single: qb.op(c.email, "=", event.data.email),
           id: true,
           activeTask: {
             sequence: true,

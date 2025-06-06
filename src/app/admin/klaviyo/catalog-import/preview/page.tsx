@@ -5,8 +5,8 @@ import { PagedCardGrid } from "~/components/paginator";
 import { Button } from "~/components/ui/button";
 import {
   makeArrayDatasource,
-  transformDatasource,
   type PageDataProvider,
+  transformDatasource,
 } from "~/hooks/paginator";
 import { useSingleShot } from "~/hooks/singleshot";
 import type { ApiProduct } from "~/server/api/coreforce/types";

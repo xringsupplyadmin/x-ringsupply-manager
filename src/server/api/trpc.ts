@@ -11,10 +11,10 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import e from "@/dbschema/edgeql-js";
 import type { ModuleName } from "@/dbschema/interfaces";
 import { auth } from "~/server/auth";
 import client from "../db/client";
+import { qb } from "@/dbschema/query_builder";
 
 /**
  * 1. CONTEXT
@@ -33,7 +33,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 
   return {
     db: {
-      e,
+      e: qb,
       client,
     },
     session,

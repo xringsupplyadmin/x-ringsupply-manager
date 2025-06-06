@@ -3,8 +3,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   loggerLink,
-  unstable_httpBatchStreamLink,
   type TRPCClientErrorLike,
+  unstable_httpBatchStreamLink,
 } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";

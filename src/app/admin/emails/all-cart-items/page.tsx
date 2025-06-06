@@ -1,4 +1,3 @@
-import e from "@/dbschema/edgeql-js";
 import Image from "next/image";
 import {
   Table,
@@ -9,13 +8,14 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import client from "~/server/db/client";
+import { qb } from "@/dbschema/query_builder";
 
 export default async function ViewCartPage() {
   const items = (
-    await e
+    await qb
       .group(
-        e.select(e.coreforce.CartItem, (item) => ({
-          filter: e.op("exists", item.contact.activeTask),
+        qb.select(qb.coreforce.CartItem, (item) => ({
+          filter: qb.op("exists", item.contact.activeTask),
           id: true,
           description: true,
           smallImageUrl: true,

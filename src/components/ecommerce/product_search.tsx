@@ -4,10 +4,10 @@ import type { ecommerce } from "@/dbschema/interfaces";
 import { Edit, Loader2, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import React, {
+  type ComponentProps,
   useCallback,
   useEffect,
   useState,
-  type ComponentProps,
 } from "react";
 import { useToast } from "~/hooks/use-toast";
 import type { ApiProduct, DbProduct } from "~/server/api/coreforce/types";

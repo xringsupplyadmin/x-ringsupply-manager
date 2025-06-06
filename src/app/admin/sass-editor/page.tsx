@@ -312,7 +312,7 @@ export default function SassEditorPage() {
               <AlertDialogTrigger asChild>
                 <Button variant="ghost">View compiled output</Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="max-w-screen flex h-screen  max-h-screen w-screen flex-col gap-4">
+              <AlertDialogContent className="max-w-screen flex h-screen max-h-screen w-screen flex-col gap-4">
                 <AlertDialogHeader>
                   <AlertDialogTitle>Compiled output</AlertDialogTitle>
                 </AlertDialogHeader>
@@ -340,7 +340,7 @@ export default function SassEditorPage() {
               <AlertDialogTrigger asChild>
                 <Button variant="ghost">View combined header</Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="max-w-screen flex h-screen  max-h-screen w-screen flex-col gap-4">
+              <AlertDialogContent className="max-w-screen flex h-screen max-h-screen w-screen flex-col gap-4">
                 <AlertDialogHeader>
                   <AlertDialogTitle>Combined output</AlertDialogTitle>
                 </AlertDialogHeader>

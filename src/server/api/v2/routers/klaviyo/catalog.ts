@@ -1,4 +1,3 @@
-import e from "@/dbschema/edgeql-js";
 import { z } from "zod";
 import { apiGetProducts } from "~/server/api/coreforce/search_product";
 import { klaviyo } from "~/server/api/klaviyo";
@@ -16,6 +15,7 @@ import {
   getItems,
 } from "../../klaviyo/catalog/products";
 import { klaviyoProcedure } from "../procedures";
+import { qb } from "@/dbschema/query_builder";
 
 export const klaviyoCatalogRouter = createTRPCRouter({
   get: {
@@ -48,8 +48,8 @@ export const klaviyoCatalogRouter = createTRPCRouter({
   sync: {
     categories: klaviyoProcedure.mutation(async () => {
       const synced = await getCategories(["external_id", "name"]);
-      const local = await e
-        .select(e.ecommerce.Category, () => ({
+      const local = await qb
+        .select(qb.ecommerce.Category, () => ({
           cfId: true,
           description: true,
         }))

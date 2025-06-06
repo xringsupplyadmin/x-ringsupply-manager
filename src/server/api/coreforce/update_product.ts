@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { filterUndefined, parseApiResponse } from "./api_util";
-import { makeApiRequest } from "./api_util";
+import { filterUndefined, makeApiRequest, parseApiResponse } from "./api_util";
 import { type ProductChangeData } from "./types";
+
 /**
  * Attempt to update a product
  *

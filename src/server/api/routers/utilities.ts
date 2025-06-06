@@ -1,26 +1,26 @@
-import e from "@/dbschema/edgeql-js";
+import qb from "@/dbschema/edgeql-js";
 import convert from "ansi-to-html";
 import * as sass from "sass";
 import { z } from "zod";
 import client from "~/server/db/client";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
-const sortHeaders = e.shape(e.utils.SassHeader, (s) => ({
+const sortHeaders = qb.shape(qb.utils.SassHeader, (s) => ({
   order_by: [
     {
       expression: s.internal,
-      direction: e.DESC,
+      direction: qb.DESC,
     },
     s.includeOrder,
   ],
 }));
 
 async function getAllStylesheets(includeInternal: boolean) {
-  const query = await e
-    .select(e.utils.SassHeader, (s) => ({
+  const query = await qb
+    .select(qb.utils.SassHeader, (s) => ({
       ...s["*"],
       ...sortHeaders(s),
-      filter: includeInternal ? e.bool(true) : e.op(s.internal, "=", false),
+      filter: includeInternal ? qb.bool(true) : qb.op(s.internal, "=", false),
     }))
     .run(client);
   return query;
@@ -146,8 +146,8 @@ export const utilitiesRouter = createTRPCRouter({
         }),
       )
       .mutation(async ({ input }) => {
-        return await e
-          .insert(e.utils.SassHeader, {
+        return await qb
+          .insert(qb.utils.SassHeader, {
             name: input.name,
             internal: input.internal,
             includeOrder: input.includeOrder,

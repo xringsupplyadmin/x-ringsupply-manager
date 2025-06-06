@@ -12,9 +12,9 @@ import {
   updateTaskSequence,
 } from "./task_common";
 import logInngestError from "./error_handling";
-import e from "@/dbschema/edgeql-js";
 import client from "~/server/db/client";
 import { updateContactCart } from "./update_contact_cart";
+import { qb } from "@/dbschema/query_builder";
 
 const CoreillaResponse = z.object({
   status: z.string(),
@@ -41,9 +41,9 @@ export const executeTask = inngest.createFunction(
     });
 
     const items = await step.run("get-cart-items", async () => {
-      return await e
-        .select(e.coreforce.CartItem, (item) => ({
-          filter: e.op(item.contact.id, "=", e.uuid(task.contact.id)),
+      return await qb
+        .select(qb.coreforce.CartItem, (item) => ({
+          filter: qb.op(item.contact.id, "=", qb.uuid(task.contact.id)),
           ...item["*"],
         }))
         .run(client);

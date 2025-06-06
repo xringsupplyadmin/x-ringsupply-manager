@@ -1,5 +1,4 @@
-import { parseApiResponse } from "./api_util";
-import { makeApiRequest } from "./api_util";
+import { makeApiRequest, parseApiResponse } from "./api_util";
 import {
   CategoryResult,
   DepartmentResult,

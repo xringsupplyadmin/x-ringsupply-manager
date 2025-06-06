@@ -37,13 +37,13 @@ export default async function TaskManagerPage() {
           ) : (
             contacts.map((contact) => (
               <TableRow key={contact.id}>
-                <TableCell>
-                  {contact.fullName}
-                </TableCell>
+                <TableCell>{contact.fullName}</TableCell>
                 <TableCell>{contact.email}</TableCell>
                 <TableCell>
                   {contact.activeTask ? (
-                    <Link href={`/src/app/admin/emails/task-manager/${contact.id}`}>
+                    <Link
+                      href={`/src/app/admin/emails/task-manager/${contact.id}`}
+                    >
                       View Task
                     </Link>
                   ) : (
@@ -52,10 +52,14 @@ export default async function TaskManagerPage() {
                 </TableCell>
                 <TableCell>{contact.items.length}</TableCell>
                 <TableCell className="flex flex-row gap-2 align-middle">
-                  <Link href={`/src/app/admin/emails/touchpoint-manager/${contact.id}`}>
+                  <Link
+                    href={`/src/app/admin/emails/touchpoint-manager/${contact.id}`}
+                  >
                     View Touchpoints
                   </Link>
-                  <Link href={`/src/app/admin/emails/view-cart/${contact.id}`}>View Cart</Link>
+                  <Link href={`/src/app/admin/emails/view-cart/${contact.id}`}>
+                    View Cart
+                  </Link>
                 </TableCell>
               </TableRow>
             ))

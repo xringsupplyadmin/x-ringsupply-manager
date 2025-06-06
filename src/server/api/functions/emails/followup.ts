@@ -1,8 +1,8 @@
-import e from "@/dbschema/edgeql-js";
 import { env } from "~/env";
 import client from "~/server/db/client";
 import { inngest } from "../../inngest";
 import logInngestError from "./error_handling";
+import { qb } from "@/dbschema/query_builder";
 
 function getSequenceDate(days: number) {
   const sequenceDate = new Date();
@@ -21,9 +21,9 @@ export const followup = inngest.createFunction(
   async ({ step }) => {
     // Clear out tasks for unsubscribed contacts
     const unsubscribed = await step.run("get-unsubscribed", async () => {
-      return await e
-        .select(e.coreforce.EmailTask, (t) => ({
-          filter: e.op(t.contact.unsubscribed, "=", true),
+      return await qb
+        .select(qb.coreforce.EmailTask, (t) => ({
+          filter: qb.op(t.contact.unsubscribed, "=", true),
           id: true,
           sequence: true,
           contact: {
@@ -49,9 +49,9 @@ export const followup = inngest.createFunction(
     );
 
     const tasks = await step.run("get-tasks", async () => {
-      return await e
-        .select(e.coreforce.EmailTask, (t) => ({
-          filter: e.op(t.contact.unsubscribed, "=", false),
+      return await qb
+        .select(qb.coreforce.EmailTask, (t) => ({
+          filter: qb.op(t.contact.unsubscribed, "=", false),
           id: true,
           sequence: true,
           origination: true,

@@ -55,7 +55,9 @@
   "total": "0.00",
   "tip": "0.00",
   "profit": "0.00",
-  "custom_fields": { "Agreed Upon Consignment Price(s)": null },
+  "custom_fields": {
+    "Agreed Upon Consignment Price(s)": null
+  },
   "return_sale_id": null,
   "payments": [],
   "cart_items": [

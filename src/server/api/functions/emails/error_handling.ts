@@ -1,6 +1,6 @@
+import { qb } from "@/dbschema/query_builder";
 import { type FailureEventPayload } from "inngest";
 import client from "~/server/db/client";
-import e from "@/dbschema/edgeql-js";
 
 export default async function logInngestError({
   error,
@@ -18,5 +18,5 @@ export default async function logInngestError({
     runId,
   };
 
-  await e.insert(e.default.InngestError, payload).run(client);
+  await qb.insert(qb.default.InngestError, payload).run(client);
 }

@@ -8,7 +8,7 @@ import {
   apiGetManufacturers,
   apiGetTags,
 } from "../../coreforce/taxonomy";
-import e from "@/dbschema/edgeql-js";
+import { qb } from "@/dbschema/query_builder";
 
 export const syncAll = inngest.createFunction(
   {
@@ -64,11 +64,11 @@ export const syncCategories = inngest.createFunction(
     await step.run(`update-database`, async () => {
       await client.transaction(async (tx) => {
         for (const category of categories) {
-          await e
-            .insert(e.ecommerce.Category, category)
+          await qb
+            .insert(qb.ecommerce.Category, category)
             .unlessConflict((record) => ({
               on: record.cfId,
-              else: e.update(record, () => ({
+              else: qb.update(record, () => ({
                 set: category,
               })),
             }))
@@ -100,20 +100,20 @@ export const syncDepartments = inngest.createFunction(
         for (const department of departments) {
           const categories =
             department.categories.length > 0
-              ? e.select(e.ecommerce.Category, (c) => ({
-                  filter: e.op(c.cfId, "in", e.set(...department.categories)),
+              ? qb.select(qb.ecommerce.Category, (c) => ({
+                  filter: qb.op(c.cfId, "in", qb.set(...department.categories)),
                 }))
-              : e.set();
+              : qb.set();
           const departmentData = {
             ...department,
             categories: categories,
           };
 
-          await e
-            .insert(e.ecommerce.Department, departmentData)
+          await qb
+            .insert(qb.ecommerce.Department, departmentData)
             .unlessConflict((record) => ({
               on: record.cfId,
-              else: e.update(record, () => ({
+              else: qb.update(record, () => ({
                 set: departmentData,
               })),
             }))
@@ -143,11 +143,11 @@ export const syncManufacturers = inngest.createFunction(
     await step.run(`update-database`, async () => {
       await client.transaction(async (tx) => {
         for (const manufacturer of manufacturers) {
-          await e
-            .insert(e.ecommerce.Manufacturer, manufacturer)
+          await qb
+            .insert(qb.ecommerce.Manufacturer, manufacturer)
             .unlessConflict((record) => ({
               on: record.cfId,
-              else: e.update(record, () => ({
+              else: qb.update(record, () => ({
                 set: manufacturer,
               })),
             }))
@@ -177,11 +177,11 @@ export const syncTags = inngest.createFunction(
     await step.run(`update-database`, async () => {
       await client.transaction(async (tx) => {
         for (const tag of tags) {
-          await e
-            .insert(e.ecommerce.Tag, tag)
+          await qb
+            .insert(qb.ecommerce.Tag, tag)
             .unlessConflict((record) => ({
               on: record.cfId,
-              else: e.update(record, () => ({
+              else: qb.update(record, () => ({
                 set: tag,
               })),
             }))
@@ -211,11 +211,11 @@ export const syncLocations = inngest.createFunction(
     await step.run(`update-database`, async () => {
       await client.transaction(async (tx) => {
         for (const location of locations) {
-          await e
-            .insert(e.ecommerce.Location, location)
+          await qb
+            .insert(qb.ecommerce.Location, location)
             .unlessConflict((record) => ({
               on: record.cfId,
-              else: e.update(record, () => ({
+              else: qb.update(record, () => ({
                 set: location,
               })),
             }))

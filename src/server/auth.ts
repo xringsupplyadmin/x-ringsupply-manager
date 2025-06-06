@@ -7,11 +7,11 @@ import NextAuth, {
 } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
-import e from "@/dbschema/edgeql-js";
 import type { ModuleName, UserPermission } from "@/dbschema/interfaces";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { env } from "~/env";
 import client from "./db/client";
+import { qb } from "@/dbschema/query_builder";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -106,11 +106,11 @@ export const hasPermission = (
 };
 
 export async function getOrCreatePermission(userId: string) {
-  const permissionQuery = e.select(
-    e
-      .insert(e.default.UserPermission, {
-        user: e.select(e.default.User, (u) => ({
-          filter_single: e.op(u.id, "=", e.uuid(userId)),
+  const permissionQuery = qb.select(
+    qb
+      .insert(qb.default.UserPermission, {
+        user: qb.select(qb.default.User, (u) => ({
+          filter_single: qb.op(u.id, "=", qb.uuid(userId)),
         })),
       })
       .unlessConflict((p) => ({

@@ -1,4 +1,3 @@
-import e from "@/dbschema/edgeql-js";
 import { TRPCError } from "@trpc/server";
 import type { Transaction } from "gel/dist/transaction";
 import { z } from "zod";
@@ -15,6 +14,7 @@ import { type ApiProduct, ApiProductEditable } from "../coreforce/types";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { apiUpdateProduct } from "../coreforce/update_product";
 import { getProductChangeData } from "../coreforce/api_util";
+import { qb } from "@/dbschema/query_builder";
 
 const MultiProductIdentifier = z
   .object({
@@ -32,13 +32,13 @@ function filterProduct({
   id,
   cfId,
 }: { id: string; cfId: undefined } | { id: undefined; cfId: number }) {
-  return e.shape(e.ecommerce.Product, (p) => {
+  return qb.shape(qb.ecommerce.Product, (p) => {
     let filter;
     console.log(id, cfId);
     if (id !== undefined) {
-      filter = e.op(p.id, "=", e.uuid(id));
+      filter = qb.op(p.id, "=", qb.uuid(id));
     } else {
-      filter = e.op(p.cfId, "=", cfId);
+      filter = qb.op(p.cfId, "=", cfId);
     }
 
     return {
@@ -95,11 +95,11 @@ async function deepSearchProducts(
 }
 
 async function dbImportProduct(product: ApiProduct, tx?: Transaction) {
-  return await e
-    .insert(e.ecommerce.Product, product)
+  return await qb
+    .insert(qb.ecommerce.Product, product)
     .unlessConflict((r) => ({
       on: r.cfId,
-      else: e.update(r, () => ({
+      else: qb.update(r, () => ({
         set: product,
       })),
     }))
@@ -112,8 +112,8 @@ export const ecommerceRouter = createTRPCRouter({
       update: protectedProcedure
         .input(MultiProductIdentifier)
         .mutation(async ({ input }) => {
-          const product = await e
-            .select(e.ecommerce.Product, (p) => ({
+          const product = await qb
+            .select(qb.ecommerce.Product, (p) => ({
               ...p["*"],
               ...filterProduct(input)(p),
             }))
@@ -177,8 +177,8 @@ export const ecommerceRouter = createTRPCRouter({
           }),
         )
         .mutation(async ({ input }) => {
-          return await e
-            .update(e.ecommerce.Product, (p) => {
+          return await qb
+            .update(qb.ecommerce.Product, (p) => {
               return {
                 set: input.data,
                 ...filterProduct(input.id)(p),

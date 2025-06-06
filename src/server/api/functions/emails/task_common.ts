@@ -1,7 +1,7 @@
-import e from "@/dbschema/edgeql-js";
 import client from "~/server/db/client";
 import { inngest } from "../../inngest";
 import logInngestError from "./error_handling";
+import { qb } from "@/dbschema/query_builder";
 
 type TaskStep = {
   sequence: number;
@@ -18,10 +18,10 @@ type TaskStep = {
  * @param step The step data
  */
 export async function logTaskStep(step: TaskStep) {
-  await e
-    .insert(e.coreforce.EmailTaskStep, {
-      contact: e.select(e.coreforce.Contact, (c) => ({
-        filter_single: e.op(c.id, "=", e.uuid(step.contact.id)),
+  await qb
+    .insert(qb.coreforce.EmailTaskStep, {
+      contact: qb.select(qb.coreforce.Contact, (c) => ({
+        filter_single: qb.op(c.id, "=", qb.uuid(step.contact.id)),
       })),
       sequence: step.sequence,
       success: step.success,
@@ -31,12 +31,12 @@ export async function logTaskStep(step: TaskStep) {
 }
 
 export async function getTask(taskId: string) {
-  const task = await e
-    .select(e.coreforce.EmailTask, (t) => ({
-      filter_single: e.op(t.id, "=", e.uuid(taskId)),
-      ...e.coreforce.EmailTask["*"],
+  const task = await qb
+    .select(qb.coreforce.EmailTask, (t) => ({
+      filter_single: qb.op(t.id, "=", qb.uuid(taskId)),
+      ...qb.coreforce.EmailTask["*"],
       contact: {
-        ...e.coreforce.EmailTask.contact["*"],
+        ...qb.coreforce.EmailTask.contact["*"],
       },
     }))
     .run(client);
@@ -49,12 +49,12 @@ export async function getTask(taskId: string) {
 }
 
 export async function updateTaskSequence(taskId: string, sequence: number) {
-  await e
-    .update(e.coreforce.EmailTask, (t) => ({
+  await qb
+    .update(qb.coreforce.EmailTask, (t) => ({
       set: {
         sequence: sequence,
       },
-      filter_single: e.op(t.id, "=", e.uuid(taskId)),
+      filter_single: qb.op(t.id, "=", qb.uuid(taskId)),
     }))
     .run(client);
 }
@@ -68,9 +68,9 @@ export const createTask = inngest.createFunction(
   { event: "task/create" },
   async ({ event, step }) => {
     const unsubscribed = await step.run("check-unsubscribed", async () => {
-      const contact = await e
-        .select(e.coreforce.Contact, (c) => ({
-          filter_single: e.op(c.id, "=", e.uuid(event.data.contactId)),
+      const contact = await qb
+        .select(qb.coreforce.Contact, (c) => ({
+          filter_single: qb.op(c.id, "=", qb.uuid(event.data.contactId)),
           unsubscribed: true,
         }))
         .run(client);
@@ -86,18 +86,18 @@ export const createTask = inngest.createFunction(
     }
 
     const newTask = await step.run("create-task", async () => {
-      return await e
-        .insert(e.coreforce.EmailTask, {
-          contact: e.select(e.coreforce.Contact, (c) => ({
-            filter_single: e.op(c.id, "=", e.uuid(event.data.contactId)),
+      return await qb
+        .insert(qb.coreforce.EmailTask, {
+          contact: qb.select(qb.coreforce.Contact, (c) => ({
+            filter_single: qb.op(c.id, "=", qb.uuid(event.data.contactId)),
           })),
         })
         .unlessConflict((t) => ({
           on: t.contact,
-          else: e.update(t, () => ({
+          else: qb.update(t, () => ({
             set: {
               sequence: 0,
-              origination: e.datetime_current(),
+              origination: qb.datetime_current(),
             },
           })),
         }))
@@ -124,9 +124,13 @@ export const deleteTask = inngest.createFunction(
   },
   async ({ event, step }) => {
     await step.run("delete-task", async () => {
-      await e
-        .delete(e.coreforce.EmailTask, (t) => ({
-          filter_single: e.op(t.contact.id, "=", e.uuid(event.data.contactId)),
+      await qb
+        .delete(qb.coreforce.EmailTask, (t) => ({
+          filter_single: qb.op(
+            t.contact.id,
+            "=",
+            qb.uuid(event.data.contactId),
+          ),
         }))
         .run(client);
     });
