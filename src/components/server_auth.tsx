@@ -1,6 +1,6 @@
 import type { ModuleName } from "@/dbschema/interfaces";
 import { type Session } from "next-auth";
-import type React from "react";
+import { type ReactNode } from "react";
 import { auth, hasPermission } from "~/server/auth";
 import { PageTitle } from "~/components/headings";
 
@@ -14,22 +14,22 @@ export default async function ServerAuthWrapper({
   modules,
   children,
 }: {
-  fallback?: JSX.Element;
-  page?: (session: Session) => React.ReactNode;
+  fallback?: ReactNode;
+  page?: (session: Session) => ReactNode;
   modules?: ModuleName[];
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) {
   const session = await auth();
   if (!session?.user)
-    return (
-      fallback ?? (
-        <div>
-          {UnauthorizedHeader}
-          <p className="pb-2 text-center text-lg">
-            You must be logged in to view this page
-          </p>
-        </div>
-      )
+    return fallback ? (
+      <>{fallback}</>
+    ) : (
+      <div>
+        {UnauthorizedHeader}
+        <p className="pb-2 text-center text-lg">
+          You must be logged in to view this page
+        </p>
+      </div>
     );
 
   if (!session.user.permissions.verified) {
@@ -64,8 +64,8 @@ export default async function ServerAuthWrapper({
 
   return (
     <>
-      {page?.(session)}
-      {children}
+      <>{page?.(session)}</>
+      <>{children}</>
     </>
   );
 }

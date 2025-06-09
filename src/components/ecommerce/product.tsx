@@ -3,7 +3,7 @@
 import type { ecommerce } from "@/dbschema/interfaces";
 import parse from "html-react-parser";
 import Image from "next/image";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { urlJoinP } from "url-join-ts";
 import { env } from "~/env";
 import type { ApiProduct } from "~/server/api/coreforce/types";
@@ -73,7 +73,7 @@ export function ProductCard<Product extends DisplayProduct>({
 }: {
   product: Product;
   minimal?: boolean;
-  footerControls?: (product: Product) => JSX.Element;
+  footerControls?: (product: Product) => ReactNode;
 }) {
   return (
     <Card className="flex flex-col">

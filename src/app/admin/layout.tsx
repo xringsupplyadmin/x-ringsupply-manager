@@ -12,6 +12,7 @@ import { auth, hasPermission } from "~/server/auth";
 import ServerAuthWrapper from "~/components/server_auth";
 import React from "react";
 import Image from "next/image";
+// @ts-expect-error NextJS shenanigans
 import logo from "@/public/x-ringsupply_logo.png";
 
 export const metadata = {

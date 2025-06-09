@@ -89,12 +89,12 @@ type PagedApiResponse<Datatype> = ApiResponse<{
 export async function allPages<Datatype>(
   executor: (cursor?: string) => Promise<PagedApiResponse<Datatype>>,
 ) {
-  let cursor: string | undefined;
+  let cursor: string | undefined = undefined;
   let data: Datatype[] = [] as Datatype[];
 
   while (true) {
     try {
-      const body = unwrapResponse(await executor(cursor));
+      const body = await request(() => executor(cursor));
 
       data = [...data, ...body.data];
       cursor = body.links?.next;

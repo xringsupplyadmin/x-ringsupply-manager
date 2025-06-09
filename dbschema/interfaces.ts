@@ -195,42 +195,6 @@ export namespace sys {
   export type TransactionIsolation = "RepeatableRead" | "Serializable";
   export type VersionStage = "dev" | "alpha" | "beta" | "rc" | "final";
 }
-export namespace coreforce {
-  export interface CartItem extends std.$Object {
-    "cartId": number;
-    "cartItemId": number;
-    "description": string;
-    "imageUrl": string;
-    "listPrice": number;
-    "productId": number;
-    "quantity": number;
-    "smallImageUrl": string;
-    "timeSubmitted": Date;
-    "unitPrice": number;
-    "contact": Contact;
-  }
-  export interface Contact extends std.$Object {
-    "email": string;
-    "cfContactId": number;
-    "fullName": string;
-    "unsubscribed": boolean;
-    "items": CartItem[];
-    "activeTask"?: EmailTask | null;
-    "steps": EmailTaskStep[];
-  }
-  export interface EmailTask extends std.$Object {
-    "origination": Date;
-    "sequence": number;
-    "contact": Contact;
-  }
-  export interface EmailTaskStep extends std.$Object {
-    "message": string;
-    "sequence": number;
-    "success": boolean;
-    "time": Date;
-    "contact": Contact;
-  }
-}
 export namespace $default {
   export interface Account extends std.$Object {
     "provider": string;
@@ -636,12 +600,6 @@ export interface types {
     "TransactionDeferrability": sys.TransactionDeferrability;
     "TransactionIsolation": sys.TransactionIsolation;
     "VersionStage": sys.VersionStage;
-  };
-  "coreforce": {
-    "CartItem": coreforce.CartItem;
-    "Contact": coreforce.Contact;
-    "EmailTask": coreforce.EmailTask;
-    "EmailTaskStep": coreforce.EmailTaskStep;
   };
   "default": {
     "Account": $default.Account;

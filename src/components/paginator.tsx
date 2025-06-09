@@ -1,5 +1,5 @@
 import { Loader2, RotateCcw } from "lucide-react";
-import { type ComponentProps } from "react";
+import { type ComponentProps, ReactNode } from "react";
 import {
   type PageData,
   type PageDataProvider,
@@ -26,8 +26,8 @@ export function PagedCardGrid<Datatype>({
   ...props
 }: ComponentProps<"div"> & {
   dataProvider: PageDataProvider<Datatype>;
-  cardComponent: (product: Datatype) => JSX.Element;
-  controls?: (pageData: PageData<Datatype>) => JSX.Element | undefined;
+  cardComponent: (product: Datatype) => ReactNode;
+  controls?: (pageData: PageData<Datatype>) => ReactNode;
 }) {
   const { loading, reset, fetch, data, navigation } =
     usePagination(dataProvider);
@@ -136,7 +136,7 @@ export function CardGrid<Datatype>({
   cardComponent,
 }: {
   items: Datatype[] | null;
-  cardComponent: (product: Datatype) => JSX.Element;
+  cardComponent: (product: Datatype) => ReactNode;
 }) {
   if (items === null) {
     return <p>Start a search to begin</p>;

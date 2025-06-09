@@ -8,7 +8,6 @@ import NextAuth, {
 import GoogleProvider from "next-auth/providers/google";
 
 import type { ModuleName, UserPermission } from "@/dbschema/interfaces";
-import type { NextApiRequest, NextApiResponse } from "next";
 import { env } from "~/env";
 import client from "./db/client";
 import { qb } from "@/dbschema/query_builder";
@@ -68,21 +67,6 @@ const nextAuth = NextAuth(authOptions);
 // weird-ass workaround for types not working
 export const handlers: NextAuthResult["handlers"] = nextAuth.handlers;
 export const auth: NextAuthResult["auth"] = nextAuth.auth;
-
-/**
- * Wrapper for `auth`
- * @deprecated Use `auth` directly instead
- */
-export const getServerAuthSession = () => auth();
-
-/**
- * Wrapper for `auth`
- * @deprecated Use `auth` directly instead
- */
-export const getRouteAuthSession = async (
-  req: NextApiRequest,
-  res: NextApiResponse,
-) => auth(req, res);
 
 export const hasPermission = (
   modules: { module: ModuleName; write?: boolean }[],
