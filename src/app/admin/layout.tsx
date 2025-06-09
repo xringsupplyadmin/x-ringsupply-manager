@@ -12,7 +12,7 @@ import { auth, hasPermission } from "~/server/auth";
 import ServerAuthWrapper from "~/components/server_auth";
 import React from "react";
 import Image from "next/image";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment Only an error in development
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore Static Import
 import logo from "@/public/x-ringsupply_logo.png";
 
