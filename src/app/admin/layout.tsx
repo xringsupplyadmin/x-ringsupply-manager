@@ -12,7 +12,8 @@ import { auth, hasPermission } from "~/server/auth";
 import ServerAuthWrapper from "~/components/server_auth";
 import React from "react";
 import Image from "next/image";
-// @ts-expect-error NextJS shenanigans
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment Only an error in development
+// @ts-ignore Static Import
 import logo from "@/public/x-ringsupply_logo.png";
 
 export const metadata = {
