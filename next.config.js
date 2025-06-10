@@ -14,6 +14,19 @@ const config = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: "/api/webhooks/:path*",
+        headers: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "https://x-ringsupply.com",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default config;
