@@ -9,6 +9,7 @@ import { CircleAlert } from "lucide-react";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "~/components/ui/toaster";
 import React from "react";
+import { TooltipProvider } from "~/components/ui/tooltip";
 
 export const metadata = {
   title: "X-Ring Supply Email Dashboard",
@@ -34,21 +35,23 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-          {(env.NODE_ENV !== "production" || env.DEBUG) && (
-            <Alert className="fixed bottom-5 right-5 z-[9999] w-max p-2 opacity-50">
-              <AlertDescription className="flex flex-row items-center gap-2">
-                <CircleAlert />
-                <span className="flex flex-col">
-                  <span>
-                    {env.NODE_ENV !== "production" && "Development Build"}
+          <TooltipProvider>
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+            {(env.NODE_ENV !== "production" || env.DEBUG) && (
+              <Alert className="fixed bottom-5 right-5 z-[9999] w-max p-2 opacity-50">
+                <AlertDescription className="flex flex-row items-center gap-2">
+                  <CircleAlert />
+                  <span className="flex flex-col">
+                    <span>
+                      {env.NODE_ENV !== "production" && "Development Build"}
+                    </span>
+                    <span>{env.DEBUG && "Debug Mode"}</span>
                   </span>
-                  <span>{env.DEBUG && "Debug Mode"}</span>
-                </span>
-              </AlertDescription>
-            </Alert>
-          )}
-          <Toaster />
+                </AlertDescription>
+              </Alert>
+            )}
+            <Toaster />
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

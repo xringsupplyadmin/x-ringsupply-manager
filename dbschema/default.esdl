@@ -13,6 +13,7 @@ module default {
         property createdAt -> datetime {
             default := datetime_current();
         };
+        link permission := .<user[is UserPermission];
     }
 
     type UserPermission {

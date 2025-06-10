@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { cn } from "~/lib/utils";
 import { Spinner } from "../spinner";
+import { SimpleTooltip } from "~/components/ui/tooltip";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -46,6 +47,7 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
+      title,
       className,
       variant,
       size,
@@ -60,18 +62,34 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const Comp = asChild ? Slot : "button";
     icon = !!icon && pending ? <Spinner /> : icon;
-    return (
+    if (icon && asChild)
+      console.warn(
+        "`icon` is not supported with `asChild` prop and has no effect. Add the icon directly to the child component isntead.",
+      );
+    const button = (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         disabled={pending}
         {...props}
       >
-        {icon && !iconAlignEnd && icon}
-        {icon ? <div className="flex-grow">{children}</div> : children}
-        {icon && iconAlignEnd && icon}
+        {asChild ? (
+          children
+        ) : (
+          <>
+            {icon && !iconAlignEnd && icon}
+            {icon ? <div className="flex-grow">{children}</div> : children}
+            {icon && iconAlignEnd && icon}
+          </>
+        )}
       </Comp>
     );
+
+    if (title) {
+      return <SimpleTooltip title={title}>{button}</SimpleTooltip>;
+    } else {
+      return button;
+    }
   },
 );
 Button.displayName = "Button";

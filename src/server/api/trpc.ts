@@ -12,7 +12,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import type { ModuleName } from "@/dbschema/interfaces";
-import { auth } from "~/server/auth";
+import { auth, hasPermission } from "~/server/auth";
 import client from "../db/client";
 import { qb } from "@/dbschema/query_builder";
 
@@ -121,24 +121,16 @@ export function moduleProcedure(
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
-    for (const moduleName of modules) {
-      const permission = ctx.session.user.permissions.modules.find(
-        (p) => p.moduleName === moduleName,
-      );
-
-      if (!permission) {
-        throw new TRPCError({
-          message: `Required Permission: ${modules}`,
-          code: "UNAUTHORIZED",
-        });
-      }
-
-      if (type === "mutation" && !permission.write) {
-        throw new TRPCError({
-          message: `Required Permission: ${modules}`,
-          code: "UNAUTHORIZED",
-        });
-      }
+    if (
+      !hasPermission(
+        modules.map((m) => ({ module: m, write: type === "mutation" })),
+        ctx.session,
+      )
+    ) {
+      throw new TRPCError({
+        message: `Required Permission: ${type === "mutation" ? "write" : "read"} ${modules}`,
+        code: "UNAUTHORIZED",
+      });
     }
 
     return next({});

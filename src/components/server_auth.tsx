@@ -12,11 +12,13 @@ export default async function ServerAuthWrapper({
   fallback,
   page,
   modules,
+  administrator,
   children,
 }: {
   fallback?: ReactNode;
   page?: (session: Session) => ReactNode;
   modules?: ModuleName[];
+  administrator?: boolean;
   children?: ReactNode;
 }) {
   const session = await auth();
@@ -38,6 +40,17 @@ export default async function ServerAuthWrapper({
         {UnauthorizedHeader}
         <p className="pb-2 text-center text-lg">
           Please contact an administrator to verify your account
+        </p>
+      </div>
+    );
+  }
+
+  if (administrator && !session.user.permissions.administrator) {
+    return (
+      <div>
+        {UnauthorizedHeader}
+        <p className="pb-2 text-center text-lg">
+          You must be an administrator to view this page
         </p>
       </div>
     );
