@@ -23,6 +23,10 @@ const config = {
             key: "Access-Control-Allow-Origin",
             value: "https://x-ringsupply.com",
           },
+          {
+            key: "Access-Control-Allow-Headers",
+            value: "X-CfUserId, X-CfUserEmail",
+          },
         ],
       },
     ];
