@@ -54,6 +54,25 @@ export const productImageUrl = safeUrl(
   "https://placehold.co/600/jpg?text=Image+Not+Found",
 );
 
+export const coreforceDate = z
+  .string()
+  .transform((str) => new Date(str + " EST"));
+
+export const OrderStatusCode = z.enum([
+  "PAYMENTS_NOT_COMPLETE",
+  "EXTERNAL_PAYMENTS_NOT_COMPLETE",
+  "ORDER_CANCELED",
+]);
+export type OrderStatusCode = z.infer<typeof OrderStatusCode>;
+
+export const PaymentMethodType = z.enum([
+  "CREDIT_CARD",
+  "GIFT_CARD",
+  "LOYALTY_POINTS",
+  "SEZZLE",
+  "CREDOVA",
+]);
+
 export const OrderItem = z
   .object({
     product_id: z.number(),
@@ -73,7 +92,7 @@ export const CoreforceOrderDetails = z.object({
   order_id: z.number(),
   // order_time: z.coerce.date(),
   // some terrible date parsing because CF doesn't return the timezone (hopefully its in EST lmao)
-  order_time: z.string().transform((str) => new Date(str + " EST")),
+  order_time: coreforceDate,
   contact_id: z.number(),
   first_name: z.string(),
   last_name: z.string(),
@@ -85,16 +104,33 @@ export const CoreforceOrderDetails = z.object({
   email_address: z.string().email(),
   phone_number: optString,
   order_status_code: z.string(),
+  deleted: z.coerce.boolean(),
+  "custom_field-external_payment_url": z.string().url().optional(),
 });
 
-export const CoreforceOrderItems = OrderItem.array();
+export const CoreforceOrderPayment = z
+  .object({
+    order_payment_id: z.number(),
+    payment_time: coreforceDate,
+    amount: z.coerce.number(),
+    shipping_charge: z.coerce.number(),
+    transaction_identifier: z.string(),
+    not_captured: z.coerce.boolean(),
+    deleted: z.coerce.boolean(),
+    payment_method_type_code: PaymentMethodType,
+  })
+  .transform((p) => ({
+    ...p,
+    payment_total: p.amount + p.shipping_charge,
+  }));
 
 export const CoreforceOrder = z
   .object({
     orders_row: CoreforceOrderDetails,
-    order_items: CoreforceOrderItems,
+    order_items: OrderItem.array(),
     order_items_total: z.coerce.number(),
     order_total: z.coerce.number(),
+    order_payments: CoreforceOrderPayment.array(),
   })
   .transform((obj) => ({
     details: obj.orders_row,
@@ -103,6 +139,7 @@ export const CoreforceOrder = z
       items: obj.order_items_total,
       order: obj.order_total,
     },
+    payments: obj.order_payments,
   }));
 export type CoreforceOrder = z.infer<typeof CoreforceOrder>;
 

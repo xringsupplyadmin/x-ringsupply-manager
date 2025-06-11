@@ -9,7 +9,6 @@ import {
 
 const DataParser = z.object({
   customer_email: z.string(),
-  coreforce_id: z.coerce.number().optional(),
   since: z.coerce.date(),
   until: z.coerce.date().optional(),
   allow_large_ranges: z.boolean().default(false),
@@ -45,7 +44,7 @@ export async function POST(request: Request) {
     // TODO: log error to klaviyo
     return new Response(
       JSON.stringify({
-        error: "Failed to fetch orders for " + event.data.customer_email,
+        error: "Failed to fetch orders",
         message: message,
       }),
       {
@@ -59,10 +58,9 @@ export async function POST(request: Request) {
 
   if (orders.length > 0) {
     // trigger order placed
+    const tracked = await orderTracking(orders);
 
-    await orderTracking(orders);
-
-    return new Response("Customer has placed order", {
+    return new Response(JSON.stringify(tracked), {
       status: 200,
     });
   } else {
@@ -107,7 +105,7 @@ export async function POST(request: Request) {
       });
 
       // return generic 200, the caller doesn't care
-      return new Response("Event sent successfully", {
+      return new Response("Abandoned Checkout Event sent successfully", {
         status: 200,
       });
     } catch (e) {
@@ -115,7 +113,7 @@ export async function POST(request: Request) {
 
       return new Response(
         JSON.stringify({
-          error: "Failed to send event",
+          error: "Failed to send Abandoned Checkout Event",
           message: message,
         }),
         {

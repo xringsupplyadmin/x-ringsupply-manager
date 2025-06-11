@@ -75,8 +75,37 @@ export const OrderPlacedEvent = z.object({
   shippingAddress: MetricsAddress.optional(),
   currency: z.literal("USD").default("USD"),
   customer: MetricsUser,
+  creditPending: z.boolean().default(false),
 });
 export type OrderPlacedEvent = z.infer<typeof OrderPlacedEvent>;
+
+const OrderPlacedApiEventData = OrderPlacedEvent.transform((event) => ({
+  // base order data
+  order_id: event.orderId,
+  discount_code: event.discountCode,
+  discount_value: event.discountValue,
+  credit_pending: event.creditPending,
+  // aggregates for items
+  categories: event.items.flatMap((item) => item.categories),
+  item_names: event.items.map((item) => item.productName),
+  brands: event.items.map((item) => item.brand),
+  // items
+  items: event.items.map((item) => ({
+    product_id: item.productId,
+    sku: item.sku,
+    product_name: item.productName,
+    quantity: item.quantity,
+    item_price: item.itemPrice,
+    row_total: item.itemPrice * item.quantity,
+    product_url: item.productUrl,
+    image_url: item.imageUrl,
+    categories: item.categories,
+    brand: item.brand,
+  })),
+  // addresses
+  billing_address: event.billingAddress,
+  shipping_address: event.shippingAddress ?? event.billingAddress,
+}));
 
 export const OrderPlacedApiEvent = OrderPlacedEvent.transform((event) => ({
   metadata: {
@@ -87,35 +116,41 @@ export const OrderPlacedApiEvent = OrderPlacedEvent.transform((event) => ({
     value: event.items.reduce((acc, item) => acc + item.itemPrice, 0),
     valueCurrency: event.currency,
   },
-  data: {
-    // base order data
-    order_id: event.orderId,
-    discount_code: event.discountCode,
-    discount_value: event.discountValue,
-    // aggregates for items
-    categories: event.items.flatMap((item) => item.categories),
-    item_names: event.items.map((item) => item.productName),
-    brands: event.items.map((item) => item.brand),
-    // items
-    items: event.items.map((item) => ({
-      product_id: item.productId,
-      sku: item.sku,
-      product_name: item.productName,
-      quantity: item.quantity,
-      item_price: item.itemPrice,
-      row_total: item.itemPrice * item.quantity,
-      product_url: item.productUrl,
-      image_url: item.imageUrl,
-      categories: item.categories,
-      brand: item.brand,
-    })),
-    // addresses
-    billing_address: event.billingAddress,
-    shipping_address: event.shippingAddress ?? event.billingAddress,
-  },
+  data: OrderPlacedApiEventData.parse(event),
 }));
 
-export const MetricIDs = z.enum(["Abandoned Checkout", "Order Placed"]);
+export const CreditOrderStartedApiEvent = OrderPlacedEvent.transform(
+  (event) => ({
+    metadata: {
+      metricID: MetricIDs.Enum["Credit Order Started"],
+      uniqueId: `credit-order-started-${event.orderId}`,
+      time: event.orderTime,
+      profileEmail: event.customer.email,
+      value: event.items.reduce((acc, item) => acc + item.itemPrice, 0),
+      valueCurrency: event.currency,
+    },
+    data: OrderPlacedApiEventData.parse(event),
+  }),
+);
+
+export const OrderCancelledApiEvent = OrderPlacedEvent.transform((event) => ({
+  metadata: {
+    metricID: MetricIDs.Enum["Order Cancelled"],
+    uniqueId: `cancelled-order-${event.orderId}`,
+    time: event.orderTime,
+    profileEmail: event.customer.email,
+    value: event.items.reduce((acc, item) => acc + item.itemPrice, 0),
+    valueCurrency: event.currency,
+  },
+  data: OrderPlacedApiEventData.parse(event),
+}));
+
+export const MetricIDs = z.enum([
+  "Abandoned Checkout",
+  "Order Placed",
+  "Credit Order Started",
+  "Order Cancelled",
+]);
 export type MetricIDs = z.infer<typeof MetricIDs>;
 
 /* The klaviyo API is very verbose. These function make it easier to work with up to the send point */

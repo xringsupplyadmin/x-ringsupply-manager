@@ -1,13 +1,14 @@
 import { z } from "zod";
 import { makeApiRequest, parseApiResponse } from "../../coreforce/api_util";
-import { CoreforceOrder } from "../types/coreforce";
+import { CoreforceOrder, type OrderStatusCode } from "../types/coreforce";
 
 export async function getOrderIds(filter: {
   since: Date;
   until?: Date;
   allowLargeRanges?: boolean;
+  statusCode?: OrderStatusCode;
 }) {
-  const { since, until, allowLargeRanges } = filter;
+  const { since, until, allowLargeRanges, statusCode } = filter;
 
   if (!allowLargeRanges) {
     const end = until ?? new Date();
@@ -22,6 +23,7 @@ export async function getOrderIds(filter: {
   const response = await makeApiRequest("get_order_ids", {
     start_date: since.toISOString(),
     end_date: until ? until.toISOString() : undefined,
+    order_status_code: statusCode,
   });
 
   const orderIds = await parseApiResponse(
@@ -37,9 +39,7 @@ export async function getOrder(orderId: number) {
     order_id: orderId,
   });
 
-  const order = await parseApiResponse(response, CoreforceOrder);
-
-  return order;
+  return await parseApiResponse(response, CoreforceOrder);
 }
 
 /**
@@ -50,13 +50,19 @@ export async function getOrders(filter: {
   until?: Date;
   allowLargeRanges?: boolean;
   strictRange?: boolean;
+  statusCode?: OrderStatusCode;
   contactId?: number;
   email?: string;
 }) {
   // time range
-  const { since, until, allowLargeRanges, strictRange } = filter;
+  const { since, until, allowLargeRanges, strictRange, statusCode } = filter;
 
-  const orderIds = await getOrderIds({ since, until, allowLargeRanges });
+  const orderIds = await getOrderIds({
+    since,
+    until,
+    allowLargeRanges,
+    statusCode,
+  });
 
   const orders = [];
 
