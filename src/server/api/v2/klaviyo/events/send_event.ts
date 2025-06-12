@@ -126,6 +126,7 @@ export async function trackOrder(order: CoreforceOrder): Promise<OrderStatus> {
       email: order.details.email_address,
     },
     creditPending: creditPending,
+    externalPaymentUrl: order.details["custom_field-external_payment_url"],
   };
 
   // Check for cancelled orders

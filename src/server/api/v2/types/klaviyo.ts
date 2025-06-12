@@ -76,6 +76,7 @@ export const OrderPlacedEvent = z.object({
   currency: z.literal("USD").default("USD"),
   customer: MetricsUser,
   creditPending: z.boolean().default(false),
+  externalPaymentUrl: z.string().url().optional(),
 });
 export type OrderPlacedEvent = z.infer<typeof OrderPlacedEvent>;
 
@@ -85,6 +86,7 @@ const OrderPlacedApiEventData = OrderPlacedEvent.transform((event) => ({
   discount_code: event.discountCode,
   discount_value: event.discountValue,
   credit_pending: event.creditPending,
+  external_payment_url: event.externalPaymentUrl,
   // aggregates for items
   categories: event.items.flatMap((item) => item.categories),
   item_names: event.items.map((item) => item.productName),
