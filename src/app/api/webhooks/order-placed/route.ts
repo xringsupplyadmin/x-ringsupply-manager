@@ -4,11 +4,8 @@ import { trackOrder } from "~/server/api/v2/klaviyo/events/send_event";
 
 const DataParser = z.object({
   data: z.object({
-    customerFirstName: z.string(),
-    customerLastName: z.string(),
     orderId: z.coerce.number(),
   }),
-  completed_at: z.coerce.date(),
 });
 
 export async function POST(request: Request) {
