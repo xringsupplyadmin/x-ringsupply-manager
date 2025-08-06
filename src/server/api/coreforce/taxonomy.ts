@@ -35,13 +35,18 @@ export async function apiGetManufacturers() {
   return (
     await parseApiResponse(response, ManufacturerResult)
   ).product_manufacturers.map((manufacturer) => ({
+    contactId: manufacturer.contact_id,
     cfId: manufacturer.product_manufacturer_id,
     code: manufacturer.product_manufacturer_code,
     description: manufacturer.description,
     detailedDescription: manufacturer.detailed_description,
+    metaTitle: manufacturer.meta_title,
     metaDescription: manufacturer.meta_description,
+    linkName: manufacturer.link_name,
+    webPage: manufacturer.web_page,
     imageId: manufacturer.image_id,
     inactive: manufacturer.inactive,
+    deleted: manufacturer.deleted,
   }));
 }
 

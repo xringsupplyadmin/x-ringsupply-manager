@@ -37,13 +37,18 @@ export const DepartmentResult = z.object({
 export const ManufacturerResult = z.object({
   product_manufacturers: z
     .object({
+      contact_id: optApiNumber,
       product_manufacturer_id: z.number(),
       product_manufacturer_code: z.string(),
       description: z.string(),
       detailed_description: optApiString,
+      meta_title: optApiString,
       meta_description: optApiString,
+      link_name: optApiString,
+      web_page: optApiString,
       image_id: optApiNumber,
       inactive: z.coerce.boolean(),
+      deleted: z.coerce.boolean(),
     })
     .array(),
 });
