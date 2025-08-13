@@ -1,5 +1,8 @@
 import { z, type ZodTypeAny } from "zod";
 
+/**
+ * @deprecated Use V2 API
+ */
 const undefineEmpty = <Type extends ZodTypeAny>(type: Type) =>
   z.preprocess((val) => {
     if (val === "") {
@@ -8,11 +11,26 @@ const undefineEmpty = <Type extends ZodTypeAny>(type: Type) =>
       return val;
     }
   }, type.optional());
+/**
+ * @deprecated Use V2 API
+ */
 const optApiNumber = undefineEmpty(z.number());
+/**
+ * @deprecated Use V2 API
+ */
 const optApiNumberString = undefineEmpty(z.coerce.number());
+/**
+ * @deprecated Use V2 API
+ */
 const optApiString = undefineEmpty(z.string());
+/**
+ * @deprecated Use V2 API
+ */
 const idListString = z.string().transform((val) => val.split(",").map(Number));
 
+/**
+ * @deprecated Use V2 API
+ */
 export const CategoryResult = z.object({
   product_categories: z
     .object({
@@ -23,6 +41,9 @@ export const CategoryResult = z.object({
     .array(),
 });
 
+/**
+ * @deprecated Use V2 API
+ */
 export const DepartmentResult = z.object({
   product_departments: z
     .object({
@@ -34,6 +55,9 @@ export const DepartmentResult = z.object({
     .array(),
 });
 
+/**
+ * @deprecated Use V2 API
+ */
 export const ManufacturerResult = z.object({
   product_manufacturers: z
     .object({
@@ -53,6 +77,9 @@ export const ManufacturerResult = z.object({
     .array(),
 });
 
+/**
+ * @deprecated Use V2 API
+ */
 export const TagResult = z.object({
   product_tags: z
     .object({
@@ -66,6 +93,9 @@ export const TagResult = z.object({
     .array(),
 });
 
+/**
+ * @deprecated Use V2 API
+ */
 export const LocationResult = z.object({
   locations: z
     .object({
@@ -78,6 +108,9 @@ export const LocationResult = z.object({
     .array(),
 });
 
+/**
+ * @deprecated Use V2 API
+ */
 export const ProductResult = z.object({
   /* Data that can be modified */
   primary_product_id: z.number(),
@@ -108,8 +141,14 @@ export const ProductResult = z.object({
   sort_order: optApiNumber.default(100),
   manufacturer_image_id: optApiNumber,
 });
+/**
+ * @deprecated Use V2 API
+ */
 export type ProductResult = z.infer<typeof ProductResult>;
 
+/**
+ * @deprecated Use V2 API
+ */
 export const ApiProduct = z.object({
   cfId: z.number(),
   code: z.string(),
@@ -132,8 +171,14 @@ export const ApiProduct = z.object({
   sortOrder: z.number(),
   manufacturerImageId: z.number().nullish(),
 });
+/**
+ * @deprecated Use V2 API
+ */
 export type ApiProduct = z.infer<typeof ApiProduct>;
 
+/**
+ * @deprecated Use V2 API
+ */
 export const ApiProductEditable = ApiProduct.pick({
   code: true,
   description: true,
@@ -147,13 +192,25 @@ export const ApiProductEditable = ApiProduct.pick({
   manufacturerAdvertisedPrice: true,
   sortOrder: true,
 });
+/**
+ * @deprecated Use V2 API
+ */
 export type ApiProductEditable = z.infer<typeof ApiProductEditable>;
 
+/**
+ * @deprecated Use V2 API
+ */
 export const DbProduct = ApiProduct.extend({
   id: z.string(),
 });
+/**
+ * @deprecated Use V2 API
+ */
 export type DbProduct = z.infer<typeof DbProduct>;
 
+/**
+ * @deprecated Use V2 API
+ */
 type ImageUrlsChangeData =
   | {
       /** A list of image URLs to set */
@@ -166,6 +223,9 @@ type ImageUrlsChangeData =
       replace_existing_images?: never;
     };
 
+/**
+ * @deprecated Use V2 API
+ */
 type LocationChangeData =
   | {
       /**The location ID to update */
@@ -184,6 +244,9 @@ type LocationChangeData =
       product_price?: never;
     };
 
+/**
+ * @deprecated Use V2 API
+ */
 export type ProductChangeData = Partial<{
   /** Required product code (index) */
   product_code: string;
