@@ -84,7 +84,7 @@ export async function trackOrder(order: CoreforceOrder): Promise<OrderStatus> {
 
   for (const item of order.items) {
     // janky shit cause the order doesn't include the image URL
-    const productDetails = await getProduct(item.product_id);
+    const productDetails = await getProduct({ product_id: item.product_id });
     products.push({
       productId: item.product_id,
       sku: item.manufacturer_sku,
