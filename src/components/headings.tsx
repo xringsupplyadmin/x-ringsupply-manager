@@ -24,3 +24,23 @@ export const PageSubtitle = React.forwardRef<
   );
 });
 PageSubtitle.displayName = "PageSubtitle";
+
+export const Heading = React.forwardRef<
+  HTMLHeadingElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => {
+  return (
+    <h3 className={cn("text-xl font-medium", className)} ref={ref} {...props} />
+  );
+});
+Heading.displayName = "Heading";
+
+export const SubHeading = React.forwardRef<
+  HTMLHeadingElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => {
+  return (
+    <h4 className={cn("text-lg font-medium", className)} ref={ref} {...props} />
+  );
+});
+SubHeading.displayName = "SubHeading";

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getOrder } from "~/server/api/v2/coreforce/orders_api";
+import { getOrder } from "~/server/api/v2/coreforce/cf-orders-api";
 import { trackOrder } from "~/server/api/v2/klaviyo/events/send_event";
 
 const DataParser = z.object({

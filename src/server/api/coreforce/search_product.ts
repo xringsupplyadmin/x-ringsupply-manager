@@ -9,26 +9,51 @@ import { ProductResult } from "./types";
 import { urlJoinP } from "url-join-ts";
 import { env } from "~/env";
 
+/**
+ * @deprecated Use V2 API
+ */
 export const ProductIdentifier = z.union([
+  z.object({ product_id: z.number() }),
+  z.object({ product_code: z.string() }),
+]);
+/**
+ * @deprecated Use V2 API
+ */
+export type ProductIdentifier = z.infer<typeof ProductIdentifier>;
+
+/**
+ * @deprecated Use V2 API
+ */
+export const ProductSearchIdentifier = z.union([
   z.object({ product_id: z.number() }),
   z.object({ product_code: z.string() }),
   z.object({ upc_code: z.string() }),
 ]);
-export type ProductIdentifier = z.infer<typeof ProductIdentifier>;
+/**
+ * @deprecated Use V2 API
+ */
+export type ProductSearchIdentifier = z.infer<typeof ProductSearchIdentifier>;
 
+/**
+ * @deprecated Use V2 API
+ */
 export const ProductIdentifiers = z.union([
   z.object({ product_ids: z.number().array() }),
   z.object({ product_codes: z.string().array() }),
   z.object({ upc_codes: z.string().array() }),
 ]);
+/**
+ * @deprecated Use V2 API
+ */
 export type ProductIdentifiers = z.infer<typeof ProductIdentifiers>;
 
 /**
  * Get a product
  *
  * @throws {Error} If the API returns an error
+ * @deprecated Use V2 API
  */
-export async function apiGetProduct(identifier: ProductIdentifier) {
+export async function apiGetProduct(identifier: ProductSearchIdentifier) {
   const response = await makeApiRequest("get_product", identifier);
 
   const result = await parseApiResponse(
@@ -52,6 +77,7 @@ export async function apiGetProduct(identifier: ProductIdentifier) {
  * Get some products
  *
  * @throws {Error} If the API returns an error
+ * @deprecated Use V2 API
  */
 export async function apiGetProducts(identifiers: ProductIdentifiers) {
   if (
@@ -79,6 +105,7 @@ export async function apiGetProducts(identifiers: ProductIdentifiers) {
  * Search for products
  *
  * @throws {Error} If the API returns an error
+ * @deprecated Use V2 API
  */
 export async function apiSearchProducts(
   query?: {
@@ -146,6 +173,9 @@ export async function apiSearchProducts(
   };
 }
 
+/**
+ * @deprecated Do not map products. Use V2 API
+ */
 function mapApiProduct(product: ProductResult) {
   if (product.primary_product_id !== product.product_id) {
     console.warn(

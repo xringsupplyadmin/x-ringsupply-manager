@@ -1,5 +1,5 @@
 import { inngest } from "../../../inngest";
-import { getOrders } from "../../../v2/coreforce/orders_api";
+import { getOrders } from "../../../v2/coreforce/cf-orders-api";
 import { orderTracking } from "../../../v2/klaviyo/events/send_event";
 import logInngestError from "../../error_handling";
 

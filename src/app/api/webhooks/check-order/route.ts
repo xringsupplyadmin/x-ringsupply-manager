@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { getContact } from "~/server/api/v2/coreforce/contacts_api";
-import { getOrders } from "~/server/api/v2/coreforce/orders_api";
-import { getShoppingCartItems } from "~/server/api/v2/coreforce/retailstore";
+import { getContact } from "~/server/api/v2/coreforce/cf-contacts-api";
+import { getOrders } from "~/server/api/v2/coreforce/cf-orders-api";
+import { getShoppingCartItems } from "~/server/api/v2/coreforce/cf-retailstore";
 import {
   orderTracking,
   sendAbandonedCheckoutEvent,

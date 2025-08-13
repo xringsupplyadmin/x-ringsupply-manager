@@ -1,16 +1,23 @@
 "use client";
 
-import type { ecommerce } from "@/dbschema/interfaces";
 import parse, { Element } from "html-react-parser";
 import Image from "next/image";
 import type { ComponentProps, ReactNode } from "react";
 import { urlJoinP } from "url-join-ts";
 import { env } from "~/env";
-import type { ApiProduct } from "~/server/api/coreforce/types";
-import { Alert } from "../ui/alert";
-import { Badge } from "../ui/badge";
-import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
-import { Loader2 } from "lucide-react";
+import { Alert } from "~/components/ui/alert";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "~/components/ui/card";
+import {
+  CoreforceProduct,
+  ProductExtraInformation,
+} from "~/server/api/v2/coreforce/types/products";
+import { Heading } from "~/components/headings";
+import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 
 export function ProductImage({
   description,
@@ -57,22 +64,13 @@ export function ProductImage({
   }
 }
 
-// Make DB-only properties optional
-type DisplayProduct = ApiProduct &
-  Pick<
-    Partial<ecommerce.Product>,
-    "id" | "productManufacturer" | "productTags"
-  > & {
-    productCategories?: Omit<ecommerce.Category, "department">[];
-  };
-
-export function ProductCard<Product extends DisplayProduct>({
+export function ProductCard<Product extends CoreforceProduct>({
   product,
-  minimal = false,
+  extraInformation,
   footerControls,
 }: {
   product: Product;
-  minimal?: boolean;
+  extraInformation?: ProductExtraInformation;
   footerControls?: (product: Product) => ReactNode;
 }) {
   return (
@@ -80,21 +78,20 @@ export function ProductCard<Product extends DisplayProduct>({
       <CardHeader className="flex flex-row gap-4">
         <ProductImage
           description={product.description}
-          imageId={product.imageId}
-          imageUrls={product.imageUrls}
+          imageId={product.image_id}
+          imageUrls={product.image_urls}
           className="max-h-24 max-w-40 flex-auto object-contain"
         />
         <h2 className="mini-scrollbar h-24 flex-auto overflow-y-scroll text-ellipsis text-lg font-bold">
           {product.description}
         </h2>
       </CardHeader>
-      <CardContent className="flex flex-1 flex-col">
-        <h3 className="text-lg font-semibold">Description</h3>
-        <div className="my-2 min-w-full basis-1 rounded bg-accent/50" />
+      <CardContent className="flex flex-1 flex-col gap-4">
+        <Heading className={"text-center"}>Description</Heading>
         <div className="mini-scrollbar h-full max-h-32 overflow-y-scroll">
           {/* <p className="break-words">{product.detailedDescription}</p> */}
-          {product.detailedDescription &&
-            parse(product.detailedDescription, {
+          {product.detailed_description &&
+            parse(product.detailed_description, {
               replace: (domNode) => {
                 if (domNode instanceof Element) {
                   if (domNode.tagName === "script") {
@@ -115,14 +112,11 @@ export function ProductCard<Product extends DisplayProduct>({
               },
             })}
         </div>
-        {!minimal && <ProductDetail product={product} />}
+        {extraInformation && <ProductDetail data={extraInformation} />}
       </CardContent>
       <CardFooter className="flex flex-row justify-between gap-4">
         <div className="flex flex-col items-start justify-between text-left text-sm italic">
-          <small>
-            <p>DbID: {product.id ? product.id : "Not imported"}</p>
-            <p>CfID: {product.cfId}</p>
-          </small>
+          <p className={"text-sm"}>ID {product.product_id}</p>
         </div>
         {footerControls && (
           <div className="flex items-end">{footerControls(product)}</div>
@@ -132,21 +126,28 @@ export function ProductCard<Product extends DisplayProduct>({
   );
 }
 
-function ProductDetail<Product extends DisplayProduct>({
-  product,
-}: {
-  product: Product;
-}) {
+function ProductDetail({ data }: { data: ProductExtraInformation }) {
   return (
     <>
-      <h3 className="text-lg font-semibold">Categories</h3>
+      <Heading className={"text-center"}>Specifications</Heading>
+      <Table>
+        <TableBody>
+          {Object.entries(data.product_facets).map(([key, value]) => (
+            <TableRow key={key}>
+              <TableCell>{key}</TableCell>
+              <TableCell>{value}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {/* <h3 className="text-lg font-semibold">Categories</h3>
       <div className="flex h-10 items-center justify-center">
-        {product.productCategories ? (
-          product.productCategories.length === 0 ? (
+        {product.product_categories ? (
+          product.product_categories.length === 0 ? (
             <p>None</p>
           ) : (
             <div className="mini-scrollbar flex h-full w-full flex-nowrap items-stretch justify-center gap-2 overflow-x-scroll p-1">
-              {product.productCategories.map((category) => (
+              {product.product_categories.map((category) => (
                 <Badge
                   className="w-max max-w-32 overflow-clip text-ellipsis text-nowrap hover:max-w-full"
                   key={category.cfId}
@@ -159,44 +160,22 @@ function ProductDetail<Product extends DisplayProduct>({
         ) : (
           <Loader2 className="animate-spin" />
         )}
-      </div>
+      </div> */}
 
-      <h3 className="text-lg font-semibold">Tags</h3>
-      <div className="flex h-10 items-center justify-center">
-        {product.productTags ? (
-          product.productTags.length === 0 ? (
-            <p>None</p>
-          ) : (
-            <div className="mini-scrollbar flex h-full w-full flex-nowrap items-stretch justify-center gap-2 overflow-x-scroll p-1">
-              {product.productTags.map((tag) => (
-                <Badge
-                  className="w-max max-w-32 overflow-clip text-ellipsis text-nowrap hover:max-w-full"
-                  key={tag.cfId}
-                >
-                  {tag.description}
-                </Badge>
-              ))}
-            </div>
-          )
-        ) : (
-          <Loader2 className="animate-spin" />
-        )}
-      </div>
-
-      <div className="h-8">
+      {/* <div className="h-8">
         <div className="flex h-full items-center gap-2">
           <h3 className="text-lg font-semibold">Manufacturer</h3>
-          {product.productManufacturer !== undefined ? (
+          {product.product_manufacturer !== undefined ? (
             <p>
-              {product.productManufacturer === null
+              {product.product_manufacturer === null
                 ? "None"
-                : product.productManufacturer.description}
+                : product.product_manufacturer.description}
             </p>
           ) : (
             <Loader2 className="animate-spin" />
           )}
         </div>
-      </div>
+      </div> */}
     </>
   );
 }

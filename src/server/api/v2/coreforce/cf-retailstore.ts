@@ -1,9 +1,9 @@
 import { urlJoinP } from "url-join-ts";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { env } from "~/env";
 import { fetchSession } from "~/lib/server_utils";
-import { RetailStoreCart } from "../types/coreforce";
 import { authorize } from "~/server/api/v2/coreforce/cf-admin/cf-admin-api";
+import { RetailStoreCart } from "~/server/api/v2/coreforce/types/retail-store";
 
 const RetailStoreCartResponse = RetailStoreCart.extend({
   requires_user: z.undefined(),

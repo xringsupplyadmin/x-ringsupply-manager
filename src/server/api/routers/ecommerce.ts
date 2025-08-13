@@ -7,11 +7,11 @@ import {
   apiGetProduct,
   apiGetProducts,
   apiSearchProducts,
-  ProductIdentifier,
   ProductIdentifiers,
+  ProductSearchIdentifier,
 } from "../coreforce/search_product";
 import { type ApiProduct, ApiProductEditable } from "../coreforce/types";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { apiUpdateProduct } from "../coreforce/update_product";
 import { getProductChangeData } from "../coreforce/api_util";
 import { qb } from "@/dbschema/query_builder";
@@ -107,6 +107,9 @@ async function dbImportProduct(product: ApiProduct, tx?: Transaction) {
 }
 
 export const ecommerceRouter = createTRPCRouter({
+  /**
+   * @deprecated Use the V2 router instead
+   */
   cfApi: {
     products: {
       update: protectedProcedure
@@ -128,7 +131,7 @@ export const ecommerceRouter = createTRPCRouter({
 
           await apiUpdateProduct(product.cfId, getProductChangeData(product));
         }),
-      count: protectedProcedure
+      count: publicProcedure
         .input(
           z.object({
             filters: FilterStore,
@@ -142,7 +145,7 @@ export const ecommerceRouter = createTRPCRouter({
           });
           return data.queryItemCount;
         }),
-      search: protectedProcedure
+      search: publicProcedure
         .input(
           z.object({
             filters: FilterStore,
@@ -152,21 +155,29 @@ export const ecommerceRouter = createTRPCRouter({
           }),
         )
         .query(async ({ input: { filters, pageData } }) => {
-          const products = await deepSearchProducts(filters, pageData);
-          return products;
+          return await deepSearchProducts(filters, pageData);
         }),
-      get: protectedProcedure
-        .input(ProductIdentifier)
+      /**
+       * @deprecated Will be replaced in the v2 router
+       */
+      get: publicProcedure
+        .input(ProductSearchIdentifier)
         .query(async ({ input }) => {
           return await apiGetProduct(input);
         }),
-      getMany: protectedProcedure
+      /**
+       * @deprecated Will be replaced in the v2 router
+       */
+      getMany: publicProcedure
         .input(ProductIdentifiers)
         .query(async ({ input }) => {
           return await apiGetProducts(input);
         }),
     },
   },
+  /**
+   * @deprecated Do not store products in the database. Prefer to fetch the API
+   */
   db: {
     products: {
       update: protectedProcedure

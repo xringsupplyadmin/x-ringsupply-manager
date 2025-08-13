@@ -1,6 +1,5 @@
 import { klaviyo } from "../../../klaviyo";
-import { getProduct } from "../../coreforce/products_api";
-import { type CoreforceOrder, productImageUrl } from "../../types/coreforce";
+import { getProduct } from "../../coreforce/cf-products-api";
 import {
   AbandonedCheckoutApiEvent,
   type AbandonedCheckoutEvent,
@@ -11,6 +10,8 @@ import {
   type OrderPlacedEvent,
 } from "../../types/klaviyo";
 import { buildEvent } from "~/server/api/v2/klaviyo/events/event_builder";
+import { productImageUrl } from "~/server/api/v2/coreforce/types/products";
+import { CoreforceOrder } from "~/server/api/v2/coreforce/types/orders";
 
 export async function sendAbandonedCheckoutEvent(
   event: AbandonedCheckoutEvent,

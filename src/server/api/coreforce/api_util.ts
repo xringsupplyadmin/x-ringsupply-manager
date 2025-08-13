@@ -13,6 +13,7 @@ import type { ApiProduct, ProductChangeData } from "./types";
  * @param allowNull Do not filter null
  * @param allowEmpty Do not filter empty string
  * @return The same object for convenience
+ * @deprecated Use the V2 API instead
  */
 export function filterUndefined<T extends object>(
   obj: T,
@@ -41,6 +42,9 @@ const ApiResponse = z
   })
   .or(z.object({ result: z.literal("ERROR"), error_message: z.string() }));
 
+/**
+ * @deprecated Use the V2 API instead
+ */
 export async function makeApiRequest(
   action: string,
   params?: object,
@@ -67,8 +71,8 @@ export async function makeApiRequest(
  * @param parser The Zod parser to extract the data
  * @returns The parsed data
  * @throws {Error} If the response is not valid or an API error occurred
+ * @deprecated Use the V2 API instead
  */
-
 export async function parseApiResponse<Shape, Parser extends ZodType<Shape>>(
   response: Response,
   parser: Parser,
@@ -91,10 +95,16 @@ export async function parseApiResponse<Shape, Parser extends ZodType<Shape>>(
   }
 }
 
+/**
+ * @deprecated Use the V2 API instead
+ */
 export function getArrayQueryString(array?: number[]) {
   return array ? array.join(",") : undefined;
 }
 
+/**
+ * @deprecated Use the V2 API instead
+ */
 export function getProductChangeData(product: ApiProduct): ProductChangeData {
   return filterUndefined({
     product_code: product.code,

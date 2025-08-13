@@ -1,6 +1,9 @@
-import { z } from "zod";
-import { makeApiRequest, parseApiResponse } from "../../coreforce/api_util";
-import { CoreforceOrder, type OrderStatusCode } from "../types/coreforce";
+import { z } from "zod/v4";
+import { makeApiRequest, parseApiResponse } from "./cf-api-util";
+import {
+  CoreforceOrder,
+  type OrderStatusCode,
+} from "~/server/api/v2/coreforce/types/orders";
 
 export async function getOrderIds(filter: {
   since: Date;

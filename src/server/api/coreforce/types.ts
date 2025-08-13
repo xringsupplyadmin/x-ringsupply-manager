@@ -90,17 +90,17 @@ export const ProductResult = z.object({
   upc_code: optApiString,
   link_name: optApiString,
   product_manufacturer_id: optApiNumber,
-  product_category_ids: idListString,
-  product_tag_ids: idListString,
+  product_category_ids: idListString, // product_category_codes
+  product_tag_ids: idListString, // product_tag_codes
   base_cost: optApiNumberString,
   list_price: optApiNumberString,
   manufacturer_advertised_price: optApiNumberString,
-  image_url: z.string().url().optional(),
+  image_url: z.string().url().optional(), // image_id
   alternate_image_urls: z
     .object({
       url: z.string().url(),
     })
-    .array(),
+    .array(), // alternate_images
   /* Data used for display */
   image_id: optApiNumber,
   date_created: z.coerce.date(),
