@@ -14,6 +14,7 @@ export const VerticalSeparator = React.forwardRef<
     ref={ref}
   />
 ));
+VerticalSeparator.displayName = "VerticalSeparator";
 
 export const HorizontalSeparator = React.forwardRef<
   HTMLDivElement,
@@ -28,3 +29,4 @@ export const HorizontalSeparator = React.forwardRef<
     ref={ref}
   />
 ));
+HorizontalSeparator.displayName = "HorizontalSeparator";
