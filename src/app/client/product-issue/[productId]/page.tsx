@@ -29,11 +29,15 @@ export default async function ProductIssuePage({
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-4">
       <PageTitle>Product Issue Reporting</PageTitle>
-      <div className={"flex flex-1 flex-row flex-wrap gap-6"}>
-        <div className={"min-w-96 flex-1"}>
+      <div className={"flex flex-1 flex-row flex-wrap gap-6 md:flex-nowrap"}>
+        <div className={"flex-1 basis-full md:max-w-[40rem]"}>
           <ProductCard product={product} extraInformation={extraInformation} />
         </div>
-        <div className={"min-w-96 flex-1"}>
+        <div
+          className={
+            "order-first flex-1 basis-full md:order-last md:max-w-[40rem]"
+          }
+        >
           <ProductIssueForm
             product={product}
             extraInformation={extraInformation}

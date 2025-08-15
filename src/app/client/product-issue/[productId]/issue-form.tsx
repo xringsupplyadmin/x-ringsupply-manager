@@ -13,7 +13,6 @@ import {
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
 import { useState } from "react";
-import z from "zod";
 import { Label } from "~/components/ui/label";
 import { RequiredFieldsIntro } from "~/components/form-components";
 import {
@@ -21,64 +20,39 @@ import {
   type ProductExtraInformation,
 } from "~/server/api/v2/coreforce/types/products";
 import { US_StateMap } from "~/server/api/v2/types/geography";
-
-const IssueTypes = [
-  "DESCRIPTION",
-  "TITLE",
-  "IMAGE",
-  "STATE_RESTRICTION",
-  "OTHER",
-] as const;
-type IssueType = (typeof IssueTypes)[number];
+import {
+  isExtraRequired,
+  isIssueType,
+  IssueType,
+  ProductIssue,
+} from "~/server/api/v2/coreforce/types/issue-reporting";
+import { api } from "~/trpc/react";
+import { Spinner } from "~/components/spinner";
 
 const IssueDescriptions: Record<IssueType, string> = {
-  DESCRIPTION: "Missing/Inaccurate Product Description",
-  TITLE: "Inaccurate/Ambiguous Product Title",
-  IMAGE: "Missing/Inaccurate Product Image",
-  STATE_RESTRICTION: "Incorrect State Restriction",
-  OTHER: "Other Issue",
+  Description: "Missing/Inaccurate Product Description",
+  Title: "Inaccurate/Ambiguous Product Title",
+  Image: "Missing/Inaccurate Product Image",
+  StateRestriction: "Incorrect State Restriction",
+  Other: "Other Issue",
 } as const;
 
 const IssueExtraTitle: Record<IssueType, string> = {
-  DESCRIPTION: "What is missing or inaccurate in the product description?",
-  TITLE: "What is inaccurate or ambiguous in the product title?",
-  IMAGE: "What is missing or inaccurate in the product image?",
-  STATE_RESTRICTION: "What is incorrect about the state restriction?",
-  OTHER: "Please describe the issue in detail.",
+  Description: "What is missing or inaccurate in the product description?",
+  Title: "What is inaccurate or ambiguous in the product title?",
+  Image: "What is missing or inaccurate in the product image?",
+  StateRestriction: "What is incorrect about the state restriction?",
+  Other: "Please describe the issue in detail.",
 } as const;
-
-function getIssueExtraTitle(issueType: string): string {
-  const index = IssueTypes.includes(issueType as IssueType)
-    ? (issueType as IssueType)
-    : "OTHER";
-  const required = index === "OTHER" || index === "STATE_RESTRICTION";
-  return `${IssueExtraTitle[index]} ${required ? "(required)" : "(optional)"}`;
-}
-
-const ProductIssueInput = z
-  .object({
-    productId: z.number(),
-    issueType: z.enum(IssueTypes, { message: "Please select an issue type" }),
-    email: z
-      .string()
-      .email("Please enter a valid email address")
-      .or(z.literal("")),
-    stateRestriction: z.string().array(),
-    extra: z.string(),
-  })
-  .refine(
-    (o) =>
-      (o.issueType !== "OTHER" && o.issueType !== "STATE_RESTRICTION") ||
-      o.extra.length > 0,
-    {
-      message: "Please provide details for the issue",
-      path: ["extra"],
-    },
-  );
 
 const StateOptions = Object.entries(US_StateMap).map(([key, value]) => ({
   label: value,
   value: key,
+}));
+
+const IssueTypeOptions = IssueType.options.map((n) => ({
+  label: IssueDescriptions[n],
+  value: n,
 }));
 
 export function ProductIssueForm({
@@ -92,20 +66,38 @@ export function ProductIssueForm({
 }) {
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [reportId, setReportId] = useState("");
+  const { mutate: createReport, isPending } =
+    api.v2.coreforce.issueReporting.create.useMutation();
   const form = useAppForm({
     defaultValues: {
       productId: product.product_id,
-      issueType: "",
+      issueType: "" as IssueType,
       email: "",
-      stateRestriction: [] as string[],
+      stateRestrictionCurrent: extraInformation.restricted_states,
+      stateRestrictionUpdated: extraInformation.restricted_states,
       extra: "",
-    },
+    } as ProductIssue,
     validators: {
-      onChange: ProductIssueInput,
+      onChange: ProductIssue,
     },
-    onSubmit: ({ value }) => {
+    onSubmit: async ({ value }) => {
       console.log(value);
-      setDialogOpen(true);
+      createReport(value, {
+        onSuccess(data) {
+          setReportId(data.id);
+          setDialogOpen(true);
+        },
+        onError(err) {
+          console.error(err);
+          toast({
+            title: "Something went wrong",
+            description:
+              "There was an error submitting your report. Please try again later or contact an administrator.",
+            variant: "destructive",
+          });
+        },
+      });
     },
   });
 
@@ -126,7 +118,7 @@ export function ProductIssueForm({
           </AlertDialogHeader>
           <AlertDialogFooter className={"items-center gap-2"}>
             <p className={"text-sm italic text-muted-foreground"}>
-              Report ID 000000
+              Report ID {reportId}
             </p>
             <div className={"flex-grow basis-0"} />
             <AlertDialogAction onClick={() => setDialogOpen(false)}>
@@ -149,10 +141,7 @@ export function ProductIssueForm({
               required
               label={"Issue Type"}
               placeholder={"Select an issue type"}
-              options={IssueTypes.map((n) => ({
-                label: IssueDescriptions[n],
-                value: n,
-              }))}
+              options={IssueTypeOptions}
             />
           )}
         </form.AppField>
@@ -174,14 +163,13 @@ export function ProductIssueForm({
         <form.Subscribe selector={(state) => state.values.issueType}>
           {(issueType) => (
             <>
-              {issueType === "STATE_RESTRICTION" && (
-                <form.AppField name={"stateRestriction"}>
+              {issueType === "StateRestriction" && (
+                <form.AppField name={"stateRestrictionUpdated"}>
                   {(field) => (
                     <>
                       <field.MultiSelectField
                         label={"Select states where this product is restricted"}
                         placeholder={"Select states"}
-                        defaultValue={extraInformation.restricted_states}
                         options={StateOptions}
                       />
                       <Label className={"text-muted-foreground"}>
@@ -195,11 +183,13 @@ export function ProductIssueForm({
               <form.AppField name={"extra"}>
                 {(field) => (
                   <field.TextareaField
-                    required={
-                      issueType === "OTHER" || issueType === "STATE_RESTRICTION"
-                    }
+                    required={isExtraRequired(issueType)}
                     label={"Additional Information"}
-                    placeholder={getIssueExtraTitle(issueType)}
+                    placeholder={
+                      IssueExtraTitle[
+                        isIssueType(issueType) ? issueType : "Other"
+                      ]
+                    }
                   />
                 )}
               </form.AppField>
@@ -207,7 +197,9 @@ export function ProductIssueForm({
           )}
         </form.Subscribe>
         <form.AppForm>
-          <form.SubmitButton>Submit Issue</form.SubmitButton>
+          <form.SubmitButton disabled={isPending}>
+            {isPending ? <Spinner /> : "Submit Issue"}
+          </form.SubmitButton>
         </form.AppForm>
       </form>
     </>

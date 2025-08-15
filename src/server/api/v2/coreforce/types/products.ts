@@ -64,20 +64,22 @@ export const productImageUrl = safeUrl(
 
 export const ProductExtraInformation = z.object({
   // api contains duplicates for some reason so we need to make a set to filter them out
-  restricted_states: z
-    .string()
-    .transform((restrictions) => [...new Set(restrictions.split(","))]),
-  product_facets: z.string().transform((facets) =>
-    Object.fromEntries(
-      facets
-        .split("||||")
-        .map((facet): [string, string] | undefined => {
-          const [one, two] = facet.split("||");
-          if (!one || !two) return undefined; // invalid facet
-          return [one, two];
-        })
-        .filter((facet) => !!facet), // strip invalid facets
-    ),
+  restricted_states: optString.transform((restrictions) =>
+    restrictions ? [...new Set(restrictions.split(","))] : [],
+  ),
+  product_facets: optString.transform((facets) =>
+    facets
+      ? Object.fromEntries(
+          facets
+            .split("||||")
+            .map((facet): [string, string] | undefined => {
+              const [one, two] = facet.split("||");
+              if (!one || !two) return undefined; // invalid facet
+              return [one, two];
+            })
+            .filter((facet) => !!facet), // strip invalid facets
+        )
+      : {},
   ),
   product_manufacturer_code: optString,
   product_category_codes: optString.transform((codes) => codes?.split(",")),

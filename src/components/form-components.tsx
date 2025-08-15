@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
-import { MultiSelect, MultiSelectProps } from "~/components/ui/multi-select";
+import { MultiSelect } from "~/components/ui/multi-select";
 
 export const SubmitButton = React.forwardRef<
   HTMLButtonElement,
@@ -251,22 +251,37 @@ export const SelectField = React.forwardRef<
 SelectField.displayName = "SelectField";
 
 export const MultiSelectField = React.forwardRef<
-  HTMLButtonElement,
-  Omit<MultiSelectProps, "onValueChange"> & {
-    label?: string;
-    labelClassName?: string;
-    wrapperClassName?: string;
-  }
->(({ label, labelClassName, wrapperClassName, ...props }, ref) => {
+  React.ElementRef<typeof MultiSelect>,
+  Omit<
+    React.ComponentPropsWithoutRef<typeof MultiSelect>,
+    "defaultValue" | "onValueChange"
+  > &
+    FieldProps
+>(({ required, label, labelClassName, wrapperClassName, ...props }, ref) => {
   const field = useFieldContext<string[]>();
+  const values = field.state.value.filter((v) =>
+    props.options.some((o) => o.value === v),
+  );
+  if (values.length !== field.state.value.length) {
+    console.warn("Invalid selection for MultiSelect!", field.state.value);
+  }
   return (
     <div className={wrapperClassName}>
       {label && (
-        <FormLabel className={labelClassName} htmlFor={props.id}>
+        <FormLabel
+          className={labelClassName}
+          htmlFor={props.id}
+          required={required}
+        >
           {label}
         </FormLabel>
       )}
-      <MultiSelect onValueChange={field.handleChange} ref={ref} {...props} />
+      <MultiSelect
+        defaultValue={values}
+        onValueChange={field.handleChange}
+        ref={ref}
+        {...props}
+      />
       <ErrorDisplay />
     </div>
   );

@@ -1,0 +1,11 @@
+module coreforce {
+	scalar type IssueType extending enum<Description, Title, Image, StateRestriction, Other>;
+	type ProductIssue {
+		required productId: int64;
+		required issueType: IssueType;
+		email: str;
+		stateRestrictionCurrent: array<str>;
+		stateRestrictionUpdated: array<str>;
+		extra: str;
+	}
+}
