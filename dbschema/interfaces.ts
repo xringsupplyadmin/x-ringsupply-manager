@@ -202,7 +202,8 @@ export namespace coreforce {
     "extra"?: string | null;
     "issueType": IssueType;
     "productId": number;
-    "stateRestriction"?: string[] | null;
+    "stateRestrictionCurrent"?: string[] | null;
+    "stateRestrictionUpdated"?: string[] | null;
   }
 }
 export namespace $default {

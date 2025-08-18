@@ -53,3 +53,8 @@ export const US_StateMap = {
   WI: "Wisconsin",
   WY: "Wyoming",
 } as const;
+
+export function getStateName(state: string) {
+  const stateName = US_StateMap[state as keyof typeof US_StateMap];
+  return stateName ? stateName : state;
+}

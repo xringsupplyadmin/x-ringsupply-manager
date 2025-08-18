@@ -87,6 +87,19 @@ export const ProductExtraInformation = z.object({
 });
 export type ProductExtraInformation = z.infer<typeof ProductExtraInformation>;
 
+export const ProductFacet = z.object({
+  product_facet_id: z.number(),
+  description: z.string(),
+  facet_value: z.string(),
+});
+export type ProductFacet = z.infer<typeof ProductFacet>;
+
+export const ProductTag = z.object({
+  product_tag_id: z.number(),
+  description: z.string(),
+});
+export type ProductTag = z.infer<typeof ProductTag>;
+
 export const CoreforceProduct = z
   .object({
     product_id: z.number(),
@@ -110,6 +123,8 @@ export const CoreforceProduct = z
         })
         .transform(({ url }) => url),
     ),
+    product_facets: ProductFacet.array(),
+    product_tags: ProductTag.array(),
   })
   .transform((o) => ({
     ...o,

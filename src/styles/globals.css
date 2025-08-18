@@ -89,9 +89,23 @@
 }
 
 @layer utilities {
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .mini-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--primary)) hsl(var(--accent));
-  }
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: hsl(var(--primary)) #ffffff00;
+    }
+
+    /* Chrome, Edge, and Safari */
+    *::-webkit-scrollbar {
+        width: 16px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: #ffffff00;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: hsl(var(--primary));
+        border-radius: 10px;
+        border: 3px solid hsl(var(--accent));
+    }
 }

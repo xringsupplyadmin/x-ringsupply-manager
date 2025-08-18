@@ -31,7 +31,7 @@ export default async function ProductIssuePage({
       <PageTitle>Product Issue Reporting</PageTitle>
       <div className={"flex flex-1 flex-row flex-wrap gap-6 md:flex-nowrap"}>
         <div className={"flex-1 basis-full md:max-w-[40rem]"}>
-          <ProductCard product={product} extraInformation={extraInformation} />
+          <ProductCard product={product} extra={extraInformation} />
         </div>
         <div
           className={
