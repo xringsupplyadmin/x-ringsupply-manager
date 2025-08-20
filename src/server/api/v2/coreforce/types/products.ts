@@ -64,26 +64,41 @@ export const productImageUrl = safeUrl(
 
 export const ProductExtraInformation = z.object({
   // api contains duplicates for some reason so we need to make a set to filter them out
-  restricted_states: z
-    .string()
-    .transform((restrictions) => [...new Set(restrictions.split(","))]),
-  product_facets: z.string().transform((facets) =>
-    Object.fromEntries(
-      facets
-        .split("||||")
-        .map((facet): [string, string] | undefined => {
-          const [one, two] = facet.split("||");
-          if (!one || !two) return undefined; // invalid facet
-          return [one, two];
-        })
-        .filter((facet) => !!facet), // strip invalid facets
-    ),
+  restricted_states: optString.transform((restrictions) =>
+    restrictions ? [...new Set(restrictions.split(","))] : [],
+  ),
+  product_facets: optString.transform((facets) =>
+    facets
+      ? Object.fromEntries(
+          facets
+            .split("||||")
+            .map((facet): [string, string] | undefined => {
+              const [one, two] = facet.split("||");
+              if (!one || !two) return undefined; // invalid facet
+              return [one, two];
+            })
+            .filter((facet) => !!facet), // strip invalid facets
+        )
+      : {},
   ),
   product_manufacturer_code: optString,
   product_category_codes: optString.transform((codes) => codes?.split(",")),
   product_tag_codes: optString.transform((codes) => codes?.split(",")),
 });
 export type ProductExtraInformation = z.infer<typeof ProductExtraInformation>;
+
+export const ProductFacet = z.object({
+  product_facet_id: z.number(),
+  description: z.string(),
+  facet_value: z.string(),
+});
+export type ProductFacet = z.infer<typeof ProductFacet>;
+
+export const ProductTag = z.object({
+  product_tag_id: z.number(),
+  description: z.string(),
+});
+export type ProductTag = z.infer<typeof ProductTag>;
 
 export const CoreforceProduct = z
   .object({
@@ -108,6 +123,8 @@ export const CoreforceProduct = z
         })
         .transform(({ url }) => url),
     ),
+    product_facets: ProductFacet.array(),
+    product_tags: ProductTag.array(),
   })
   .transform((o) => ({
     ...o,

@@ -9,6 +9,8 @@ import {
   getProductExtraInformation,
   getProducts,
 } from "../coreforce/cf-products-api";
+import { ProductIssue } from "~/server/api/v2/coreforce/types/issue-reporting";
+import { createIssueReport } from "~/server/api/v2/coreforce/cf-issue-reporting";
 
 export const coreforceRouter = createTRPCRouter({
   products: {
@@ -29,6 +31,11 @@ export const coreforceRouter = createTRPCRouter({
       }),
     search: publicProcedure.query(async () => {
       throw new Error("Not implemented");
+    }),
+  },
+  issueReporting: {
+    create: publicProcedure.input(ProductIssue).mutation(async ({ input }) => {
+      return await createIssueReport(input);
     }),
   },
 });

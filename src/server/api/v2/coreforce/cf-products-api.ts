@@ -14,7 +14,6 @@ import {
   type ProductSearchIdentifier,
   type ProductSearchIdentifiers,
 } from "./types/products";
-import { ProductResult } from "~/server/api/coreforce/types";
 
 export async function getProduct(identifier: ProductSearchIdentifier) {
   const response = await makeApiRequest("get_product", identifier);
@@ -67,8 +66,6 @@ export async function getProductExtraInformation(
       },
     ),
   );
-
-  console.log(result);
 
   return result.product_information;
 }
@@ -130,7 +127,7 @@ export async function searchProducts(
   const result = await parseApiResponse(
     response,
     z.object({
-      results: ProductResult.array(),
+      results: CoreforceProduct.array(),
       result_count: z.number(),
     }),
   );
