@@ -8,5 +8,4 @@ module coreforce {
 		stateRestrictionUpdated: array<str>;
 		extra: str;
 	}
-	# force change from branch sync
 }
