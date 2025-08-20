@@ -1,9 +1,7 @@
 "use client";
 
-import parse, { Element } from "html-react-parser";
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { Alert } from "~/components/ui/alert";
 import {
   Card,
   CardContent,
@@ -18,6 +16,7 @@ import { Heading } from "~/components/headings";
 import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 import { getStateName } from "~/server/api/v2/types/geography";
 import { HorizontalSeparator } from "~/components/separator";
+import { parseExternalHtml } from "~/lib/external-html";
 
 export function ProductCard<Product extends CoreforceProduct>({
   product,
@@ -38,9 +37,10 @@ export function ProductCard<Product extends CoreforceProduct>({
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-4">
         <div
-          className={
-            "flex flex-row items-center justify-center gap-4 overflow-x-scroll"
-          }
+          className={"flex flex-row items-center gap-4 overflow-x-scroll"}
+          style={{
+            justifyContent: "safe center", // todo: replace with tailwind class when updated to v4
+          }}
         >
           {product.image_urls.map((url, index) => (
             <Image
@@ -56,33 +56,21 @@ export function ProductCard<Product extends CoreforceProduct>({
         </div>
         <Heading className={"text-center"}>Description</Heading>
         <div className="max-h-64 flex-initial overflow-y-scroll">
-          {product.detailed_description &&
-            parse(product.detailed_description, {
-              replace: (domNode) => {
-                if (domNode instanceof Element) {
-                  if (domNode.tagName === "script") {
-                    return (
-                      <Alert variant="destructive">
-                        Illegal script tag in item description!
-                      </Alert>
-                    );
-                  }
-                  if (domNode.tagName === "style") {
-                    return (
-                      <Alert variant="default">
-                        Illegal style tag in item description!
-                      </Alert>
-                    );
-                  }
-                }
-              },
-            })}
+          {product.detailed_description.trim() === "" ? (
+            <p>No description available</p>
+          ) : (
+            parseExternalHtml(product.detailed_description)
+          )}
         </div>
         <HorizontalSeparator />
         {extra && extra.restricted_states.length > 0 && (
-          <div className={"flex flex-row gap-4"}>
+          <div
+            className={
+              "flex flex-row flex-wrap items-center justify-start gap-4"
+            }
+          >
             <Heading className={"flex-none"}>Sale not allowed in</Heading>
-            <p className={"flex-auto"}>
+            <p className={"min-w-32 flex-auto basis-0"}>
               {extra.restricted_states
                 .map((state) => getStateName(state))
                 .join(", ")}

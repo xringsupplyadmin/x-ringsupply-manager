@@ -219,6 +219,9 @@ importers:
       eslint-plugin-react-hooks:
         specifier: ^5.2.0
         version: 5.2.0(eslint@9.28.0(jiti@2.4.2))
+      html-dom-parser:
+        specifier: ^5.1.1
+        version: 5.1.1
       postcss:
         specifier: ^8.5.4
         version: 8.5.4
@@ -3051,8 +3054,8 @@ packages:
     peerDependencies:
       next: '>=13.2.0'
 
-  gel@2.1.0:
-    resolution: {integrity: sha512-HCeRqInCt6BjbMmeghJ6BKeYwOj7WJT5Db6IWWAA3IMUUa7or7zJfTUEkUWCxiOtoXnwnm96sFK9Fr47Yh2hOA==}
+  gel@2.1.1:
+    resolution: {integrity: sha512-Newg9X7mRYskoBjSw70l1YnJ/ZGbq64VPyR821H5WVkTGpHG2O0mQILxCeUhxdYERLFY9B4tUyKLyf3uMTjtKw==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
 
@@ -7212,7 +7215,7 @@ snapshots:
 
   edgedb@2.0.1:
     dependencies:
-      gel: 2.1.0
+      gel: 2.1.1
     transitivePeerDependencies:
       - supports-color
 
@@ -7703,7 +7706,7 @@ snapshots:
     dependencies:
       next: 15.3.3(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1)
 
-  gel@2.1.0:
+  gel@2.1.1:
     dependencies:
       '@petamoriken/float16': 3.9.2
       debug: 4.4.1
